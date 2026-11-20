@@ -68,6 +68,8 @@ const STORAGE_KEYS = {
  * Asynchronously synchronizes all admin collections from the live backend MongoDB API.
  */
 export async function syncAdminDataFromApi() {
+  let ordersSyncError = null;
+  let analyticsSyncError = null;
   try {
     const [dealersRes, prodsRes, ordersRes, catsRes, locsRes, setsRes, complsRes, logsRes, settingsRes, usersRes, paymentsRes, inventoryRes, overviewRes] =
       await Promise.allSettled([
@@ -113,18 +115,44 @@ export async function syncAdminDataFromApi() {
     }
 
     if (ordersRes.status === 'fulfilled') {
-      const orders = ordersRes.value?.orders || (Array.isArray(ordersRes.value) ? ordersRes.value : []);
-      if (orders.length > 0) {
-        saveAdminOrders(orders.map((o) => ({
-          ...o,
-          id: o.orderNumber || o.id,
-          amount: o.pricing?.total || o.amount,
-          amountFormatted: `₹${Number(o.pricing?.total || o.amount || 0).toLocaleString('en-IN')}`,
-          orderStatus: o.orderStatus,
-          paymentStatus: o.payment?.status === 'Completed' ? 'Paid' : 'Pending',
-          date: o.createdAt
-        })));
+      const orders = ordersRes.value?.data?.orders || ordersRes.value?.orders ||
+        (Array.isArray(ordersRes.value?.data) ? ordersRes.value.data : null) ||
+        (Array.isArray(ordersRes.value) ? ordersRes.value : []);
+      if (Array.isArray(orders)) {
+        saveAdminOrders(orders.map((order) => {
+          const shipping = order.shippingAddress || {};
+          const customerSnapshot = order.customerSnapshot || {};
+          const dealers = Array.isArray(order.dealers) ? order.dealers : [];
+          const total = Number(order.pricing?.total ?? order.amount ?? 0);
+          return {
+            ...order,
+            id: String(order.orderNumber || order.id || order._id || ''),
+            amount: total,
+            amountFormatted: `₹${total.toLocaleString('en-IN')}`,
+            customer: {
+              ...(order.customer || {}),
+              name: customerSnapshot.name || order.customer?.name || 'Customer',
+              email: customerSnapshot.email || order.customer?.email || '',
+              phone: shipping.mobile || customerSnapshot.phone || order.customer?.phone || '',
+              city: shipping.city || customerSnapshot.city || '',
+              state: shipping.state || customerSnapshot.state || '',
+              address: [shipping.house, shipping.street, shipping.landmark, shipping.city, shipping.state, shipping.pincode]
+                .filter(Boolean).join(', ')
+            },
+            dealerName: dealers.map((dealer) => dealer.businessName).filter(Boolean).join(', ') || order.dealerName || '—',
+            paymentMethod: order.payment?.methodLabel || order.payment?.method || '—',
+            paymentStatus: order.payment?.status === 'Completed' ? 'Paid' : order.payment?.status || 'Pending',
+            items: (order.items || []).map((item) => ({ ...item, quantity: Number(item.quantity || 0) })),
+            orderStatus: order.orderStatus || 'Unknown',
+            date: order.createdAt || order.date || ''
+          };
+        }));
       }
+    } else {
+      ordersSyncError = ordersRes.reason?.message || 'Could not load orders from the server.';
+    }
+    if (overviewRes.status === 'rejected') {
+      analyticsSyncError = overviewRes.reason?.message || 'Could not load sales analytics from the server.';
     }
 
     if (catsRes.status === 'fulfilled') {
@@ -239,6 +267,38 @@ export async function syncAdminDataFromApi() {
       const overview = overviewRes.value?.data || overviewRes.value || {};
       const k = overview.kpis || {};
       const money = (value) => `₹${Number(value || 0).toLocaleString('en-IN')}`;
+      const categoryRows = overview.categoryDistribution || overview.categoryBreakdown || [];
+      const categoryRevenueTotal = categoryRows.reduce((sum, row) => sum + Number(row.revenue || row.amount || 0), 0);
+      const categoryColors = ['bg-[#012D1D]', 'bg-[#2C694E]', 'bg-[#AEEECB]', 'bg-[#6B9B78]', 'bg-[#B9C8A8]'];
+      const categoryBreakdown = categoryRows.map((row, index) => {
+        const revenue = Number(row.revenue || row.amount || 0);
+        return {
+          category: row.category || row.name || 'Other',
+          revenue: money(revenue),
+          sharePercent: categoryRevenueTotal ? Math.round((revenue / categoryRevenueTotal) * 100) : 0,
+          orders: Number(row.orders || 0),
+          color: categoryColors[index % categoryColors.length]
+        };
+      });
+      const dealerRows = overview.dealerPerformance || overview.dealerSalesRanking || [];
+      const dealerRevenueTotal = dealerRows.reduce((sum, row) => sum + Number(row.grossRevenue ?? row.revenue ?? 0), 0);
+      const dealerSalesRanking = dealerRows
+        .map((row) => {
+          const revenue = Number(row.grossRevenue ?? row.revenue ?? 0);
+          return {
+            dealerName: row.name || row.dealerName || 'Dealer',
+            orders: Number(row.totalOrders ?? row.orders ?? 0),
+            revenue: money(revenue),
+            sharePercent: dealerRevenueTotal ? Math.round((revenue / dealerRevenueTotal) * 100) : 0
+          };
+        })
+        .sort((a, b) => Number(b.revenue.replace(/[^\d.-]/g, '')) - Number(a.revenue.replace(/[^\d.-]/g, '')));
+      const normalizeTrend = (rows = []) => rows.map((row) => ({
+        ...row,
+        revenue: Number(row.revenue || 0),
+        displayRev: money(row.revenue),
+        orders: Number(row.orders || 0)
+      }));
       const summarize = (rows = []) => {
         const orders = rows.reduce((sum, row) => sum + Number(row.orders || 0), 0);
         const revenue = rows.reduce((sum, row) => sum + Number(row.revenue || 0), 0);
@@ -281,14 +341,25 @@ export async function syncAdminDataFromApi() {
           totalGmv: money(k.grossGMV), growthPercent: '—', totalOrders: k.totalOrders || 0,
           avgOrderValue: money(k.avgOrderValue), commissionEarned: money(k.commissionEarned)
         },
-        dailyTrend: daily.map((row) => ({ ...row, displayRev: money(row.revenue) })),
-        weeklyTrend: (overview.weeklyTrend || []).map((row) => ({ ...row, displayRev: money(row.revenue) })),
-        monthlyTrend: monthly.map((row) => ({ ...row, displayRev: money(row.revenue) })),
-        topProducts: overview.topProducts || []
+        dailyTrend: normalizeTrend(overview.dailyTrend || []),
+        weeklyTrend: normalizeTrend(overview.weeklyTrend || []),
+        monthlyTrend: normalizeTrend(monthly),
+        topProducts: (overview.topProducts || []).map((product) => ({
+          ...product,
+          unitsSold: Number(product.totalSales || product.unitsSold || 0),
+          revenue: money(product.revenue)
+        })),
+        categoryBreakdown,
+        dealerSalesRanking
       }));
     }
+    return { ordersError: ordersSyncError, analyticsError: analyticsSyncError };
   } catch (err) {
     console.warn('Backend admin sync warning:', err.message);
+    return {
+      ordersError: ordersSyncError || err.message || 'Could not load admin data.',
+      analyticsError: analyticsSyncError || err.message || 'Could not load admin data.'
+    };
   }
 }
 
@@ -964,10 +1035,23 @@ export function getAdminAnalytics(period = 'monthly') {
     const stored = localStorage.getItem(STORAGE_KEYS.ANALYTICS_DATA);
     if (stored) {
       const parsed = JSON.parse(stored);
-      if (parsed && parsed.kpis) return parsed;
+      if (parsed && parsed.kpis) {
+        return {
+          ...parsed,
+          dailyTrend: Array.isArray(parsed.dailyTrend) ? parsed.dailyTrend : [],
+          weeklyTrend: Array.isArray(parsed.weeklyTrend) ? parsed.weeklyTrend : [],
+          monthlyTrend: Array.isArray(parsed.monthlyTrend) ? parsed.monthlyTrend : [],
+          topProducts: Array.isArray(parsed.topProducts) ? parsed.topProducts : [],
+          categoryBreakdown: Array.isArray(parsed.categoryBreakdown) ? parsed.categoryBreakdown : [],
+          dealerSalesRanking: Array.isArray(parsed.dealerSalesRanking) ? parsed.dealerSalesRanking : []
+        };
+      }
     }
   } catch {}
-  return { kpis: { totalGmv: '₹0', growthPercent: '—', totalOrders: 0, avgOrderValue: '₹0', commissionEarned: '₹0' }, dailyTrend: [], weeklyTrend: [], monthlyTrend: [], topProducts: [] };
+  return {
+    kpis: { totalGmv: '₹0', growthPercent: '—', totalOrders: 0, avgOrderValue: '₹0', commissionEarned: '₹0' },
+    dailyTrend: [], weeklyTrend: [], monthlyTrend: [], topProducts: [], categoryBreakdown: [], dealerSalesRanking: []
+  };
 }
 
 // ==========================================

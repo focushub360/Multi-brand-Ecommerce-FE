@@ -103,6 +103,7 @@ async function request(endpoint, options = {}) {
 
   const config = {
     ...options,
+    cache: options.cache || 'no-store',
     headers,
     credentials: 'include' // allows refresh token cookies
   };

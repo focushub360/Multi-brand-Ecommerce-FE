@@ -261,6 +261,7 @@ export default function AdminProductsPage() {
               <option value="Agriculture & Farming">Agriculture & Farming</option>
               <option value="Electronics & Gadgets">Electronics & Gadgets</option>
               <option value="Automotive & Spare Parts">Automotive & Spare Parts</option>
+              <option value="Grocery & Staples">Grocery & Staples</option>
             </select>
 
             <select

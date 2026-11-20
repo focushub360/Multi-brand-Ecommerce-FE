@@ -20,6 +20,8 @@ export default function AdminOrdersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [dealerFilter, setDealerFilter] = useState('All');
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
   // Detail Modal & Action
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -34,9 +36,18 @@ export default function AdminOrdersPage() {
     document.title = 'Order Management | GROVE Admin';
     window.scrollTo(0, 0);
     loadData();
-    syncAdminDataFromApi().then(() => {
+    let isMounted = true;
+    syncAdminDataFromApi().then((result) => {
+      if (!isMounted) return;
       loadData();
-    }).catch(() => {});
+      setLoadError(result?.ordersError || '');
+    }).catch((error) => {
+      if (!isMounted) return;
+      setLoadError(error.message || 'Could not load orders. Please try again.');
+    }).finally(() => {
+      if (isMounted) setIsLoading(false);
+    });
+    return () => { isMounted = false; };
   }, []);
 
   const kpis = useMemo(() => {
@@ -69,12 +80,8 @@ export default function AdminOrdersPage() {
   const filteredOrders = useMemo(() => {
     return orders.filter((o) => {
       const q = searchQuery.toLowerCase().trim();
-      const matchSearch =
-        !q ||
-        o.id.toLowerCase().includes(q) ||
-        (o.customer?.name && o.customer.name.toLowerCase().includes(q)) ||
-        (o.customer?.city && o.customer.city.toLowerCase().includes(q)) ||
-        o.dealerName.toLowerCase().includes(q);
+      const searchableFields = [o.id, o.customer?.name, o.customer?.city, o.dealerName];
+      const matchSearch = !q || searchableFields.some((value) => String(value || '').toLowerCase().includes(q));
 
       const matchStatus = statusFilter === 'All' || o.orderStatus === statusFilter;
       const matchDealer = dealerFilter === 'All' || o.dealerName === dealerFilter;
@@ -122,6 +129,12 @@ export default function AdminOrdersPage() {
         badge={`${orders.length} Platform Orders`}
         breadcrumbs={[{ label: 'Orders' }]}
       />
+
+      {loadError && (
+        <div role="alert" className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Orders could not be refreshed: {loadError}
+        </div>
+      )}
 
       {/* 1. Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3.5">
@@ -233,7 +246,7 @@ export default function AdminOrdersPage() {
               {filteredOrders.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="py-10 text-center text-[#717973]">
-                    No orders found matching filter criteria.
+                    {isLoading ? 'Loading orders…' : loadError ? 'Orders are unavailable until the server/database connection is restored.' : 'No orders found matching filter criteria.'}
                   </td>
                 </tr>
               ) : (
