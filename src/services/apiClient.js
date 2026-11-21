@@ -8,7 +8,7 @@
  * ==============================================================================
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
+const API_BASE_URL = import.meta.env.API_URL || '/api/v1';
 
 // Unified token storage keys
 export const TOKEN_STORAGE_KEY = 'grove_auth_token';
