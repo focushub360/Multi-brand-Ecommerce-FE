@@ -38,7 +38,11 @@ function normalizeProduct(p, dealerId) {
     _id: id,
     name: p.name || 'Unnamed Product',
     sku: p.sku || `SKU-${id.slice(-6)}`,
+<<<<<<< HEAD
     category: p.categoryName || (typeof p.category === 'object' ? p.category?.name : p.category) || 'Agriculture & Farming',
+=======
+    category: p.categoryName || p.category || 'Agriculture & Farming',
+>>>>>>> origin/boomika
     subcategory: p.subcategory || 'General Equipment',
     brand: p.brand || 'GROVE Prime',
     description: p.description || '',
@@ -151,9 +155,14 @@ function normalizeOrder(o, dealerId) {
     _id: String(o._id || id),
     orderNumber: o.orderNumber || id,
     parentOrderNumber: o.parentOrderNumber || id,
+<<<<<<< HEAD
     dealerId: o.dealerCode || (typeof o.dealer === 'string' ? o.dealer : o.dealer?.dealerCode || o.dealer?._id?.toString()) || dealerId,
     dealerCode: o.dealerCode || (typeof o.dealer === 'object' ? o.dealer?.dealerCode : undefined) || dealerId,
     dealer: typeof o.dealer === 'string' ? o.dealer : (o.dealer?._id?.toString() || o.dealerCode || dealerId),
+=======
+    dealerId: o.dealerCode || dealerId,
+    dealerCode: o.dealerCode || dealerId,
+>>>>>>> origin/boomika
     customer,
     items,
     product: primaryProduct,
@@ -249,6 +258,7 @@ function saveAllStoredOrders(orders) {
   }
 }
 
+<<<<<<< HEAD
 function getStoredAnalytics(dealerId, range) {
   try {
     if (range) {
@@ -262,10 +272,18 @@ function getStoredAnalytics(dealerId, range) {
       const parsed = JSON.parse(stored);
       if (!range || parsed.range === range) return parsed;
     }
+=======
+function getStoredAnalytics(dealerId) {
+  try {
+    const key = `${STORAGE_KEYS.ANALYTICS_PREFIX}${dealerId}`;
+    const stored = localStorage.getItem(key);
+    if (stored) return JSON.parse(stored);
+>>>>>>> origin/boomika
   } catch {}
   return null;
 }
 
+<<<<<<< HEAD
 function saveStoredAnalytics(dealerId, data, range) {
   try {
     const r = range || data?.range;
@@ -273,6 +291,10 @@ function saveStoredAnalytics(dealerId, data, range) {
       const rangeKey = `${STORAGE_KEYS.ANALYTICS_PREFIX}${dealerId}_${r}`;
       localStorage.setItem(rangeKey, JSON.stringify(data));
     }
+=======
+function saveStoredAnalytics(dealerId, data) {
+  try {
+>>>>>>> origin/boomika
     const key = `${STORAGE_KEYS.ANALYTICS_PREFIX}${dealerId}`;
     localStorage.setItem(key, JSON.stringify(data));
   } catch {}
@@ -298,6 +320,7 @@ function saveStoredProfile(dealerId, profile) {
    ASYNC DATA SYNCHRONIZATION WITH BACKEND REST APIS
    ========================================================================== */
 
+<<<<<<< HEAD
 // Module-level deduplication to prevent slamming backend with multiple calls per second
 let inFlightDealerSyncPromise = null;
 let lastDealerSyncTime = 0;
@@ -331,6 +354,13 @@ export async function syncDealerDataFromApi(dealerId, force = false) {
 }
 
 async function doSyncDealerDataFromApi(activeId) {
+=======
+/**
+ * Asynchronously synchronizes dealer products, orders, inventory, profile and analytics from backend MongoDB
+ */
+export async function syncDealerDataFromApi(dealerId) {
+  const activeId = resolveDealerId(dealerId);
+>>>>>>> origin/boomika
 
   try {
     const [prodsRes, ordersRes, profileRes, analyticsRes, invRes] = await Promise.allSettled([
@@ -346,7 +376,11 @@ async function doSyncDealerDataFromApi(activeId) {
       const raw = Array.isArray(prodsRes.value)
         ? prodsRes.value
         : prodsRes.value.products || prodsRes.value.data || [];
+<<<<<<< HEAD
       if (Array.isArray(raw)) {
+=======
+      if (Array.isArray(raw) && raw.length > 0) {
+>>>>>>> origin/boomika
         normalizedProds = raw.map((p) => normalizeProduct(p, activeId)).filter(Boolean);
         saveAllStoredProducts(normalizedProds);
       }
@@ -357,6 +391,7 @@ async function doSyncDealerDataFromApi(activeId) {
       const raw = Array.isArray(ordersRes.value)
         ? ordersRes.value
         : ordersRes.value.orders || ordersRes.value.data || [];
+<<<<<<< HEAD
       if (Array.isArray(raw)) {
         normalizedOrders = raw.map((o) => normalizeOrder(o, activeId)).filter(Boolean);
         const activeDealer = getStoredDealer();
@@ -376,6 +411,11 @@ async function doSyncDealerDataFromApi(activeId) {
         });
         saveAllStoredOrders([...existingOtherOrders, ...normalizedOrders]);
         window.dispatchEvent(new Event('grove_dealer_orders_updated'));
+=======
+      if (Array.isArray(raw) && raw.length > 0) {
+        normalizedOrders = raw.map((o) => normalizeOrder(o, activeId)).filter(Boolean);
+        saveAllStoredOrders(normalizedOrders);
+>>>>>>> origin/boomika
       }
     }
 
@@ -394,14 +434,18 @@ async function doSyncDealerDataFromApi(activeId) {
           contactPhone: d.phone,
           supportEmail: d.officialEmail,
           warehouseAddress: d.warehouseAddress || 'Plot 42, Sanaswadi Industrial Area, Pune-Nagar Road, Pune - 412208',
+<<<<<<< HEAD
           city: d.businessAddress?.city || 'Pune',
           state: d.businessAddress?.state || 'Maharashtra',
           pincode: d.businessAddress?.pincode || '412208',
+=======
+>>>>>>> origin/boomika
           operatingHours: d.storeSettings?.operatingHours || 'Mon - Sat: 08:30 AM - 07:30 PM',
           isOpen: d.storeSettings?.isOpen !== false,
           storeOpen: d.storeSettings?.isOpen !== false,
           gstin: d.gstin || '27AABCA1234F1Z5',
           pan: d.pan || 'AABCA1234F',
+<<<<<<< HEAD
           bankName: d.bankDetails?.bankName || '',
           accountNumber: d.bankDetails?.accountNumber || '',
           ifsc: d.bankDetails?.ifsc || '',
@@ -409,6 +453,8 @@ async function doSyncDealerDataFromApi(activeId) {
           upiId: d.bankDetails?.upiId || '',
           bankVerificationStatus: d.bankVerificationStatus || 'PENDING',
           bankVerifiedAt: d.bankVerifiedAt || null,
+=======
+>>>>>>> origin/boomika
           tier: d.tier || 'Verified Dealer',
           commissionRate: d.commissionRate || 5.0,
           dealerCode: d.dealerCode || activeId,
@@ -422,8 +468,11 @@ async function doSyncDealerDataFromApi(activeId) {
           businessName: d.businessName,
           name: d.ownerName || d.businessName,
           email: d.officialEmail,
+<<<<<<< HEAD
           status: d.status,
           bankVerificationStatus: d.bankVerificationStatus,
+=======
+>>>>>>> origin/boomika
           tier: d.tier || 'Verified Dealer',
           rating: 4.8,
           activeListings: normalizedProds.length,
@@ -458,6 +507,7 @@ async function doSyncDealerDataFromApi(activeId) {
  */
 export function getDealerProducts(dealerId) {
   const activeId = resolveDealerId(dealerId);
+<<<<<<< HEAD
   const activeDealer = getStoredDealer();
   const validIds = new Set([
     String(activeId || '').toLowerCase(),
@@ -475,6 +525,11 @@ export function getDealerProducts(dealerId) {
     return (pDId && validIds.has(pDId)) || (pD && validIds.has(pD)) || (pDCode && validIds.has(pDCode));
   });
   return filtered;
+=======
+  const all = getAllStoredProducts();
+  const filtered = all.filter((p) => p && (!p.dealerId || p.dealerId === activeId));
+  return filtered.length > 0 ? filtered : all;
+>>>>>>> origin/boomika
 }
 
 /**
@@ -603,12 +658,16 @@ export async function updateDealerProduct(id, updatedFields, dealerId) {
   );
 
   let updatedProduct = null;
+<<<<<<< HEAD
   let mongoId = String(id).match(/^[0-9a-fA-F]{24}$/) ? id : null;
 
   if (index !== -1) {
     if (allProds[index]._id && String(allProds[index]._id).match(/^[0-9a-fA-F]{24}$/)) {
       mongoId = allProds[index]._id;
     }
+=======
+  if (index !== -1) {
+>>>>>>> origin/boomika
     allProds[index] = {
       ...allProds[index],
       ...updatedFields,
@@ -620,7 +679,11 @@ export async function updateDealerProduct(id, updatedFields, dealerId) {
   }
 
   // Sync to live backend MongoDB
+<<<<<<< HEAD
   if (mongoId) {
+=======
+  if (id && String(id).match(/^[0-9a-fA-F]{24}$/)) {
+>>>>>>> origin/boomika
     try {
       const backendPayload = {};
       if (updatedFields.name !== undefined) backendPayload.name = updatedFields.name;
@@ -634,6 +697,7 @@ export async function updateDealerProduct(id, updatedFields, dealerId) {
       if (updatedFields.description !== undefined) backendPayload.description = updatedFields.description;
       if (updatedFields.category !== undefined) backendPayload.category = updatedFields.category;
       if (updatedFields.subcategory !== undefined) backendPayload.subcategory = updatedFields.subcategory;
+<<<<<<< HEAD
       if (updatedFields.image !== undefined) backendPayload.image = updatedFields.image;
       if (updatedFields.images !== undefined) backendPayload.images = updatedFields.images;
       if (updatedFields.specs !== undefined) backendPayload.specs = updatedFields.specs;
@@ -642,6 +706,10 @@ export async function updateDealerProduct(id, updatedFields, dealerId) {
       if (updatedFields.warranty !== undefined) backendPayload.warranty = updatedFields.warranty;
 
       await productsApi.update(mongoId, backendPayload);
+=======
+
+      await productsApi.update(id, backendPayload);
+>>>>>>> origin/boomika
     } catch (err) {
       console.warn('Backend update product sync warning:', err.message);
     }
@@ -657,20 +725,29 @@ export async function deleteDealerProduct(id, dealerId) {
   const activeId = resolveDealerId(dealerId);
   const allProds = getAllStoredProducts();
 
+<<<<<<< HEAD
   const target = allProds.find(
     (p) => String(p.id) === String(id) || String(p._id) === String(id)
   );
   const mongoId = target?._id || (String(id).match(/^[0-9a-fA-F]{24}$/) ? id : null);
 
+=======
+>>>>>>> origin/boomika
   const filtered = allProds.filter(
     (p) => !(String(p.id) === String(id) || String(p._id) === String(id))
   );
 
   saveAllStoredProducts(filtered);
 
+<<<<<<< HEAD
   if (mongoId) {
     try {
       await productsApi.delete(mongoId);
+=======
+  if (id && String(id).match(/^[0-9a-fA-F]{24}$/)) {
+    try {
+      await productsApi.delete(id);
+>>>>>>> origin/boomika
     } catch (err) {
       console.warn('Backend delete product sync warning:', err.message);
     }
@@ -725,6 +802,7 @@ export async function updateStockBySku(sku, newStock, dealerId) {
  */
 export function getDealerOrders(dealerId) {
   const activeId = resolveDealerId(dealerId);
+<<<<<<< HEAD
   const activeDealer = getStoredDealer();
   const validIds = new Set([
     String(activeId || '').toLowerCase(),
@@ -746,6 +824,11 @@ export function getDealerOrders(dealerId) {
     );
   });
   return filtered;
+=======
+  const allOrders = getAllStoredOrders();
+  const filtered = allOrders.filter((o) => !o.dealerId || o.dealerId === activeId);
+  return filtered.length > 0 ? filtered : allOrders;
+>>>>>>> origin/boomika
 }
 
 /**
@@ -841,6 +924,7 @@ export async function updateDealerOrderStatus(arg1, arg2, arg3) {
   const allOrders = getAllStoredOrders();
   const cleanId = String(orderId || '').replace(/^#/, '').toLowerCase();
 
+<<<<<<< HEAD
   let orderIndex = allOrders.findIndex(
     (o) => String(o.id || o.orderNumber || o.parentOrderNumber || o._id || '').replace(/^#/, '').toLowerCase() === cleanId
   );
@@ -920,6 +1004,29 @@ export async function updateDealerOrderStatus(arg1, arg2, arg3) {
   } catch {}
 
   return updatedOrder;
+=======
+  const order = allOrders.find(
+    (o) => String(o.id || o.orderNumber || o._id || '').replace(/^#/, '').toLowerCase() === cleanId
+  );
+
+  if (order) {
+    order.orderStatus = newStatus;
+    saveAllStoredOrders(allOrders);
+
+    // Call backend endpoint to update fulfillment status
+    try {
+      await ordersApi.updateDealerOrderStatus(order._id || order.id || orderId, {
+        orderStatus: newStatus,
+        note: `Status updated to ${newStatus} from Dealer Operations Portal`
+      });
+    } catch (err) {
+      console.warn('Backend order status update warning:', err.message);
+    }
+
+    return order;
+  }
+  return null;
+>>>>>>> origin/boomika
 }
 
 /* ==========================================================================
@@ -955,14 +1062,18 @@ export function getDealerStoreSettings(dealerId) {
     businessPhone: '+91 98220 12345',
     supportEmail: 'support@apexagri.com',
     warehouseAddress: 'Plot 42, Sanaswadi Industrial Area, Pune-Nagar Road, Pune - 412208',
+<<<<<<< HEAD
     city: 'Pune',
     state: 'Maharashtra',
     pincode: '412208',
+=======
+>>>>>>> origin/boomika
     operatingHours: 'Mon - Sat: 08:30 AM - 07:30 PM',
     isOpen: true,
     storeOpen: true,
     gstin: '27AABCA1234F1Z5',
     pan: 'AABCA1234F',
+<<<<<<< HEAD
     bankName: 'State Bank of India',
     accountNumber: '',
     ifsc: '',
@@ -970,6 +1081,8 @@ export function getDealerStoreSettings(dealerId) {
     upiId: '',
     bankVerificationStatus: 'PENDING',
     bankVerifiedAt: null,
+=======
+>>>>>>> origin/boomika
     fulfillmentSLA: 99.1,
     avgDispatchHours: 4.2
   };
@@ -991,6 +1104,7 @@ export async function saveDealerStoreSettings(settings, dealerId) {
   // Persist to live backend MongoDB
   try {
     await dealerApi.updateStoreSettings({
+<<<<<<< HEAD
       businessName: settings.storeName || settings.tradingName,
       tagline: settings.tagline,
       description: settings.description,
@@ -1000,6 +1114,12 @@ export async function saveDealerStoreSettings(settings, dealerId) {
       city: settings.city,
       state: settings.state,
       pincode: settings.pincode
+=======
+      tagline: settings.tagline,
+      description: settings.description,
+      operatingHours: settings.operatingHours,
+      isOpen: settings.isOpen !== false && settings.storeOpen !== false
+>>>>>>> origin/boomika
     });
   } catch (err) {
     console.warn('Backend store settings sync warning:', err.message);
@@ -1065,6 +1185,7 @@ export function getDealerNotifications(dealerId) {
     });
   });
 
+<<<<<<< HEAD
   // 3. In-App Backend Notifications (Tickets, Admin Replies, Status changes)
   try {
     const rawInApp = localStorage.getItem(`grove_dealer_inapp_notifs_${activeId}`);
@@ -1085,6 +1206,8 @@ export function getDealerNotifications(dealerId) {
     }
   } catch {}
 
+=======
+>>>>>>> origin/boomika
   return notifications;
 }
 
@@ -1114,6 +1237,7 @@ export function getDealerSupportData(dealerId) {
    ========================================================================== */
 
 /**
+<<<<<<< HEAD
  * Computes dashboard metrics dynamically from live products, orders, and backend analytics for a specified time range
  */
 export function getDealerDashboardMetrics(dealerId, range = '30D') {
@@ -1148,11 +1272,25 @@ export function getDealerDashboardMetrics(dealerId, range = '30D') {
 
   // Calculate actual revenue from non-cancelled orders in this range
   const nonCancelled = rangeOrders.filter((o) => o.orderStatus !== 'Cancelled');
+=======
+ * Computes dashboard metrics dynamically from live products, orders, and backend analytics
+ */
+export function getDealerDashboardMetrics(dealerId) {
+  const activeId = resolveDealerId(dealerId);
+  const products = getDealerProducts(activeId);
+  const orders = getDealerOrders(activeId);
+  const settings = getDealerStoreSettings(activeId);
+  const backendAnalytics = getStoredAnalytics(activeId);
+
+  // Calculate actual revenue from non-cancelled orders
+  const nonCancelled = orders.filter((o) => o.orderStatus !== 'Cancelled');
+>>>>>>> origin/boomika
   const calculatedRevenue = nonCancelled.reduce(
     (sum, o) => sum + (Number(o.subtotal || o.amount || o.total) || 0),
     0
   );
 
+<<<<<<< HEAD
   const prevNonCancelled = prevOrders.filter((o) => o.orderStatus !== 'Cancelled');
   const prevRevenue = prevNonCancelled.reduce(
     (sum, o) => sum + (Number(o.subtotal || o.amount || o.total) || 0),
@@ -1173,11 +1311,15 @@ export function getDealerDashboardMetrics(dealerId, range = '30D') {
   const ordersGrowth = cleanOrderGrowth.startsWith('+') || cleanOrderGrowth.startsWith('-') ? `${cleanOrderGrowth}%` : `+${cleanOrderGrowth}%`;
 
   const pendingCount = allOrders.filter(
+=======
+  const pendingCount = orders.filter(
+>>>>>>> origin/boomika
     (o) => o.orderStatus === 'Placed' || o.orderStatus === 'Processing'
   ).length;
 
   const lowStockItems = products.filter((p) => p.stock <= (p.threshold || 10));
 
+<<<<<<< HEAD
   // Monthly / Range chart data
   let monthlyRevenueData = backendAnalytics?.monthlyRevenueData || backendAnalytics?.monthlyRevenue;
   if (!monthlyRevenueData || monthlyRevenueData.length === 0 || range === '7D') {
@@ -1188,23 +1330,43 @@ export function getDealerDashboardMetrics(dealerId, range = '30D') {
       const found = monthlyRevenueData.find((item) => item.month === m);
       if (found) {
         found.revenue += Number(o.subtotal || o.amount || 0);
+=======
+  // Monthly revenue data from backend or dynamic from orders
+  let monthlyRevenueData = backendAnalytics?.monthlyRevenueData || backendAnalytics?.monthlyRevenue;
+  if (!monthlyRevenueData || monthlyRevenueData.length === 0) {
+    const months = ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'];
+    monthlyRevenueData = months.map((m) => ({ month: m, revenue: 0, orders: 0 }));
+    orders.forEach((o) => {
+      const m = new Date(o.createdAt).toLocaleString('default', { month: 'short' });
+      const found = monthlyRevenueData.find((item) => item.month === m);
+      if (found) {
+        found.revenue += o.subtotal || o.amount || 0;
+>>>>>>> origin/boomika
         found.orders += 1;
       }
     });
   }
 
+<<<<<<< HEAD
   const avgTicket = nonCancelled.length > 0 ? Math.round(calculatedRevenue / nonCancelled.length) : 0;
+=======
+  const avgTicket = orders.length > 0 ? Math.round(calculatedRevenue / orders.length) : 0;
+>>>>>>> origin/boomika
 
   return {
     dealerId: activeId,
     dealerName: settings.storeName || settings.tradingName || 'Apex Agri-Tech & Machinery',
+<<<<<<< HEAD
     range,
+=======
+>>>>>>> origin/boomika
     totalRevenueNumber: calculatedRevenue,
     totalRevenueFormatted: new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
       maximumFractionDigits: 0
     }).format(calculatedRevenue),
+<<<<<<< HEAD
     revenueGrowth,
     lastMonthRevenueText: `From ${nonCancelled.length} customer orders in ${range}`,
     totalOrdersCount: rangeOrders.length,
@@ -1214,6 +1376,17 @@ export function getDealerDashboardMetrics(dealerId, range = '30D') {
     pendingDispatchCount: pendingCount,
     lowStockItems: lowStockItems.slice(0, 4),
     recentOrders: allOrders.slice(0, 5),
+=======
+    revenueGrowth: '+18.4%',
+    lastMonthRevenueText: `Across ${orders.length} real customer orders`,
+    totalOrdersCount: orders.length,
+    ordersGrowth: '+12.1%',
+    avgTicketSizeText: `Avg ticket size: ₹${avgTicket.toLocaleString('en-IN')}`,
+    activeListingsCount: products.filter((p) => p.status === 'active' || p.status === 'active').length,
+    pendingDispatchCount: pendingCount,
+    lowStockItems: lowStockItems.slice(0, 4),
+    recentOrders: orders.slice(0, 5),
+>>>>>>> origin/boomika
     storeOpen: settings.storeOpen !== false && settings.isOpen !== false,
     fulfillmentSLA: settings.fulfillmentSLA || 99.1,
     avgDispatchHours: settings.avgDispatchHours || 4.2,
@@ -1241,10 +1414,17 @@ export async function fetchDealerAnalytics(arg1, arg2) {
   }
 
   try {
+<<<<<<< HEAD
     const res = await dealerApi.getAnalytics(range);
     const raw = res?.data || res;
     if (raw && typeof raw === 'object') {
       saveStoredAnalytics(activeId, raw, range);
+=======
+    const res = await dealerApi.getAnalytics();
+    const raw = res?.data || res;
+    if (raw && typeof raw === 'object') {
+      saveStoredAnalytics(activeId, raw);
+>>>>>>> origin/boomika
     }
   } catch (err) {
     console.warn('Backend analytics sync warning:', err?.message || err);
@@ -1272,6 +1452,7 @@ export function getDealerAnalytics(arg1, arg2) {
   }
 
   const products = getDealerProducts(activeId);
+<<<<<<< HEAD
   const allOrders = getDealerOrders(activeId);
   const settings = getDealerStoreSettings(activeId);
   const backendAnalytics = getStoredAnalytics(activeId, range);
@@ -1300,10 +1481,18 @@ export function getDealerAnalytics(arg1, arg2) {
   });
 
   const nonCancelledOrders = rangeOrders.filter((o) => o.orderStatus !== 'Cancelled');
+=======
+  const orders = getDealerOrders(activeId);
+  const settings = getDealerStoreSettings(activeId);
+  const backendAnalytics = getStoredAnalytics(activeId);
+
+  const nonCancelledOrders = orders.filter((o) => o.orderStatus !== 'Cancelled');
+>>>>>>> origin/boomika
   const computedRevenue = nonCancelledOrders.reduce(
     (sum, o) => sum + (Number(o.subtotal || o.amount || o.total) || 0),
     0
   );
+<<<<<<< HEAD
 
   const prevNonCancelled = prevOrders.filter((o) => o.orderStatus !== 'Cancelled');
   const prevRevenue = prevNonCancelled.reduce(
@@ -1338,6 +1527,18 @@ export function getDealerAnalytics(arg1, arg2) {
     ? backendAnalytics.categoryBreakdown
     : null;
 
+=======
+  const revenueTotal = backendAnalytics?.kpis?.grossRevenue !== undefined
+    ? Number(backendAnalytics.kpis.grossRevenue)
+    : computedRevenue;
+
+  const aov = backendAnalytics?.kpis?.avgTicketSize !== undefined
+    ? Number(backendAnalytics.kpis.avgTicketSize)
+    : (nonCancelledOrders.length > 0 ? Math.round(revenueTotal / nonCancelledOrders.length) : 0);
+
+  // Category breakdown
+  let categoryBreakdown = backendAnalytics?.categoryBreakdown;
+>>>>>>> origin/boomika
   if (!categoryBreakdown || categoryBreakdown.length === 0) {
     const categoryTotals = {};
     products.forEach((p) => {
@@ -1352,16 +1553,24 @@ export function getDealerAnalytics(arg1, arg2) {
       name,
       amount: new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount),
       share: Math.max(5, Math.round((amount / grandCatTotal) * 100)),
+<<<<<<< HEAD
       orders: rangeOrders.filter((o) => (o.product?.category || '').toLowerCase().includes(name.split(' ')[0].toLowerCase())).length,
+=======
+      orders: orders.filter((o) => (o.product?.category || '').toLowerCase().includes(name.split(' ')[0].toLowerCase())).length,
+>>>>>>> origin/boomika
       color: colors[i % colors.length]
     }));
   }
 
   // Top products from live catalog
+<<<<<<< HEAD
   let topProducts = (backendAnalytics?.range === range && backendAnalytics?.topProducts)
     ? backendAnalytics.topProducts
     : null;
 
+=======
+  let topProducts = backendAnalytics?.topProducts;
+>>>>>>> origin/boomika
   if (!topProducts || topProducts.length === 0) {
     topProducts = products
       .slice()
@@ -1377,6 +1586,7 @@ export function getDealerAnalytics(arg1, arg2) {
       }));
   }
 
+<<<<<<< HEAD
   // Dynamic Trajectory Chart Data
   let monthlyRevenueData = (backendAnalytics?.range === range && (backendAnalytics?.monthlyRevenueData || backendAnalytics?.monthlyRevenue))
     ? (backendAnalytics.monthlyRevenueData || backendAnalytics.monthlyRevenue)
@@ -1454,48 +1664,93 @@ export function getDealerAnalytics(arg1, arg2) {
   return {
     dealerId: activeId,
     range,
+=======
+  const monthlyRevenueData = backendAnalytics?.monthlyRevenueData || backendAnalytics?.monthlyRevenue || [
+    { month: 'Jun', revenue: 0, orders: 0 },
+    { month: 'Jul', revenue: 0, orders: 0 },
+    { month: 'Aug', revenue: 0, orders: 0 },
+    { month: 'Sep', revenue: 0, orders: 0 },
+    { month: 'Oct', revenue: 0, orders: 0 },
+    { month: 'Nov', revenue: revenueTotal, orders: orders.length }
+  ];
+
+  return {
+    dealerId: activeId,
+>>>>>>> origin/boomika
     kpis: [
       {
         title: 'Gross Revenue',
         value: new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(revenueTotal),
+<<<<<<< HEAD
         change: revenueGrowth,
         positive: !revenueGrowth.startsWith('-'),
+=======
+        change: '+18.4%',
+        positive: true,
+>>>>>>> origin/boomika
         subtext: `From ${nonCancelledOrders.length} processed customer orders`
       },
       {
         title: 'Average Order Value (AOV)',
         value: new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(aov),
+<<<<<<< HEAD
         change: aovGrowth,
         positive: !aovGrowth.startsWith('-'),
+=======
+        change: '+5.2%',
+        positive: true,
+>>>>>>> origin/boomika
         subtext: `Across ${nonCancelledOrders.length} fulfilled orders`
       },
       {
         title: 'Fulfillment Success Rate',
+<<<<<<< HEAD
         value: `${cleanCompliance}%`,
         change: String(ordersGrowth || '+0%').replace(/%+$/, '%'),
         positive: !String(ordersGrowth || '').startsWith('-'),
         subtext: `${rangeOrders.filter(o => o.orderStatus === 'Delivered').length} orders successfully delivered`
+=======
+        value: `${backendAnalytics?.slaHealth?.compliance || settings.fulfillmentSLA || 99.1}%`,
+        change: '+1.4%',
+        positive: true,
+        subtext: `${orders.filter(o => o.orderStatus === 'Delivered').length} orders successfully delivered`
+>>>>>>> origin/boomika
       },
       {
         title: 'Catalog Listings',
         value: `${products.length} Products`,
+<<<<<<< HEAD
         change: `${products.filter(p => p.stock > 0).length} in stock`,
         positive: true,
         subtext: `${products.filter(p => p.stock <= 0).length} out of stock`
+=======
+        change: '+3 new',
+        positive: true,
+        subtext: `${products.filter(p => p.stock > 0).length} in stock`
+>>>>>>> origin/boomika
       }
     ],
     monthlyRevenueData,
     categoryBreakdown,
+<<<<<<< HEAD
     fastestCategory,
     topProducts,
     slaHealth: backendAnalytics?.slaHealth || {
       compliance: `${cleanCompliance}%`,
       avgDispatchHours: `${settings.avgDispatchHours || 4.2} Hours`,
       repeatBuyers: `${rangeOrders.length > 0 ? '100%' : '0%'}`,
+=======
+    topProducts,
+    slaHealth: backendAnalytics?.slaHealth || {
+      compliance: `${settings.fulfillmentSLA || 99.1}%`,
+      avgDispatchHours: `${settings.avgDispatchHours || 4.2} Hours`,
+      repeatBuyers: `${orders.length > 0 ? '100%' : '0%'}`,
+>>>>>>> origin/boomika
       inventoryParity: '100% Sync'
     }
   };
 }
+<<<<<<< HEAD
 
 /* ==========================================================================
    DEALER SUPPORT TICKETS SERVICE
@@ -1610,3 +1865,5 @@ export async function markDealerInAppNotificationAsRead(notifId, dealerId) {
     console.warn('Backend mark notification read error:', err.message);
   }
 }
+=======
+>>>>>>> origin/boomika

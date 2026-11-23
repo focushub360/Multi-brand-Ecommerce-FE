@@ -3,8 +3,12 @@ import AdminLayout from '../../components/admin/AdminLayout';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import {
   getAdminAnalytics,
+<<<<<<< HEAD
   getAdminTopSellingProducts,
   syncAdminDataFromApi
+=======
+  getAdminTopSellingProducts
+>>>>>>> origin/boomika
 } from '../../services/adminService';
 
 export default function AdminAnalyticsPage() {
@@ -16,7 +20,10 @@ export default function AdminAnalyticsPage() {
     document.title = 'Sales & Analytics | GROVE Admin';
     window.scrollTo(0, 0);
     setAnalytics(getAdminAnalytics());
+<<<<<<< HEAD
     syncAdminDataFromApi().then(() => setAnalytics(getAdminAnalytics())).catch(() => {});
+=======
+>>>>>>> origin/boomika
   }, []);
 
   const trendData = useMemo(() => {
@@ -26,7 +33,11 @@ export default function AdminAnalyticsPage() {
     return analytics.monthlyTrend || [];
   }, [analytics, period]);
 
+<<<<<<< HEAD
   const topProducts = analytics?.topProducts?.length ? analytics.topProducts : getAdminTopSellingProducts();
+=======
+  const topProducts = getAdminTopSellingProducts();
+>>>>>>> origin/boomika
 
   // SVG Chart calculation
   const maxRevenue = trendData.length > 0 ? Math.max(...trendData.map((d) => d.revenue)) : 100000;

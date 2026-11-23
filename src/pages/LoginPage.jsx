@@ -124,8 +124,11 @@ export default function LoginPage() {
           navigate(destination, { replace: true });
         }, 700);
       } else if (userRole === 'dealer') {
+<<<<<<< HEAD
         const needsPasswordReset = Boolean(matchedUser.mustChangePassword);
 
+=======
+>>>>>>> origin/boomika
         // Authenticate dealer session in localStorage (strictly no password)
         setStoredDealer({
           id: matchedUser.id,
@@ -139,6 +142,7 @@ export default function LoginPage() {
             'DEALER_001'
           ),
           primaryCategory: matchedUser.primaryCategory,
+<<<<<<< HEAD
           mustChangePassword: needsPasswordReset,
           token: matchedUser.token
         });
@@ -162,6 +166,19 @@ export default function LoginPage() {
             navigate('/dealer/dashboard', { replace: true });
           }, 700);
         }
+=======
+          token: matchedUser.token
+        });
+
+        setLoginSuccess({
+          name: matchedUser.name,
+          targetText: 'Dealer authenticated. Redirecting to Dealer Dashboard...'
+        });
+
+        setTimeout(() => {
+          navigate('/dealer/dashboard', { replace: true });
+        }, 700);
+>>>>>>> origin/boomika
       } else if (userRole === 'admin') {
         // Authenticate admin session in localStorage
         setStoredAdmin({

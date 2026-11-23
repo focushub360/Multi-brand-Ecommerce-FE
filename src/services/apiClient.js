@@ -8,8 +8,12 @@
  * ==============================================================================
  */
 
+<<<<<<< HEAD
 const rawBaseUrl = import.meta.env.VITE_API_URL || '/api/v1';
 const API_BASE_URL = rawBaseUrl.replace(/\/+$/, '');
+=======
+const API_BASE_URL = import.meta.env.API_URL || '/api/v1';
+>>>>>>> origin/boomika
 
 // Unified token storage keys
 export const TOKEN_STORAGE_KEY = 'grove_auth_token';
@@ -19,6 +23,7 @@ export const REFRESH_TOKEN_STORAGE_KEY = 'grove_refresh_token';
  * Retrieves the currently active authorization token.
  * Checks primary token key, with fallbacks to role-specific storage keys.
  */
+<<<<<<< HEAD
 export function getAuthToken(targetEndpoint = '') {
   try {
     const ep = String(targetEndpoint || '').toLowerCase();
@@ -57,6 +62,10 @@ export function getAuthToken(targetEndpoint = '') {
       }
     }
 
+=======
+export function getAuthToken() {
+  try {
+>>>>>>> origin/boomika
     const directToken = localStorage.getItem(TOKEN_STORAGE_KEY);
     if (directToken) return directToken;
 
@@ -128,7 +137,11 @@ async function request(endpoint, options = {}) {
     ? endpoint
     : `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
+<<<<<<< HEAD
   const token = getAuthToken(endpoint);
+=======
+  const token = getAuthToken();
+>>>>>>> origin/boomika
   const headers = {
     Accept: 'application/json',
     ...(options.body && !(options.body instanceof FormData)
@@ -236,6 +249,10 @@ async function request(endpoint, options = {}) {
     // Unwrap standardized ApiResponse format { success: true, data: ..., pagination: ... }
     return data;
   } catch (err) {
+<<<<<<< HEAD
+=======
+    // Re-throw with descriptive context
+>>>>>>> origin/boomika
     throw err;
   }
 }
@@ -300,6 +317,7 @@ export const authApi = {
     }
   },
 
+<<<<<<< HEAD
   firstTimePassword: async (newPassword, confirmPassword) => {
     const res = await apiClient.post('/auth/first-time-password', {
       newPassword,
@@ -317,6 +335,8 @@ export const authApi = {
     return res.data;
   },
 
+=======
+>>>>>>> origin/boomika
   registerDealer: async (applicationData) => {
     const res = await apiClient.post('/dealers/apply', applicationData);
     return res.data;
@@ -329,6 +349,10 @@ export const authApi = {
 export const productsApi = {
   getAll: async (params = {}) => {
     const res = await apiClient.get('/products', params);
+<<<<<<< HEAD
+=======
+    // Returns { products: [...], pagination: { page, limit, total, pages } }
+>>>>>>> origin/boomika
     return res.data;
   },
 
@@ -367,11 +391,14 @@ export const categoriesApi = {
     return res.data;
   },
 
+<<<<<<< HEAD
   getAllAdmin: async () => {
     const res = await apiClient.get('/categories/admin/all');
     return res.data;
   },
 
+=======
+>>>>>>> origin/boomika
   getBySlug: async (slug) => {
     const res = await apiClient.get(`/categories/${slug}`);
     return res.data;
@@ -390,11 +417,14 @@ export const categoriesApi = {
   delete: async (id) => {
     const res = await apiClient.delete(`/categories/${id}`);
     return res.data;
+<<<<<<< HEAD
   },
 
   addSubcategory: async (id, subcategory) => {
     const res = await apiClient.post(`/categories/${id}/subcategories`, subcategory);
     return res.data;
+=======
+>>>>>>> origin/boomika
   }
 };
 
@@ -529,6 +559,7 @@ export const wishlistApi = {
 };
 
 /**
+<<<<<<< HEAD
  * 7b. Customer Support Ticket APIs
  */
 export const customerSupportApi = {
@@ -559,6 +590,8 @@ export const customerSupportApi = {
 };
 
 /**
+=======
+>>>>>>> origin/boomika
  * 8. Dealer Operations APIs
  */
 export const dealerApi = {
@@ -572,6 +605,7 @@ export const dealerApi = {
     return res.data;
   },
 
+<<<<<<< HEAD
   verifyBankDetails: async (bankData) => {
     const res = await apiClient.put('/dealers/bank-details/verify', bankData);
     return res.data;
@@ -582,6 +616,8 @@ export const dealerApi = {
     return res.data;
   },
 
+=======
+>>>>>>> origin/boomika
   getInventory: async () => {
     const res = await apiClient.get('/inventory/my-inventory');
     return res.data;
@@ -597,6 +633,7 @@ export const dealerApi = {
     return res.data;
   },
 
+<<<<<<< HEAD
   getAnalytics: async (range = '30D') => {
     const res = await apiClient.get(`/analytics/dealer?range=${range}`);
     return res.data;
@@ -629,6 +666,10 @@ export const dealerApi = {
 
   markDealerNotificationRead: async (id) => {
     const res = await apiClient.patch(`/complaints/dealer/notifications/${id}/read`);
+=======
+  getAnalytics: async () => {
+    const res = await apiClient.get('/analytics/dealer');
+>>>>>>> origin/boomika
     return res.data;
   }
 };
@@ -642,6 +683,7 @@ export const adminApi = {
     return res.data;
   },
 
+<<<<<<< HEAD
   getProducts: async (params = {}) => {
     const res = await apiClient.get('/products/admin', params);
     return res.data;
@@ -665,10 +707,15 @@ export const adminApi = {
 
   getDealers: async () => {
     const res = await apiClient.get('/admin/dealers');
+=======
+  getDealers: async () => {
+    const res = await apiClient.get('/dealers');
+>>>>>>> origin/boomika
     return res.data;
   },
 
   getDealerById: async (id) => {
+<<<<<<< HEAD
     const res = await apiClient.get(`/admin/dealers/${id}`);
     return res.data;
   },
@@ -679,6 +726,9 @@ export const adminApi = {
   },
   resetDealerCredentials: async (id) => {
     const res = await apiClient.post(`/admin/dealers/${id}/reset-credentials`);
+=======
+    const res = await apiClient.get(`/dealers/${id}`);
+>>>>>>> origin/boomika
     return res.data;
   },
 
@@ -687,11 +737,14 @@ export const adminApi = {
     return res.data;
   },
 
+<<<<<<< HEAD
   verifyDealerKyc: async (id, payload = {}) => {
     const res = await apiClient.patch(`/admin/dealers/${id}/verify-kyc`, payload);
     return res.data;
   },
 
+=======
+>>>>>>> origin/boomika
   rejectDealer: async (id, reason) => {
     const res = await apiClient.post(`/admin/dealers/${id}/reject`, { reason });
     return res.data;
@@ -711,6 +764,7 @@ export const adminApi = {
     const res = await apiClient.get('/dealer-locations');
     return res.data;
   },
+<<<<<<< HEAD
   createLocation: async (payload) => {
     const res = await apiClient.post('/dealer-locations', payload);
     return res.data;
@@ -723,6 +777,8 @@ export const adminApi = {
     const res = await apiClient.delete(`/dealer-locations/${id}`);
     return res.data;
   },
+=======
+>>>>>>> origin/boomika
 
   getPayments: async () => {
     const res = await apiClient.get('/payments');
@@ -734,6 +790,7 @@ export const adminApi = {
     return res.data;
   },
 
+<<<<<<< HEAD
   getComplaints: async (params = {}) => {
     const res = await apiClient.get('/complaints/admin/all', params);
     return res.data;
@@ -750,6 +807,20 @@ export const adminApi = {
       ...(status ? { status } : {}),
       attachments: attachments || []
     });
+=======
+  releaseSettlement: async (id) => {
+    const res = await apiClient.post(`/settlements/${id}/release`);
+    return res.data;
+  },
+
+  getComplaints: async () => {
+    const res = await apiClient.get('/complaints/admin/all');
+    return res.data;
+  },
+
+  updateComplaintStatus: async (ticketId, status) => {
+    const res = await apiClient.patch(`/complaints/admin/${ticketId}/status`, { status });
+>>>>>>> origin/boomika
     return res.data;
   },
 
@@ -768,6 +839,7 @@ export const adminApi = {
     return res.data;
   },
 
+<<<<<<< HEAD
  
 
   getNotifications: async () => {
@@ -816,3 +888,13 @@ export const adminApi = {
 
 
 export default apiClient;
+=======
+  getUsers: async () => {
+    const res = await apiClient.get('/users');
+    return res.data;
+  }
+};
+
+export default apiClient;
+
+>>>>>>> origin/boomika

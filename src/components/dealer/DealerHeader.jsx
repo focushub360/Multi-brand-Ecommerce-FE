@@ -8,8 +8,12 @@ import {
   Store, 
   LogOut, 
   ExternalLink,
+<<<<<<< HEAD
   ShieldCheck,
   Clock
+=======
+  ShieldCheck
+>>>>>>> origin/boomika
 } from 'lucide-react';
 import { getStoredDealer, clearStoredDealer, getActiveDealerId } from '../../utils/auth';
 import { getDealerById, getDealerNotifications } from '../../services/dealerService';
@@ -164,6 +168,7 @@ export default function DealerHeader({ onToggleMobile }) {
               <div className="px-4 py-2 border-b border-neutral-100">
                 <span className="text-xs font-bold text-[#151D18] block">{dealerName}</span>
                 <span className="text-[11px] text-[#717973] block truncate">{dealerEmail}</span>
+<<<<<<< HEAD
                 {dealerProfile?.bankVerificationStatus === 'VERIFIED' && dealerProfile?.status === 'APPROVED' ? (
                   <div className="mt-1.5 flex items-center gap-1 text-[10px] font-bold text-[#2C694E] bg-[#EDF6ED] px-2 py-0.5 rounded-full w-fit">
                     <ShieldCheck className="w-3 h-3" />
@@ -175,6 +180,12 @@ export default function DealerHeader({ onToggleMobile }) {
                     <span>KYC Under Review</span>
                   </div>
                 )}
+=======
+                <div className="mt-1.5 flex items-center gap-1 text-[10px] font-bold text-[#2C694E] bg-[#EDF6ED] px-2 py-0.5 rounded-full w-fit">
+                  <ShieldCheck className="w-3 h-3" />
+                  <span>{dealerProfile?.tier || 'Verified Dealer'}</span>
+                </div>
+>>>>>>> origin/boomika
               </div>
 
               <div className="py-1">

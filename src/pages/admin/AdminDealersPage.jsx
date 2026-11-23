@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import AdminLayout from '../../components/admin/AdminLayout';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
+<<<<<<< HEAD
 import { adminApi } from '../../services/apiClient';
 import {
   mapDealerForUI,
@@ -12,6 +13,36 @@ import {
   Store, Search, Download, CheckCircle2, Clock,
   Building2, MapPin, FileText, CreditCard, Eye, X, UserCheck, Ban,
   Unlock, Lock, PackageCheck, AlertCircle
+=======
+import {
+  getAdminDealers,
+  createAdminDealer,
+  updateAdminDealer,
+  toggleDealerStatus,
+  approveDealerKYC,
+  toggleDealerPayoutHold,
+  syncAdminDataFromApi
+} from '../../services/adminService';
+import {
+  Store,
+  Search,
+  Plus,
+  Download,
+  CheckCircle2,
+  AlertTriangle,
+  Clock,
+  Building2,
+  MapPin,
+  FileText,
+  CreditCard,
+  Eye,
+  X,
+  UserCheck,
+  Ban,
+  Unlock,
+  Lock,
+  PackageCheck
+>>>>>>> origin/boomika
 } from 'lucide-react';
 
 export default function AdminDealersPage() {
@@ -21,6 +52,7 @@ export default function AdminDealersPage() {
   const [tierFilter, setTierFilter] = useState('All');
   const [stateFilter, setStateFilter] = useState('All');
 
+<<<<<<< HEAD
   const [selectedDealer, setSelectedDealer] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isEditDetailsOpen, setIsEditDetailsOpen] = useState(false);
@@ -57,12 +89,52 @@ export default function AdminDealersPage() {
     const cached = getAdminDealers();
     setDealers(cached);
     return cached;
+=======
+  // Modal / Drawer states
+  const [selectedDealer, setSelectedDealer] = useState(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isOnboardOpen, setIsOnboardOpen] = useState(false);
+  const [editCommission, setEditCommission] = useState('');
+  const [isEditingCommission, setIsEditingCommission] = useState(false);
+
+  // Toast feedback
+  const [toastMessage, setToastMessage] = useState(null);
+
+  // New Dealer Form State
+  const initialFormState = {
+    businessName: '',
+    contactPerson: '',
+    email: '',
+    phone: '',
+    city: 'Pune',
+    state: 'Maharashtra',
+    pincode: '411026',
+    warehouseAddress: '',
+    gstin: '',
+    pan: '',
+    tier: 'Silver Tier',
+    commissionRate: 5.0,
+    status: 'Pending KYC',
+    bankName: 'HDFC Bank',
+    bankAccountName: '',
+    bankAccountNumber: '',
+    bankIfsc: ''
+  };
+  const [newDealerForm, setNewDealerForm] = useState(initialFormState);
+  const [formError, setFormError] = useState('');
+
+  // Load dealers
+  const loadDealers = () => {
+    const list = getAdminDealers();
+    setDealers(list);
+>>>>>>> origin/boomika
   };
 
   useEffect(() => {
     document.title = 'Dealer Management | GROVE Admin';
     window.scrollTo(0, 0);
     loadDealers();
+<<<<<<< HEAD
   }, []);
 
   // KPIs
@@ -93,15 +165,71 @@ export default function AdminDealersPage() {
       const matchStatus = statusFilter === 'All' || d.status === statusFilter;
       const matchTier = tierFilter === 'All' || d.tier === tierFilter;
       const matchState = stateFilter === 'All' || d.state === stateFilter;
+=======
+    syncAdminDataFromApi().then(() => {
+      loadDealers();
+    }).catch(() => {});
+  }, []);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  // KPIs
+  const totalCount = dealers.length;
+  const activeCount = dealers.filter((d) => d.status === 'Active').length;
+  const pendingKYCCount = dealers.filter((d) => d.status === 'Pending KYC' || d.status === 'Under Review').length;
+  const avgSla = useMemo(() => {
+    if (!dealers.length) return '98.0%';
+    const nums = dealers.map((d) => parseFloat(d.fulfillmentSLA || '97.0'));
+    const avg = nums.reduce((a, b) => a + b, 0) / nums.length;
+    return `${avg.toFixed(1)}%`;
+  }, [dealers]);
+
+  // Unique states for filter dropdown
+  const uniqueStates = useMemo(() => {
+    const set = new Set(dealers.map((d) => d.state).filter(Boolean));
+    return Array.from(set);
+  }, [dealers]);
+
+  // Filtered dealers
+  const filteredDealers = useMemo(() => {
+    return dealers.filter((d) => {
+      // Search
+      const q = searchQuery.toLowerCase().trim();
+      const matchSearch =
+        !q ||
+        d.businessName.toLowerCase().includes(q) ||
+        d.contactPerson.toLowerCase().includes(q) ||
+        d.city.toLowerCase().includes(q) ||
+        d.email.toLowerCase().includes(q) ||
+        d.gstin.toLowerCase().includes(q) ||
+        d.id.toLowerCase().includes(q);
+
+      // Status
+      const matchStatus = statusFilter === 'All' || d.status === statusFilter;
+
+      // Tier
+      const matchTier = tierFilter === 'All' || d.tier === tierFilter;
+
+      // State
+      const matchState = stateFilter === 'All' || d.state === stateFilter;
+
+>>>>>>> origin/boomika
       return matchSearch && matchStatus && matchTier && matchState;
     });
   }, [dealers, searchQuery, statusFilter, tierFilter, stateFilter]);
 
+<<<<<<< HEAD
   const refreshSelected = (list, id) => {
     const fresh = list.find((d) => d.id === id);
     if (fresh) setSelectedDealer(fresh);
   };
 
+=======
+  // Handlers
+>>>>>>> origin/boomika
   const handleOpenDetail = (dealer) => {
     setSelectedDealer(dealer);
     setEditCommission(String(dealer.commissionRate || 5.0));
@@ -109,6 +237,7 @@ export default function AdminDealersPage() {
     setIsDetailOpen(true);
   };
 
+<<<<<<< HEAD
   const handleOpenEditDetails = () => {
     setDealerEditForm({
       businessName: selectedDealer.businessName,
@@ -223,11 +352,45 @@ export default function AdminDealersPage() {
   };
 
   const handleSaveCommission = async () => {
+=======
+  const handleApproveKYC = (id, e) => {
+    if (e) e.stopPropagation();
+    const updated = approveDealerKYC(id);
+    loadDealers();
+    if (selectedDealer && selectedDealer.id === id) {
+      setSelectedDealer(updated);
+    }
+    showToast(`KYC Approved for ${updated?.businessName || 'dealer'}. Payout hold released.`);
+  };
+
+  const handleToggleStatus = (id, e) => {
+    if (e) e.stopPropagation();
+    const updated = toggleDealerStatus(id);
+    loadDealers();
+    if (selectedDealer && selectedDealer.id === id) {
+      setSelectedDealer(updated);
+    }
+    showToast(`Dealer account status changed to "${updated?.status}".`);
+  };
+
+  const handleTogglePayoutHold = (id, e) => {
+    if (e) e.stopPropagation();
+    const updated = toggleDealerPayoutHold(id);
+    loadDealers();
+    if (selectedDealer && selectedDealer.id === id) {
+      setSelectedDealer(updated);
+    }
+    showToast(`Payout escrow hold ${updated?.payoutHold ? 'ENABLED' : 'RELEASED'} for ${updated?.businessName}.`);
+  };
+
+  const handleSaveCommission = () => {
+>>>>>>> origin/boomika
     const rate = parseFloat(editCommission);
     if (isNaN(rate) || rate < 0 || rate > 30) {
       showToast('Please enter a valid commission rate (0% - 30%).');
       return;
     }
+<<<<<<< HEAD
     let updated;
     try {
       updated = await updateAdminDealer(selectedDealer.id, { commissionRate: rate });
@@ -242,6 +405,43 @@ export default function AdminDealersPage() {
   };
 
   // (keep everything from here down exactly as it was)
+=======
+    const updated = updateAdminDealer(selectedDealer.id, { commissionRate: rate });
+    loadDealers();
+    setSelectedDealer(updated);
+    setIsEditingCommission(false);
+    showToast(`Commission rate updated to ${rate}% for ${updated.businessName}.`);
+  };
+
+  // Submit New Dealer
+  const handleCreateDealer = (e) => {
+    e.preventDefault();
+    setFormError('');
+
+    if (!newDealerForm.businessName.trim()) {
+      setFormError('Business name is required.');
+      return;
+    }
+    if (!newDealerForm.contactPerson.trim()) {
+      setFormError('Contact person name is required.');
+      return;
+    }
+    if (!newDealerForm.email.trim()) {
+      setFormError('Email address is required.');
+      return;
+    }
+    if (!newDealerForm.gstin.trim() || newDealerForm.gstin.length < 10) {
+      setFormError('A valid GSTIN is required for merchant compliance.');
+      return;
+    }
+
+    const created = createAdminDealer(newDealerForm);
+    loadDealers();
+    setIsOnboardOpen(false);
+    setNewDealerForm(initialFormState);
+    showToast(`Merchant ${created.businessName} successfully registered (#${created.id}).`);
+  };
+>>>>>>> origin/boomika
 
   // Status Badge Helper
   const getStatusBadge = (status) => {
@@ -254,9 +454,12 @@ export default function AdminDealersPage() {
         return 'bg-blue-50 text-blue-800 border-blue-300';
       case 'Suspended':
         return 'bg-rose-50 text-rose-800 border-rose-300';
+<<<<<<< HEAD
         case 'Rejected':
         return 'bg-rose-50 text-rose-800 border-rose-300';
 
+=======
+>>>>>>> origin/boomika
       default:
         return 'bg-neutral-100 text-neutral-800 border-neutral-200';
     }
@@ -303,6 +506,17 @@ export default function AdminDealersPage() {
               <span>Export Directory</span>
             </button>
 
+<<<<<<< HEAD
+=======
+            <button
+              type="button"
+              onClick={() => setIsOnboardOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#012D1D] hover:bg-[#1B4332] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5 text-[#AEEECB]" />
+              <span>Onboard New Dealer</span>
+            </button>
+>>>>>>> origin/boomika
           </div>
         }
       />
@@ -469,7 +683,11 @@ export default function AdminDealersPage() {
 
         {/* Status Filter Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none border-t border-[#C1C8C2]/30 pt-3">
+<<<<<<< HEAD
           {['All', 'Active', 'Pending KYC', 'Under Review', 'Suspended',"Rejected"].map((status) => {
+=======
+          {['All', 'Active', 'Pending KYC', 'Under Review', 'Suspended'].map((status) => {
+>>>>>>> origin/boomika
             const count = status === 'All'
               ? dealers.length
               : dealers.filter((d) => d.status === status).length;
@@ -655,6 +873,7 @@ export default function AdminDealersPage() {
                       {/* Actions */}
                       <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1.5">
+<<<<<<< HEAD
                           {/* Approve & Reject Buttons if pending */}
                           {(dealer.status === 'Pending KYC' || dealer.rawStatus === 'PENDING_KYC') && (
                             <>
@@ -697,6 +916,18 @@ export default function AdminDealersPage() {
                                 Reject
                               </button>
                             </>
+=======
+                          {/* Approve KYC Button if pending */}
+                          {(dealer.status === 'Pending KYC' || dealer.status === 'Under Review') && (
+                            <button
+                              type="button"
+                              onClick={(e) => handleApproveKYC(dealer.id, e)}
+                              title="Approve KYC and release hold"
+                              className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition-colors cursor-pointer"
+                            >
+                              Approve
+                            </button>
+>>>>>>> origin/boomika
                           )}
 
                           {/* Quick Inspect Button */}
@@ -712,7 +943,11 @@ export default function AdminDealersPage() {
                           {/* Suspend / Reactivate */}
                           <button
                             type="button"
+<<<<<<< HEAD
                             onClick={(e) => handleToggleStatus(dealer, e)}
+=======
+                            onClick={(e) => handleToggleStatus(dealer.id, e)}
+>>>>>>> origin/boomika
                             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                               dealer.status === 'Suspended'
                                 ? 'text-emerald-700 hover:bg-emerald-50'
@@ -802,6 +1037,7 @@ export default function AdminDealersPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
+<<<<<<< HEAD
                   <button type="button" onClick={handleOpenEditDetails} className="px-3 py-1.5 rounded-xl bg-white text-[#012D1D] border border-[#C1C8C2]/60 font-bold hover:bg-[#F3FCF3]">Edit Details</button>
                   <button type="button" onClick={() => handleResetCredentials(selectedDealer.id)} className="px-3 py-1.5 rounded-xl bg-white text-[#012D1D] border border-[#C1C8C2]/60 font-bold hover:bg-[#F3FCF3]">Reset Credentials</button>
                   {/* Approve & Reject buttons if pending */}
@@ -840,6 +1076,35 @@ export default function AdminDealersPage() {
                 </div>
               )}
 
+=======
+                  {/* Approve button if pending */}
+                  {(selectedDealer.status === 'Pending KYC' || selectedDealer.status === 'Under Review') && (
+                    <button
+                      type="button"
+                      onClick={() => handleApproveKYC(selectedDealer.id)}
+                      className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-all shadow-xs cursor-pointer"
+                    >
+                      Approve KYC Application
+                    </button>
+                  )}
+
+                  {/* Payout Hold Toggle */}
+                  <button
+                    type="button"
+                    onClick={() => handleTogglePayoutHold(selectedDealer.id)}
+                    className={`px-3 py-1.5 rounded-xl font-bold transition-colors cursor-pointer flex items-center gap-1.5 border ${
+                      selectedDealer.payoutHold
+                        ? 'bg-rose-50 text-rose-800 border-rose-300 hover:bg-rose-100'
+                        : 'bg-white text-[#3F4943] border-[#C1C8C2]/60 hover:bg-[#F3FCF3]'
+                    }`}
+                  >
+                    {selectedDealer.payoutHold ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
+                    <span>{selectedDealer.payoutHold ? 'Payouts Locked' : 'Payouts Active'}</span>
+                  </button>
+                </div>
+              </div>
+
+>>>>>>> origin/boomika
               {/* Performance Metrics Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="p-3 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-center">
@@ -952,6 +1217,7 @@ export default function AdminDealersPage() {
                 )}
               </div>
 
+<<<<<<< HEAD
               {/* Bank Settlement Account Verification Matrix */}
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
@@ -1157,11 +1423,42 @@ export default function AdminDealersPage() {
                     >
                       {preset}
                     </button>
+=======
+              {/* KYC Document Verification Matrix */}
+              <div className="space-y-2.5">
+                <span className="font-bold uppercase tracking-wider text-[#717973] font-mono text-[10px] block">
+                  Mandatory Compliance Verification Documents
+                </span>
+                <div className="space-y-2">
+                  {selectedDealer.kycDocuments?.map((doc, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/40 flex items-center justify-between gap-2"
+                    >
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-[#717973]" />
+                        <span className="font-semibold text-[#151D18]">{doc.name}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-[10px] text-[#717973]">{doc.uploadDate}</span>
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                            doc.status === 'Verified'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-amber-100 text-amber-900'
+                          }`}
+                        >
+                          {doc.status}
+                        </span>
+                      </div>
+                    </div>
+>>>>>>> origin/boomika
                   ))}
                 </div>
               </div>
             </div>
 
+<<<<<<< HEAD
             {/* Actions */}
             <div className="flex justify-end items-center gap-2.5 pt-2 border-t border-gray-100">
               <button
@@ -1186,12 +1483,319 @@ export default function AdminDealersPage() {
                 ) : (
                   <span>Confirm Rejection &amp; Send Mail</span>
                 )}
+=======
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-[#C1C8C2]/50 bg-[#F8FAF8] flex items-center justify-between shrink-0">
+              <span className="text-[11px] font-mono text-[#717973]">
+                Joined Platform: {selectedDealer.joinedDate}
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsDetailOpen(false)}
+                className="px-4 py-2 rounded-xl bg-[#012D1D] text-white font-bold text-xs hover:bg-[#1B4332] cursor-pointer"
+              >
+                Close Inspector
+>>>>>>> origin/boomika
               </button>
             </div>
           </div>
         </div>
       )}
 
+<<<<<<< HEAD
+=======
+      {/* 5. MODAL B: Onboard New Dealer Form */}
+      {isOnboardOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+          <div
+            className="fixed inset-0 bg-[#012D1D]/50 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsOnboardOpen(false)}
+            aria-hidden="true"
+          />
+
+          <div className="relative w-full max-w-2xl bg-white rounded-3xl border border-[#C1C8C2]/70 shadow-2xl overflow-hidden z-10 max-h-[92vh] flex flex-col">
+            {/* Header */}
+            <div className="bg-[#012D1D] p-5 sm:p-6 text-white flex items-center justify-between shrink-0">
+              <div>
+                <h3 className="text-lg font-extrabold font-heading">
+                  Onboard Authorized Dealership
+                </h3>
+                <p className="text-xs text-neutral-300 mt-0.5">
+                  Register a regional tractor, implement or fertilizer distributor into the GROVE network.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsOnboardOpen(false)}
+                className="p-1 rounded-xl text-neutral-400 hover:text-white hover:bg-white/10 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleCreateDealer} className="p-5 sm:p-6 overflow-y-auto space-y-5 flex-1 text-xs">
+              {formError && (
+                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-semibold flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-red-600" />
+                  <span>{formError}</span>
+                </div>
+              )}
+
+              {/* Section 1: Business Profile */}
+              <div className="space-y-3">
+                <span className="font-bold uppercase tracking-wider text-[#717973] font-mono text-[10px] block">
+                  1. Business Identity &amp; Contact
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#3F4943] mb-1">
+                      Business / Trading Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={newDealerForm.businessName}
+                      onChange={(e) => setNewDealerForm({ ...newDealerForm, businessName: e.target.value })}
+                      placeholder="e.g. Sahyadri Agro Harvesters"
+                      className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-medium focus:outline-none focus:border-[#012D1D]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#3F4943] mb-1">
+                      Primary Contact Person *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={newDealerForm.contactPerson}
+                      onChange={(e) => setNewDealerForm({ ...newDealerForm, contactPerson: e.target.value })}
+                      placeholder="e.g. Vikram Deshmukh"
+                      className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-medium focus:outline-none focus:border-[#012D1D]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#3F4943] mb-1">
+                      Business Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={newDealerForm.email}
+                      onChange={(e) => setNewDealerForm({ ...newDealerForm, email: e.target.value })}
+                      placeholder="dealer@grove.com"
+                      className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-medium focus:outline-none focus:border-[#012D1D]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#3F4943] mb-1">
+                      Contact Phone *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={newDealerForm.phone}
+                      onChange={(e) => setNewDealerForm({ ...newDealerForm, phone: e.target.value })}
+                      placeholder="+91 98200 00000"
+                      className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-medium focus:outline-none focus:border-[#012D1D]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 2: Location & Warehouse */}
+              <div className="space-y-3 pt-2 border-t border-[#C1C8C2]/30">
+                <span className="font-bold uppercase tracking-wider text-[#717973] font-mono text-[10px] block">
+                  2. Regional Location &amp; Warehouse Depot
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#3F4943] mb-1">
+                      State *
+                    </label>
+                    <select
+                      value={newDealerForm.state}
+                      onChange={(e) => setNewDealerForm({ ...newDealerForm, state: e.target.value })}
+                      className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-medium focus:outline-none focus:border-[#012D1D]"
+                    >
+                      <option value="Maharashtra">Maharashtra</option>
+                      <option value="Punjab">Punjab</option>
+                      <option value="Madhya Pradesh">Madhya Pradesh</option>
+                      <option value="Telangana">Telangana</option>
+                      <option value="Karnataka">Karnataka</option>
+                      <option value="Gujarat">Gujarat</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#3F4943] mb-1">
+                      City / District *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={newDealerForm.city}
+                      onChange={(e) => setNewDealerForm({ ...newDealerForm, city: e.target.value })}
+                      placeholder="e.g. Pune"
+                      className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-medium focus:outline-none focus:border-[#012D1D]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#3F4943] mb-1">
+                      Postal Pincode *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={newDealerForm.pincode}
+                      onChange={(e) => setNewDealerForm({ ...newDealerForm, pincode: e.target.value })}
+                      placeholder="411026"
+                      className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-medium focus:outline-none focus:border-[#012D1D]"
+                    />
+                  </div>
+                  <div className="sm:col-span-3">
+                    <label className="block text-[11px] font-bold text-[#3F4943] mb-1">
+                      Depot / Facility Physical Address
+                    </label>
+                    <input
+                      type="text"
+                      value={newDealerForm.warehouseAddress}
+                      onChange={(e) => setNewDealerForm({ ...newDealerForm, warehouseAddress: e.target.value })}
+                      placeholder="Plot 12, MIDC Industrial Area, Heavy Bay #2"
+                      className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-medium focus:outline-none focus:border-[#012D1D]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 3: Tax & Commercials */}
+              <div className="space-y-3 pt-2 border-t border-[#C1C8C2]/30">
+                <span className="font-bold uppercase tracking-wider text-[#717973] font-mono text-[10px] block">
+                  3. Tax Compliance &amp; Commercial Terms
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  <div className="sm:col-span-2">
+                    <label className="block text-[11px] font-bold text-[#3F4943] mb-1">
+                      GSTIN (15 Digits) *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={newDealerForm.gstin}
+                      onChange={(e) => setNewDealerForm({ ...newDealerForm, gstin: e.target.value.toUpperCase() })}
+                      placeholder="27AABCA1234F1Z5"
+                      className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-mono font-bold focus:outline-none focus:border-[#012D1D]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#3F4943] mb-1">
+                      Dealer Tier
+                    </label>
+                    <select
+                      value={newDealerForm.tier}
+                      onChange={(e) => setNewDealerForm({ ...newDealerForm, tier: e.target.value })}
+                      className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-medium focus:outline-none focus:border-[#012D1D]"
+                    >
+                      <option value="Gold Tier">Gold Tier</option>
+                      <option value="Silver Tier">Silver Tier</option>
+                      <option value="Bronze Tier">Bronze Tier</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#3F4943] mb-1">
+                      Commission %
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="30"
+                      value={newDealerForm.commissionRate}
+                      onChange={(e) => setNewDealerForm({ ...newDealerForm, commissionRate: e.target.value })}
+                      className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-mono font-bold text-center focus:outline-none focus:border-[#012D1D]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 4: Settlement Banking */}
+              <div className="space-y-3 pt-2 border-t border-[#C1C8C2]/30">
+                <span className="font-bold uppercase tracking-wider text-[#717973] font-mono text-[10px] block">
+                  4. Escrow Payout Banking Details
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#3F4943] mb-1">
+                      Bank Name
+                    </label>
+                    <input
+                      type="text"
+                      value={newDealerForm.bankName}
+                      onChange={(e) => setNewDealerForm({ ...newDealerForm, bankName: e.target.value })}
+                      placeholder="e.g. HDFC Bank"
+                      className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-medium focus:outline-none focus:border-[#012D1D]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#3F4943] mb-1">
+                      Account Beneficiary Name
+                    </label>
+                    <input
+                      type="text"
+                      value={newDealerForm.bankAccountName}
+                      onChange={(e) => setNewDealerForm({ ...newDealerForm, bankAccountName: e.target.value })}
+                      placeholder="e.g. Sahyadri Harvesters Pvt Ltd"
+                      className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-medium focus:outline-none focus:border-[#012D1D]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#3F4943] mb-1">
+                      Account Number
+                    </label>
+                    <input
+                      type="text"
+                      value={newDealerForm.bankAccountNumber}
+                      onChange={(e) => setNewDealerForm({ ...newDealerForm, bankAccountNumber: e.target.value })}
+                      placeholder="9120200849921"
+                      className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-mono focus:outline-none focus:border-[#012D1D]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#3F4943] mb-1">
+                      IFSC Code
+                    </label>
+                    <input
+                      type="text"
+                      value={newDealerForm.bankIfsc}
+                      onChange={(e) => setNewDealerForm({ ...newDealerForm, bankIfsc: e.target.value.toUpperCase() })}
+                      placeholder="HDFC0001248"
+                      className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-mono font-bold focus:outline-none focus:border-[#012D1D]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="pt-4 border-t border-[#C1C8C2]/40 flex items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setIsOnboardOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-white border border-[#C1C8C2]/70 text-[#3F4943] hover:bg-[#F3FCF3] font-bold text-xs cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-[#012D1D] hover:bg-[#1B4332] text-white font-bold text-xs transition-all shadow-xs cursor-pointer"
+                >
+                  Complete Merchant Registration
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+>>>>>>> origin/boomika
     </AdminLayout>
   );
 }

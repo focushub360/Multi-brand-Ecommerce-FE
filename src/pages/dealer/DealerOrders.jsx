@@ -39,6 +39,7 @@ export default function DealerOrders() {
     syncDealerDataFromApi(activeId).then(() => {
       loadOrders();
     }).catch(() => {});
+<<<<<<< HEAD
 
     const handleUpdate = () => {
       loadOrders();
@@ -59,6 +60,8 @@ export default function DealerOrders() {
       window.removeEventListener('grove_orders_updated', handleUpdate);
       window.removeEventListener('storage', handleUpdate);
     };
+=======
+>>>>>>> origin/boomika
   }, []);
 
   const handleRefresh = () => {
@@ -70,24 +73,31 @@ export default function DealerOrders() {
     });
   };
 
+<<<<<<< HEAD
   // Reset to page 1 whenever filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, activeTab]);
 
+=======
+>>>>>>> origin/boomika
   const tabs = useMemo(() => [
     { name: 'All Orders', count: orders.length },
     { name: 'Placed', count: orders.filter(o => o.orderStatus === 'Placed').length, urgent: true },
     { name: 'Processing', count: orders.filter(o => o.orderStatus === 'Processing').length },
     { name: 'Packed', count: orders.filter(o => o.orderStatus === 'Packed').length },
     { name: 'Shipped', count: orders.filter(o => o.orderStatus === 'Shipped').length },
+<<<<<<< HEAD
     { name: 'Out for Delivery', count: orders.filter(o => o.orderStatus === 'Out for Delivery').length },
+=======
+>>>>>>> origin/boomika
     { name: 'Delivered', count: orders.filter(o => o.orderStatus === 'Delivered').length },
     { name: 'Cancelled', count: orders.filter(o => o.orderStatus === 'Cancelled').length },
     { name: 'Returns', count: orders.filter(o => o.orderStatus === 'Returns').length },
   ], [orders]);
 
   const filteredOrders = useMemo(() => {
+<<<<<<< HEAD
     const rawQuery = searchQuery.trim().toLowerCase();
     const cleanQuery = rawQuery.replace(/^#/, '');
 
@@ -134,6 +144,23 @@ export default function DealerOrders() {
         return false;
       }
 
+=======
+    return orders.filter(order => {
+      // Tab filter
+      if (activeTab !== 'All Orders' && order.orderStatus !== activeTab) {
+        return false;
+      }
+      // Search query
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const matchesId = (order.id || '').toLowerCase().includes(query) || (order.orderNumber || '').toLowerCase().includes(query);
+        const matchesProduct = (order.product?.name || '').toLowerCase().includes(query) || (order.items || []).some(i => (i.name || '').toLowerCase().includes(query));
+        const matchesCustomer = (order.customer?.name || '').toLowerCase().includes(query) || (order.customer?.city || '').toLowerCase().includes(query);
+        if (!matchesId && !matchesProduct && !matchesCustomer) {
+          return false;
+        }
+      }
+>>>>>>> origin/boomika
       return true;
     });
   }, [orders, activeTab, searchQuery]);

@@ -32,6 +32,7 @@ export default function DealerOrderDetails() {
 
   useEffect(() => {
     let isMounted = true;
+<<<<<<< HEAD
     let isFetching = false;
     const activeId = getActiveDealerId();
 
@@ -84,6 +85,29 @@ export default function DealerOrderDetails() {
       window.removeEventListener('grove_orders_updated', handleStorageUpdate);
       window.removeEventListener('storage', handleStorageUpdate);
     };
+=======
+    const activeId = getActiveDealerId();
+    const found = getDealerOrderById(activeId, id);
+    if (found) {
+      setOrder(found);
+      setNotFound(false);
+    }
+
+    fetchDealerOrderById(id, activeId).then((live) => {
+      if (!isMounted) return;
+      if (live) {
+        setOrder(live);
+        setNotFound(false);
+      } else if (!found) {
+        setNotFound(true);
+      }
+    }).catch(() => {
+      if (!isMounted) return;
+      if (!found) setNotFound(true);
+    });
+
+    return () => { isMounted = false; };
+>>>>>>> origin/boomika
   }, [id]);
 
   if (notFound) {
@@ -134,6 +158,7 @@ export default function DealerOrderDetails() {
     }
   };
 
+<<<<<<< HEAD
   const handleStatusChange = async (newStatus) => {
     if (!order) return;
     const activeId = getActiveDealerId();
@@ -158,6 +183,14 @@ export default function DealerOrderDetails() {
     } catch (err) {
       console.error('Failed to update status:', err);
       showToast('Warning: Could not sync status with server');
+=======
+  const handleStatusChange = (newStatus) => {
+    const activeId = getActiveDealerId();
+    const updated = updateDealerOrderStatus(order.id, newStatus, activeId);
+    if (updated) {
+      setOrder({ ...updated });
+      showToast(`Order status updated to ${newStatus}`);
+>>>>>>> origin/boomika
     }
   };
 
@@ -181,13 +214,21 @@ export default function DealerOrderDetails() {
       return 'completed';
     }
     if (stepName === 'Shipped') {
+<<<<<<< HEAD
       if (['Shipped', 'Out for Delivery', 'Delivered'].includes(status)) return 'completed';
+=======
+      if (['Shipped', 'Delivered'].includes(status)) return 'completed';
+>>>>>>> origin/boomika
       if (['Processing', 'Packed', 'Placed'].includes(status)) return 'current';
       return 'upcoming';
     }
     if (stepName === 'Out for Delivery') {
       if (status === 'Delivered') return 'completed';
+<<<<<<< HEAD
       if (status === 'Out for Delivery') return 'current';
+=======
+      if (status === 'Shipped') return 'current';
+>>>>>>> origin/boomika
       return 'upcoming';
     }
     if (stepName === 'Delivered') {
@@ -255,7 +296,10 @@ export default function DealerOrderDetails() {
                 <option value="Processing">Status: Processing</option>
                 <option value="Packed">Status: Packed</option>
                 <option value="Shipped">Status: Shipped</option>
+<<<<<<< HEAD
                 <option value="Out for Delivery">Status: Out for Delivery</option>
+=======
+>>>>>>> origin/boomika
                 <option value="Delivered">Status: Delivered</option>
                 <option value="Cancelled">Status: Cancelled</option>
               </select>
@@ -292,10 +336,15 @@ export default function DealerOrderDetails() {
                     style={{
                       width: 
                         order.orderStatus === 'Delivered' ? '100%' :
+<<<<<<< HEAD
                         order.orderStatus === 'Out for Delivery' ? '66%' :
                         order.orderStatus === 'Shipped' ? '33%' :
                         order.orderStatus === 'Packed' ? '22%' :
                         order.orderStatus === 'Processing' ? '12%' : '0%'
+=======
+                        order.orderStatus === 'Shipped' ? '66%' :
+                        order.orderStatus === 'Packed' || order.orderStatus === 'Processing' ? '33%' : '15%'
+>>>>>>> origin/boomika
                     }}
                   />
                 </div>
@@ -368,6 +417,7 @@ export default function DealerOrderDetails() {
                       Out for Delivery
                     </span>
                     <span className="text-[11px] font-mono text-[#717973]">
+<<<<<<< HEAD
                       {order.orderStatus === 'Delivered'
                         ? 'Completed'
                         : order.orderStatus === 'Out for Delivery'
@@ -375,6 +425,9 @@ export default function DealerOrderDetails() {
                         : order.orderStatus === 'Shipped'
                         ? 'In Transit'
                         : 'Upcoming'}
+=======
+                      {order.orderStatus === 'Delivered' ? 'Completed' : order.orderStatus === 'Shipped' ? 'In Transit' : 'Upcoming'}
+>>>>>>> origin/boomika
                     </span>
                   </div>
                 </div>
@@ -435,9 +488,13 @@ export default function DealerOrderDetails() {
               </div>
 
               <div className="divide-y divide-[#C1C8C2]/30">
+<<<<<<< HEAD
                 {((order.items && order.items.length > 0) ? order.items : (order.product ? [order.product] : [])).map((item, idx) => {
                   if (!item) return null;
                   return (
+=======
+                {(order.items && order.items.length > 0 ? order.items : [order.product]).map((item, idx) => (
+>>>>>>> origin/boomika
                   <div key={item.sku || idx} className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-start gap-4 min-w-0">
                       <img
@@ -475,7 +532,11 @@ export default function DealerOrderDetails() {
                       </span>
                     </div>
                   </div>
+<<<<<<< HEAD
                 ); })}
+=======
+                ))}
+>>>>>>> origin/boomika
               </div>
             </div>
 

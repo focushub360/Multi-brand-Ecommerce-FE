@@ -4,6 +4,10 @@ import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import {
   getAdminOrders,
   getAdminOrderKPIs,
+<<<<<<< HEAD
+=======
+  updateAdminOrderStatus,
+>>>>>>> origin/boomika
   syncAdminDataFromApi
 } from '../../services/adminService';
 import {
@@ -24,6 +28,12 @@ export default function AdminOrdersPage() {
   // Detail Modal & Action
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+<<<<<<< HEAD
+=======
+  const [newStatus, setNewStatus] = useState('');
+  const [trackingNumber, setTrackingNumber] = useState('');
+  const [carrier, setCarrier] = useState('Delhivery Cargo');
+>>>>>>> origin/boomika
   const [toastMessage, setToastMessage] = useState(null);
 
   const loadData = () => {
@@ -85,9 +95,27 @@ export default function AdminOrdersPage() {
 
   const handleOpenDetail = (order) => {
     setSelectedOrder(order);
+<<<<<<< HEAD
     setIsDetailOpen(true);
   };
 
+=======
+    setNewStatus(order.orderStatus);
+    setTrackingNumber(order.trackingNumber || '');
+    setCarrier(order.carrier || 'Delhivery Cargo');
+    setIsDetailOpen(true);
+  };
+
+  const handleUpdateStatus = (e) => {
+    e.preventDefault();
+    if (!selectedOrder) return;
+    const updated = updateAdminOrderStatus(selectedOrder.id, newStatus, trackingNumber, carrier);
+    loadData();
+    setSelectedOrder(updated);
+    showToast(`Order #${selectedOrder.id} status updated to ${newStatus}.`);
+  };
+
+>>>>>>> origin/boomika
   const getStatusBadge = (st) => {
     switch (st?.toLowerCase()) {
       case 'delivered':
@@ -355,12 +383,66 @@ export default function AdminOrdersPage() {
               </div>
             </div>
 
+<<<<<<< HEAD
             <div className="p-4 rounded-2xl bg-[#F8FAF8] border border-[#C1C8C2]/40 text-xs">
               <span className="font-bold uppercase tracking-wider text-[#717973] font-mono text-[11px] block">Order progress (read-only)</span>
               <span className="mt-2 inline-flex px-2.5 py-1 rounded-full border font-bold">{selectedOrder.orderStatus}</span>
               {selectedOrder.carrier && <p className="mt-2 text-[#3F4943]">Carrier: {selectedOrder.carrier}</p>}
               {selectedOrder.trackingNumber && <p className="text-[#3F4943]">Tracking: {selectedOrder.trackingNumber}</p>}
             </div>
+=======
+            {/* Lifecycle Status Modification Form */}
+            <form onSubmit={handleUpdateStatus} className="p-4 rounded-2xl bg-white border border-[#012D1D]/30 shadow-xs space-y-3 text-xs">
+              <span className="font-bold uppercase tracking-wider text-[#012D1D] font-mono text-[11px] block">
+                Admin Lifecycle State Transition
+              </span>
+
+              <div>
+                <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Order Status</label>
+                <select
+                  value={newStatus}
+                  onChange={(e) => setNewStatus(e.target.value)}
+                  className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-semibold"
+                >
+                  <option value="Placed">Placed</option>
+                  <option value="Processing">Processing</option>
+                  <option value="Packed">Packed</option>
+                  <option value="Shipped">Shipped</option>
+                  <option value="Delivered">Delivered (Clear Escrow)</option>
+                  <option value="Cancelled">Cancelled (Refund)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Carrier</label>
+                <input
+                  type="text"
+                  value={carrier}
+                  onChange={(e) => setCarrier(e.target.value)}
+                  placeholder="e.g. Delhivery Cargo Express"
+                  className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Tracking Consignment Number</label>
+                <input
+                  type="text"
+                  value={trackingNumber}
+                  onChange={(e) => setTrackingNumber(e.target.value)}
+                  placeholder="e.g. DLH-992011"
+                  className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-mono"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-2.5 rounded-xl bg-[#012D1D] hover:bg-[#1B4332] text-white font-bold text-xs"
+              >
+                Update Order Lifecycle State
+              </button>
+            </form>
+>>>>>>> origin/boomika
           </div>
         </div>
       )}

@@ -2,6 +2,7 @@ import { adminApi, productsApi, ordersApi, categoriesApi } from './apiClient.js'
 
 const defaultDashboardData = {
   kpis: {
+<<<<<<< HEAD
     totalDealers: { value: 0, growth: '—', subtext: 'Approved dealers' },
     totalCustomers: { value: 0, growth: '—', subtext: 'Registered users' },
     totalProducts: { value: 0, growth: '—', subtext: 'Catalog products' },
@@ -17,6 +18,41 @@ const defaultDashboardData = {
   },
   revenueTrend: [],
   orderStatusSummary: [],
+=======
+    grossMerchandiseValue: '₹4,82,50,000',
+    grossMerchandiseValueRaw: 48250000,
+    gmvTrendPercentage: '+14.2%',
+    activeDealers: 12,
+    activeDealersTrend: '+2 this month',
+    totalOrders: 1420,
+    totalOrdersTrend: '+8.5%',
+    slaFulfillmentRate: '98.6%',
+    slaTrend: '+0.4%',
+    pendingKYCApprovals: 3,
+    openDisputes: 5
+  },
+  salesOverview: {
+    '30D': { totalSales: 48250000, orders: 1420, averageOrderValue: 33978 },
+    '90D': { totalSales: 138500000, orders: 4120, averageOrderValue: 33616 },
+    '1Y': { totalSales: 542000000, orders: 16800, averageOrderValue: 32261 }
+  },
+  revenueTrend: [
+    { month: 'Jan', revenue: 3200000, orders: 95 },
+    { month: 'Feb', revenue: 3800000, orders: 110 },
+    { month: 'Mar', revenue: 4500000, orders: 130 },
+    { month: 'Apr', revenue: 4200000, orders: 120 },
+    { month: 'May', revenue: 5100000, orders: 150 },
+    { month: 'Jun', revenue: 5800000, orders: 170 }
+  ],
+  orderStatusSummary: {
+    placed: 12,
+    confirmed: 18,
+    processing: 25,
+    shipped: 32,
+    delivered: 1320,
+    cancelled: 13
+  },
+>>>>>>> origin/boomika
   topSellingProducts: [],
   dealerPerformance: [],
   recentOrders: [],
@@ -64,6 +100,7 @@ const STORAGE_KEYS = {
   INVENTORY_LOGS: 'grove_admin_inventory_logs'
 };
 
+<<<<<<< HEAD
 // Module-level deduplication to prevent slamming backend with 13 parallel calls on every render
 let inFlightAdminSyncPromise = null;
 let lastAdminSyncTime = 0;
@@ -147,6 +184,17 @@ async function doSyncAdminDataFromApi() {
       await Promise.allSettled([
         adminApi.getDealers(),
         adminApi.getProducts({ limit: 100 }),
+=======
+/**
+ * Asynchronously synchronizes all admin collections from the live backend MongoDB API.
+ */
+export async function syncAdminDataFromApi() {
+  try {
+    const [dealersRes, prodsRes, ordersRes, catsRes, locsRes, setsRes, complsRes, logsRes, settingsRes, usersRes] =
+      await Promise.allSettled([
+        adminApi.getDealers(),
+        productsApi.getAll({ limit: 100 }),
+>>>>>>> origin/boomika
         ordersApi.getAdminOrders(),
         categoriesApi.getAll(),
         adminApi.getLocations(),
@@ -154,10 +202,14 @@ async function doSyncAdminDataFromApi() {
         adminApi.getComplaints(),
         adminApi.getAuditLogs(),
         adminApi.getSettings(),
+<<<<<<< HEAD
         adminApi.getUsers(),
         adminApi.getPayments(),
         adminApi.getInventoryTransactions({ limit: 100 }),
         adminApi.getOverview()
+=======
+        adminApi.getUsers()
+>>>>>>> origin/boomika
       ]);
 
     if (dealersRes.status === 'fulfilled') {
@@ -246,6 +298,7 @@ async function doSyncAdminDataFromApi() {
       }
     }
 
+<<<<<<< HEAD
     if (inventoryRes.status === 'fulfilled') {
       const movements = inventoryRes.value?.data || inventoryRes.value || [];
       if (Array.isArray(movements)) {
@@ -267,18 +320,32 @@ async function doSyncAdminDataFromApi() {
     if (usersRes.status === 'fulfilled') {
       const users = usersRes.value?.users || usersRes.value?.data || (Array.isArray(usersRes.value) ? usersRes.value : []);
       if (Array.isArray(users)) {
+=======
+    if (settingsRes.status === 'fulfilled' && settingsRes.value?.settings) {
+      saveAdminSettings(settingsRes.value.settings);
+    }
+
+    if (usersRes.status === 'fulfilled') {
+      const users = usersRes.value?.users || (Array.isArray(usersRes.value) ? usersRes.value : []);
+      if (users.length > 0) {
+>>>>>>> origin/boomika
         saveAdminCustomers(users.map((u) => ({
           ...u,
           id: u.id || u._id,
           name: u.name,
           email: u.email,
           phone: u.phone || '—',
+<<<<<<< HEAD
           status: u.status === 'ACTIVE' ? 'Active' : 'Suspended',
+=======
+          status: u.isActive !== false ? 'Active' : 'Suspended',
+>>>>>>> origin/boomika
           ordersCount: u.ordersCount || 0,
           totalSpent: u.totalSpent || 0
         })));
       }
     }
+<<<<<<< HEAD
 
     if (paymentsRes.status === 'fulfilled') {
       const result = paymentsRes.value?.data || paymentsRes.value || {};
@@ -397,6 +464,8 @@ async function doSyncAdminDataFromApi() {
         topProducts: overview.topProducts || []
       }));
     }
+=======
+>>>>>>> origin/boomika
   } catch (err) {
     console.warn('Backend admin sync warning:', err.message);
   }
@@ -411,7 +480,11 @@ export function getAdminDashboardData() {
     const stored = localStorage.getItem(STORAGE_KEYS.DASHBOARD_DATA);
     if (stored) {
       const parsed = JSON.parse(stored);
+<<<<<<< HEAD
       if (parsed && typeof parsed === 'object' && parsed.kpis?.totalDealers) {
+=======
+      if (parsed && typeof parsed === 'object' && parsed.kpis) {
+>>>>>>> origin/boomika
         return parsed;
       }
     }
@@ -429,6 +502,7 @@ export function saveAdminDashboardData(data) {
   }
 }
 
+<<<<<<< HEAD
 const inr = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 const lakh = (n) => `₹${(Number(n || 0) / 100000).toFixed(2)}L`;
 const orderDate = (o) => new Date(o.createdAt || o.date || 0);
@@ -567,6 +641,49 @@ export function getAdminRecentTickets() {
 }
 
 
+=======
+export function getAdminKPIs() {
+  const data = getAdminDashboardData();
+  return data.kpis;
+}
+
+export function getAdminSalesOverview(range = '30D') {
+  const data = getAdminDashboardData();
+  const salesByRange = data.salesOverview || {};
+  return salesByRange[range] || salesByRange['30D'];
+}
+
+export function getAdminRevenueTrend() {
+  const data = getAdminDashboardData();
+  return data.revenueTrend || [];
+}
+
+export function getAdminOrderStatusSummary() {
+  const data = getAdminDashboardData();
+  return data.orderStatusSummary || [];
+}
+
+export function getAdminTopSellingProducts() {
+  const data = getAdminDashboardData();
+  return data.topSellingProducts || [];
+}
+
+export function getAdminDealerPerformance() {
+  const data = getAdminDashboardData();
+  return data.dealerPerformance || [];
+}
+
+export function getAdminRecentOrders() {
+  const data = getAdminDashboardData();
+  return data.recentOrders || [];
+}
+
+export function getAdminRecentTickets() {
+  const data = getAdminDashboardData();
+  return data.recentTickets || [];
+}
+
+>>>>>>> origin/boomika
 // ==========================================
 // 2. DEALER MANAGEMENT SERVICE
 // ==========================================
@@ -722,6 +839,7 @@ export function getAdminProductById(id) {
   return products.find((p) => p.id === id) || null;
 }
 
+<<<<<<< HEAD
 export async function updateAdminProduct(id, updatedFields) {
   const result = await adminApi.updateProduct(id, updatedFields);
   const actual = result?.data || result;
@@ -733,11 +851,56 @@ export async function updateAdminProduct(id, updatedFields) {
 
 export async function deleteAdminProduct(id) {
   await adminApi.deleteProduct(id);
+=======
+export function createAdminProduct(productData) {
+  const products = getAdminProducts();
+  const nextNum = products.length + 1;
+  const newProduct = {
+    id: `PROD_${String(nextNum).padStart(3, '0')}`,
+    sku: productData.sku || `SKU-AGR-${nextNum}`,
+    name: productData.name || 'New Catalog Product',
+    description: productData.description || 'Commercial agriculture specification listing.',
+    category: productData.category || 'Agriculture & Farming',
+    subcategory: productData.subcategory || 'General Equipment',
+    dealerId: productData.dealerId || 'DEALER_001',
+    dealerName: productData.dealerName || 'Apex Agri-Tech & Machinery',
+    price: Number(productData.price) || 1000,
+    mrp: Number(productData.mrp) || Math.round((Number(productData.price) || 1000) * 1.2),
+    stock: Number(productData.stock) || 50,
+    threshold: Number(productData.threshold) || 10,
+    status: productData.status || 'Active',
+    image: productData.image || '/images/prod-drip.png',
+    rating: 4.8,
+    totalSales: 0,
+    location: productData.location || 'Depot A • Bay 01',
+    createdAt: new Date().toISOString().split('T')[0]
+  };
+
+  const updated = [newProduct, ...products];
+  saveAdminProducts(updated);
+  recordAdminAuditLog('Product Created', 'Products', `Created listing: ${newProduct.name} (#${newProduct.sku})`);
+  return newProduct;
+}
+
+export function updateAdminProduct(id, updatedFields) {
+  const products = getAdminProducts();
+  const updated = products.map((p) => (p.id === id ? { ...p, ...updatedFields } : p));
+  saveAdminProducts(updated);
+  recordAdminAuditLog('Product Updated', 'Products', `Updated product #${id}`);
+  return updated.find((p) => p.id === id);
+}
+
+export function deleteAdminProduct(id) {
+>>>>>>> origin/boomika
   const products = getAdminProducts();
   const target = products.find((p) => p.id === id);
   const updated = products.filter((p) => p.id !== id);
   saveAdminProducts(updated);
   if (target) {
+<<<<<<< HEAD
+=======
+    recordAdminAuditLog('Product Deleted', 'Products', `Deleted listing: ${target.name} (#${id})`);
+>>>>>>> origin/boomika
   }
   return true;
 }
@@ -776,6 +939,7 @@ export function getAdminInventoryMovementLogs() {
     if (raw) return JSON.parse(raw);
   } catch {}
 
+<<<<<<< HEAD
   return [];
 }
 
@@ -783,11 +947,31 @@ export async function adjustAdminInventoryStock(productId, newQuantity, reason) 
   const products = getAdminProducts();
   const product = products.find((p) => p.id === productId);
   if (!product) throw new Error('Product not found. Refresh inventory and try again.');
+=======
+  const defaultLogs = [
+    { id: 'LOG-101', sku: 'AG-DRP-801', productName: 'HydroHarvest Drip Kit', dealer: 'Apex Agri-Tech', delta: '+20', newStock: 340, reason: 'Physical stock reconciliation', timestamp: 'Today, 10:15 AM', admin: 'Operations Lead' },
+    { id: 'LOG-102', sku: 'AU-ALT-404', productName: 'Duramax Tractor Alternator', dealer: 'Apex Agri-Tech', delta: '-8', newStock: 0, reason: 'Bulk warranty replacement write-off', timestamp: 'Yesterday, 04:30 PM', admin: 'GROVE Admin' },
+    { id: 'LOG-103', sku: 'AG-TRC-025', productName: 'Mini Tractor 25 HP', dealer: 'Kisan Agro Hub', delta: '+4', newStock: 8, reason: 'Inbound manufacturer shipment', timestamp: 'Oct 22, 11:00 AM', admin: 'GROVE Admin' },
+    { id: 'LOG-104', sku: 'AU-BRK-FRT', productName: 'Heavy-Duty Front Brake Pad Set', dealer: 'Kisan Agro Hub', delta: '-12', newStock: 3, reason: 'Wholesale order dispatch (#GRV-7704)', timestamp: 'Oct 21, 02:15 PM', admin: 'Operations Lead' }
+  ];
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.INVENTORY_LOGS, JSON.stringify(defaultLogs));
+  } catch {}
+  return defaultLogs;
+}
+
+export function adjustAdminInventoryStock(productId, newQuantity, reason, adminName = 'GROVE Admin') {
+  const products = getAdminProducts();
+  const product = products.find((p) => p.id === productId);
+  if (!product) return null;
+>>>>>>> origin/boomika
 
   const oldStock = product.stock;
   const delta = newQuantity - oldStock;
   const deltaStr = delta >= 0 ? `+${delta}` : `${delta}`;
 
+<<<<<<< HEAD
   const response = await adminApi.adjustInventoryStock(productId, {
     quantityChange: delta,
     reason: reason || 'Admin stock correction',
@@ -796,6 +980,32 @@ export async function adjustAdminInventoryStock(productId, newQuantity, reason) 
   if (response?.success === false) throw new Error(response.message || 'Inventory adjustment failed.');
   await syncAdminDataFromApi();
   return { sku: product.sku, productName: product.name, dealer: product.dealerName, delta: deltaStr, newStock: newQuantity, reason };
+=======
+  // Update product
+  updateAdminProduct(productId, { stock: newQuantity });
+
+  // Record inventory log
+  const currentLogs = getAdminInventoryMovementLogs();
+  const newLog = {
+    id: `LOG-${Date.now().toString().slice(-4)}`,
+    sku: product.sku,
+    productName: product.name,
+    dealer: product.dealerName,
+    delta: deltaStr,
+    newStock: newQuantity,
+    reason: reason || 'Manual Admin stock adjustment',
+    timestamp: 'Just now',
+    admin: adminName
+  };
+
+  const updatedLogs = [newLog, ...currentLogs];
+  try {
+    localStorage.setItem(STORAGE_KEYS.INVENTORY_LOGS, JSON.stringify(updatedLogs));
+  } catch {}
+
+  recordAdminAuditLog('Stock Adjusted', 'Inventory', `${product.name} (${product.sku}): ${oldStock} → ${newQuantity} (${deltaStr})`);
+  return newLog;
+>>>>>>> origin/boomika
 }
 
 // ==========================================
@@ -1077,7 +1287,11 @@ export function getAdminAnalytics(period = 'monthly') {
       if (parsed && parsed.kpis) return parsed;
     }
   } catch {}
+<<<<<<< HEAD
   return { kpis: { totalGmv: '₹0', growthPercent: '—', totalOrders: 0, avgOrderValue: '₹0', commissionEarned: '₹0' }, dailyTrend: [], weeklyTrend: [], monthlyTrend: [], topProducts: [] };
+=======
+  return { overview: { totalRevenue: 48250000, totalOrders: 1420 } };
+>>>>>>> origin/boomika
 }
 
 // ==========================================
@@ -1089,10 +1303,33 @@ export function getAdminPaymentSummary() {
     const raw = localStorage.getItem(STORAGE_KEYS.PAYMENTS_DATA);
     if (raw) return JSON.parse(raw);
   } catch {}
+<<<<<<< HEAD
   return {
     summary: { totalVolume: '₹0', escrowHeld: '₹0', settledToDealers: '₹0', commissionRetained: '₹0' },
     transactions: [], dealerSettlements: []
   };
+=======
+  return { totalEscrow: '₹18,50,000', pendingPayouts: 3, settlements: [] };
+}
+
+export function releaseDealerPayout(batchId) {
+  const data = getAdminPaymentSummary();
+  const settlements = data.dealerSettlements || [];
+  const updatedSettlements = settlements.map((s) => {
+    if (s.id === batchId) {
+      return { ...s, status: 'Settled', payoutDate: 'Today' };
+    }
+    return s;
+  });
+
+  const updatedData = { ...data, dealerSettlements: updatedSettlements };
+  try {
+    localStorage.setItem(STORAGE_KEYS.PAYMENTS_DATA, JSON.stringify(updatedData));
+  } catch {}
+
+  recordAdminAuditLog('Payout Released', 'Payments', `Released payout batch #${batchId}`);
+  return updatedSettlements.find((s) => s.id === batchId);
+>>>>>>> origin/boomika
 }
 
 // ==========================================
@@ -1118,6 +1355,7 @@ export function saveAdminSupportTickets(tickets) {
   }
 }
 
+<<<<<<< HEAD
 export async function updateTicketStatus(id, newStatus, note = '', reason = '') {
   try {
     await adminApi.updateComplaintStatus(id, newStatus, note, reason);
@@ -1131,6 +1369,16 @@ export async function updateTicketStatus(id, newStatus, note = '', reason = '') 
       return {
         ...t,
         status: newStatus || t.status,
+=======
+export function updateTicketStatus(id, newStatus, newPriority = null) {
+  const tickets = getAdminSupportTickets();
+  const updated = tickets.map((t) => {
+    if (t.id === id) {
+      return {
+        ...t,
+        status: newStatus || t.status,
+        priority: newPriority || t.priority,
+>>>>>>> origin/boomika
         lastUpdated: 'Just now'
       };
     }
@@ -1138,6 +1386,7 @@ export async function updateTicketStatus(id, newStatus, note = '', reason = '') 
   });
   saveAdminSupportTickets(updated);
   recordAdminAuditLog('Ticket Status Updated', 'Support', `Ticket #${id} marked as ${newStatus}`);
+<<<<<<< HEAD
   return updated.find((t) => t.id === id || t._id === id);
 }
 
@@ -1151,6 +1400,15 @@ export async function addAdminReplyToTicket(id, message, isInternalNote = false,
   const tickets = getAdminSupportTickets();
   const updated = tickets.map((t) => {
     if (t.id === id || t._id === id) {
+=======
+  return updated.find((t) => t.id === id);
+}
+
+export function addAdminReplyToTicket(id, message, isInternalNote = false) {
+  const tickets = getAdminSupportTickets();
+  const updated = tickets.map((t) => {
+    if (t.id === id) {
+>>>>>>> origin/boomika
       if (isInternalNote) {
         return {
           ...t,
@@ -1160,6 +1418,7 @@ export async function addAdminReplyToTicket(id, message, isInternalNote = false,
       } else {
         const newMsg = {
           id: `m_${Date.now()}`,
+<<<<<<< HEAD
           sender: 'GROVE Platform Operations',
           senderRole: 'admin',
           timestamp: 'Just now',
@@ -1169,6 +1428,15 @@ export async function addAdminReplyToTicket(id, message, isInternalNote = false,
         return {
           ...t,
           status: status || (t.status === 'Open' ? 'In Progress' : t.status),
+=======
+          sender: 'GROVE Admin Operations',
+          senderRole: 'admin',
+          timestamp: 'Just now',
+          text: message
+        };
+        return {
+          ...t,
+>>>>>>> origin/boomika
           messages: [...(t.messages || []), newMsg],
           lastUpdated: 'Just now'
         };
@@ -1177,18 +1445,27 @@ export async function addAdminReplyToTicket(id, message, isInternalNote = false,
     return t;
   });
   saveAdminSupportTickets(updated);
+<<<<<<< HEAD
   return updated.find((t) => t.id === id || t._id === id);
+=======
+  return updated.find((t) => t.id === id);
+>>>>>>> origin/boomika
 }
 
 // ==========================================
 // 12. REPORTS & AUDIT LOGS SERVICE
 // ==========================================
 
+<<<<<<< HEAD
 export function getAdminReportsData() {
+=======
+export function getAdminReportsList() {
+>>>>>>> origin/boomika
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.REPORTS_DATA);
     if (raw) {
       const parsed = JSON.parse(raw);
+<<<<<<< HEAD
       if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
     }
   } catch (error) {
@@ -1212,14 +1489,39 @@ export function getAdminReportsList() {
 
 export function getAdminAuditLogs() {
   return getAdminReportsData().auditLogs || [];
+=======
+      if (parsed.availableReports) return parsed.availableReports;
+    }
+  } catch {}
+  return [];
+}
+
+export function getAdminAuditLogs() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.REPORTS_DATA);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed.auditLogs) return parsed.auditLogs;
+    }
+  } catch {}
+  return [];
+>>>>>>> origin/boomika
 }
 
 export function recordAdminAuditLog(action, module, details) {
   try {
+<<<<<<< HEAD
     const data = getAdminReportsData();
     const logs = data.auditLogs || [];
     const newEntry = {
       id: `AUD_${Date.now()}_${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+=======
+    const raw = localStorage.getItem(STORAGE_KEYS.REPORTS_DATA);
+    const data = raw ? JSON.parse(raw) : { auditLogs: [] };
+    const logs = data.auditLogs || [];
+    const newEntry = {
+      id: `AUD_${Math.floor(1000 + Math.random() * 9000)}`,
+>>>>>>> origin/boomika
       admin: 'GROVE Admin',
       role: 'Super Admin',
       action,
@@ -1229,7 +1531,11 @@ export function recordAdminAuditLog(action, module, details) {
       status: 'Success'
     };
     const updated = [newEntry, ...logs.slice(0, 49)];
+<<<<<<< HEAD
     saveAdminReportsData({ auditLogs: updated });
+=======
+    localStorage.setItem(STORAGE_KEYS.REPORTS_DATA, JSON.stringify({ ...data, auditLogs: updated }));
+>>>>>>> origin/boomika
   } catch {}
 }
 
@@ -1253,6 +1559,7 @@ export function saveAdminSettings(updated) {
     console.error('Error saving settings:', e);
   }
 }
+<<<<<<< HEAD
 
 /** Persist supported platform settings through the authenticated admin API. */
 export async function updateAdminSettings(updated) {
@@ -1296,3 +1603,5 @@ export async function updateAdminSettings(updated) {
   saveAdminSettings({ ...updated, ...saved });
   return saved;
 }
+=======
+>>>>>>> origin/boomika

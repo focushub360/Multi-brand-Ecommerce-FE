@@ -1,5 +1,9 @@
 import React from 'react';
+<<<<<<< HEAD
 import { NavLink, useLocation } from 'react-router-dom';
+=======
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+>>>>>>> origin/boomika
 import { 
   LayoutDashboard, 
   Package, 
@@ -8,9 +12,19 @@ import {
   BarChart3, 
   Settings, 
   HelpCircle, 
+<<<<<<< HEAD
   X,
   ExternalLink
 } from 'lucide-react';
+=======
+  LogOut, 
+  CheckCircle2, 
+  X,
+  ExternalLink
+} from 'lucide-react';
+import { getStoredDealer, clearStoredDealer, getActiveDealerId } from '../../utils/auth';
+import { getDealerById } from '../../services/dealerService';
+>>>>>>> origin/boomika
 
 const NAV_ITEMS = [
   { name: 'Overview', path: '/dealer/dashboard', icon: LayoutDashboard },
@@ -23,7 +37,23 @@ const NAV_ITEMS = [
 ];
 
 export default function DealerSidebar({ mobileOpen, onCloseMobile }) {
+<<<<<<< HEAD
   const location = useLocation();
+=======
+  const navigate = useNavigate();
+  const location = useLocation();
+  const user = getStoredDealer();
+  const activeDealerId = getActiveDealerId();
+  const dealerProfile = getDealerById(activeDealerId);
+
+  const dealerName = user?.name || dealerProfile?.name || 'GROVE Dealer';
+
+  const handleLogout = () => {
+    if (onCloseMobile) onCloseMobile();
+    clearStoredDealer();
+    navigate('/login', { replace: true });
+  };
+>>>>>>> origin/boomika
 
   const isItemActive = (path) => {
     if (path === '/dealer/dashboard') {
@@ -120,6 +150,38 @@ export default function DealerSidebar({ mobileOpen, onCloseMobile }) {
             })}
           </nav>
         </div>
+<<<<<<< HEAD
+=======
+
+        {/* Bottom Profile and Quick Info */}
+        <div className="p-2.5 border-t border-[#C1C8C2]/40 bg-[#EDF6ED]">
+          <div className="p-2.5 rounded-xl bg-white border border-[#C1C8C2]/40 flex flex-col gap-1.5 shadow-2xs">
+            <div className="flex items-start justify-between gap-1.5">
+              <div className="flex flex-col min-w-0">
+                <span className="text-sm font-bold text-[#151D18] truncate leading-tight">
+                  {dealerName}
+                </span>
+                <div className="flex items-center gap-1 mt-0.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#2C694E]" />
+                  <span className="text-[11px] text-[#2C694E] font-semibold">
+                    {dealerProfile?.badge || 'Verified Dealer'}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="text-[#717973] hover:text-[#BA1A1A] hover:bg-red-50 p-1.5 rounded-lg transition-colors shrink-0 cursor-pointer"
+                title="Logout"
+                aria-label="Logout"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+>>>>>>> origin/boomika
       </aside>
     </>
   );

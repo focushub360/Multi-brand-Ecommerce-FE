@@ -61,10 +61,13 @@ export default function ProductCard({ product }) {
       : null
   );
 
+<<<<<<< HEAD
   const isOutOfStock = product.stock !== undefined
     ? Number(product.stock) <= 0
     : (product.stockStatus === 'Out of Stock' || product.status === 'Draft' || product.inStock === false);
 
+=======
+>>>>>>> origin/boomika
   const reviewCount = product.reviewCount ?? product.reviews;
 
   return (
@@ -74,6 +77,7 @@ export default function ProductCard({ product }) {
         productUrl ? 'cursor-pointer' : ''
       }`}
     >
+<<<<<<< HEAD
       {/* Top Controls: Discount Badge / Out of Stock Badge & Wishlist Heart */}
       <div className="flex items-center justify-between w-full relative z-10 min-h-[20px] sm:min-h-[22px]">
         {isOutOfStock ? (
@@ -81,6 +85,11 @@ export default function ProductCard({ product }) {
             Out of Stock
           </span>
         ) : discountDisplay ? (
+=======
+      {/* Top Controls: Discount Badge & Wishlist Heart */}
+      <div className="flex items-center justify-between w-full relative z-10 min-h-[20px] sm:min-h-[22px]">
+        {discountDisplay ? (
+>>>>>>> origin/boomika
           <span className="bg-[#FF383F] text-white text-[9px] sm:text-[10px] md:text-[10.5px] font-bold px-1.5 py-0.5 rounded-[5px] leading-tight select-none">
             {discountDisplay}
           </span>

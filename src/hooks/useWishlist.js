@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { getStoredCustomer, setPendingAction, clearStoredCustomer } from '../utils/auth';
 import { wishlistApi } from '../services/apiClient.js';
 
+<<<<<<< HEAD
 // Module-level deduplication cache to prevent cascading requests across dozens of ProductCards
 let inFlightWishlistPromise = null;
 let lastWishlistFetchTime = 0;
@@ -55,6 +56,8 @@ async function fetchCustomerWishlistDeduplicated(customerId, force = false) {
   return inFlightWishlistPromise;
 }
 
+=======
+>>>>>>> origin/boomika
 export function useWishlist() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -72,6 +75,7 @@ export function useWishlist() {
 
   const [wishlist, setWishlist] = useState(getCustomerWishlist);
 
+<<<<<<< HEAD
   // Synchronize wishlist with live MongoDB database using request deduplication
   useEffect(() => {
     const customer = getStoredCustomer();
@@ -83,6 +87,28 @@ export function useWishlist() {
           }
         })
         .catch(() => {});
+=======
+  // Synchronize wishlist with live MongoDB database
+  useEffect(() => {
+    const customer = getStoredCustomer();
+    if (customer?.id) {
+      wishlistApi.get()
+        .then((res) => {
+          if (Array.isArray(res?.products)) {
+            const ids = res.products.map((p) => String(p._id || p.id));
+            const wishlistKey = `grove_wishlist_${customer.id}`;
+            localStorage.setItem(wishlistKey, JSON.stringify(ids));
+            setWishlist(ids);
+          }
+        })
+        .catch((err) => {
+          if (err.status === 401) {
+            clearStoredCustomer();
+          } else {
+            console.warn('Backend wishlist sync warning:', err.message);
+          }
+        });
+>>>>>>> origin/boomika
     }
 
     const syncWishlist = () => {
@@ -150,7 +176,10 @@ export function useWishlist() {
     }
 
     setWishlist(updated);
+<<<<<<< HEAD
     lastWishlistFetchTime = 0;
+=======
+>>>>>>> origin/boomika
     window.dispatchEvent(new Event('grove_wishlist_updated'));
 
     // Persist toggle in MongoDB database
@@ -204,7 +233,10 @@ export function useWishlist() {
     }
 
     setWishlist(updated);
+<<<<<<< HEAD
     lastWishlistFetchTime = 0;
+=======
+>>>>>>> origin/boomika
     window.dispatchEvent(new Event('grove_wishlist_updated'));
 
     // Remove from MongoDB database
@@ -225,7 +257,10 @@ export function useWishlist() {
       localStorage.removeItem(wishlistKey);
     } catch {}
     setWishlist([]);
+<<<<<<< HEAD
     lastWishlistFetchTime = 0;
+=======
+>>>>>>> origin/boomika
     window.dispatchEvent(new Event('grove_wishlist_updated'));
   };
 

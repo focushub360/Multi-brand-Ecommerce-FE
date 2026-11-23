@@ -97,6 +97,7 @@ export const ADMIN_NAV_SECTIONS = [
         badge: null
       },
       {
+<<<<<<< HEAD
         name: 'Dealer Support Tickets',
         path: '/admin/support',
         icon: Headphones,
@@ -107,6 +108,13 @@ export const ADMIN_NAV_SECTIONS = [
         path: '/admin/customer-support',
         icon: Headphones,
         badge: null
+=======
+        name: 'Support & Complaints',
+        path: '/admin/support',
+        icon: Headphones,
+        badge: '9',
+        badgeColor: 'bg-amber-100 text-amber-900 border border-amber-300'
+>>>>>>> origin/boomika
       }
     ]
   },

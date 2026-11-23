@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+=======
+import React, { useState, useEffect } from 'react';
+>>>>>>> origin/boomika
 import { Link } from 'react-router-dom';
 import { 
   Headset, 
@@ -10,6 +14,7 @@ import {
   ChevronRight, 
   CheckCircle2, 
   ArrowRight,
+<<<<<<< HEAD
   Clock,
   ShieldCheck,
   AlertCircle,
@@ -117,6 +122,32 @@ export default function DealerHelpSupport() {
       clearInterval(interval);
       window.removeEventListener('grove_dealer_tickets_updated', handleUpdate);
     };
+=======
+  HelpCircle,
+  Clock,
+  ShieldCheck
+} from 'lucide-react';
+import DealerLayout from '../../components/dealer/DealerLayout';
+import { getDealerSupportData } from '../../services/dealerService';
+import { getActiveDealerId } from '../../utils/auth';
+
+export default function DealerHelpSupport() {
+  const [openFaq, setOpenFaq] = useState(0);
+  const [ticketSubject, setTicketSubject] = useState('');
+  const [ticketCategory, setTicketCategory] = useState('Logistics & Courier Dispatch');
+  const [ticketOrderId, setTicketOrderId] = useState('');
+  const [ticketPriority, setTicketPriority] = useState('Normal');
+  const [ticketMessage, setTicketMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [supportData, setSupportData] = useState(() => getDealerSupportData(getActiveDealerId()));
+
+  useEffect(() => {
+    document.title = 'Dealer Help & Support | GROVE B2B Portal';
+    window.scrollTo(0, 0);
+    setSupportData(getDealerSupportData(getActiveDealerId()));
+>>>>>>> origin/boomika
   }, []);
 
   const contactChannels = [
@@ -154,6 +185,7 @@ export default function DealerHelpSupport() {
     }
   ];
 
+<<<<<<< HEAD
   const handleFileUpload = (e, isReply = false) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
@@ -301,6 +333,25 @@ export default function DealerHelpSupport() {
     return tickets.filter((t) => t.status === activeStatusTab);
   }, [tickets, activeStatusTab]);
 
+=======
+  const faqs = supportData?.faqs || [];
+
+  const handleSubmitTicket = (e) => {
+    e.preventDefault();
+    if (!ticketSubject || !ticketMessage) return;
+
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setToastMessage(`Support ticket #${Math.floor(100000 + Math.random() * 900000)} generated. Our team will contact you shortly.`);
+      setTicketSubject('');
+      setTicketOrderId('');
+      setTicketMessage('');
+      setTimeout(() => setToastMessage(''), 4000);
+    }, 500);
+  };
+
+>>>>>>> origin/boomika
   return (
     <DealerLayout>
       <div className="max-w-6xl mx-auto flex flex-col gap-6">
@@ -315,7 +366,11 @@ export default function DealerHelpSupport() {
         {/* Header Bar */}
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-[#717973]">
+<<<<<<< HEAD
             <Link to="/dealer/overview" className="hover:text-[#012D1D] transition-colors">Home</Link>
+=======
+            <Link to="/dealer/dashboard" className="hover:text-[#012D1D] transition-colors">Home</Link>
+>>>>>>> origin/boomika
             <ChevronRight className="w-3.5 h-3.5" />
             <span className="text-[#151D18] font-bold">Help & Support</span>
           </div>
@@ -324,6 +379,7 @@ export default function DealerHelpSupport() {
               Dealer Help & Support
             </h1>
             <span className="px-2.5 py-0.5 rounded-full bg-[#AEEECB] text-[#0E5138] text-xs font-bold">
+<<<<<<< HEAD
               Support Desk
             </span>
           </div>
@@ -333,6 +389,17 @@ export default function DealerHelpSupport() {
         </div>
 
         {/* Contact Channels (4 Cards) */}
+=======
+              24/7 Priority Desk
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-[#414844]">
+            Connect with your dedicated merchant relationship manager, review operating guidelines, or lodge an operational dispute.
+          </p>
+        </div>
+
+        {/* Priority Contact Channels (4 Cards) */}
+>>>>>>> origin/boomika
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {contactChannels.map((c, i) => {
             const Icon = c.icon;
@@ -364,12 +431,20 @@ export default function DealerHelpSupport() {
           })}
         </div>
 
+<<<<<<< HEAD
         {/* Raise Support Ticket Form (Full Width) */}
         <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-2xs border border-[#C1C8C2]/40 flex flex-col gap-4">
+=======
+        {/* 2-Column Split: Submit Ticket (Left 7 cols) & FAQ Accordion (Right 5 cols) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Submit Support Ticket (7 cols) */}
+          <div className="lg:col-span-7 bg-white rounded-2xl p-5 sm:p-6 shadow-2xs border border-[#C1C8C2]/40 flex flex-col gap-4">
+>>>>>>> origin/boomika
             <div className="flex items-center justify-between pb-3 border-b border-[#C1C8C2]/30">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#2C694E]"></span>
                 <h2 className="text-base sm:text-lg font-bold text-[#151D18]">
+<<<<<<< HEAD
                   Raise a Support Ticket
                 </h2>
               </div>
@@ -414,17 +489,99 @@ export default function DealerHelpSupport() {
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
                   Description <span className="text-red-500">*</span>
+=======
+                  Create Support Ticket
+                </h2>
+              </div>
+              <span className="text-xs font-semibold text-[#717973]">Priority Queue</span>
+            </div>
+
+            <form onSubmit={handleSubmitTicket} className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
+                    Issue Category
+                  </label>
+                  <select
+                    value={ticketCategory}
+                    onChange={(e) => setTicketCategory(e.target.value)}
+                    className="w-full h-11 px-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] transition-all cursor-pointer"
+                  >
+                    <option value="Logistics & Courier Dispatch">Logistics & Courier Dispatch</option>
+                    <option value="Payout & Bank Settlement">Payout & Bank Settlement</option>
+                    <option value="Catalog & Specification Approval">Catalog & Specification Approval</option>
+                    <option value="Damage / Transit Cargo Claim">Damage / Transit Cargo Claim</option>
+                    <option value="Account & Compliance">Account & Compliance</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
+                    Order ID (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={ticketOrderId}
+                    onChange={(e) => setTicketOrderId(e.target.value)}
+                    placeholder="e.g. GRV-9824"
+                    className="w-full h-11 px-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
+                    Ticket Priority
+                  </label>
+                  <select
+                    value={ticketPriority}
+                    onChange={(e) => setTicketPriority(e.target.value)}
+                    className="w-full h-11 px-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] transition-all cursor-pointer"
+                  >
+                    <option value="Normal">Normal (Response within 4 hrs)</option>
+                    <option value="High">High (Response within 2 hrs)</option>
+                    <option value="Urgent">Urgent (Truck at Bay / Escalated)</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
+                    Brief Subject
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={ticketSubject}
+                    onChange={(e) => setTicketSubject(e.target.value)}
+                    placeholder="e.g. Delay in Delhivery Cargo pickup"
+                    className="w-full h-11 px-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
+                  Detailed Description & Context
+>>>>>>> origin/boomika
                 </label>
                 <textarea
                   required
                   rows={4}
+<<<<<<< HEAD
                   value={ticketDescription}
                   onChange={(e) => setTicketDescription(e.target.value)}
                   placeholder="Detailed explanation of the problem, relevant SKU, order reference, or context..."
+=======
+                  value={ticketMessage}
+                  onChange={(e) => setTicketMessage(e.target.value)}
+                  placeholder="Provide consignment numbers, driver details, or invoice reference..."
+>>>>>>> origin/boomika
                   className="w-full p-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] resize-y transition-colors leading-relaxed"
                 />
               </div>
 
+<<<<<<< HEAD
               {/* Field 4: Attachment (Screenshots / PDFs, optional) */}
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
@@ -479,18 +636,26 @@ export default function DealerHelpSupport() {
               </div>
 
               <div className="flex justify-end pt-2">
+=======
+              <div className="flex justify-end pt-1">
+>>>>>>> origin/boomika
                 <button
                   type="submit"
                   disabled={isSubmitting}
                   className="h-11 px-6 rounded-xl bg-[#1B4332] text-white text-xs sm:text-sm font-bold hover:bg-[#012D1D] active:scale-95 transition-all shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-60"
                 >
                   <Send className={`w-4 h-4 ${isSubmitting ? 'animate-spin' : ''}`} />
+<<<<<<< HEAD
                   <span>{isSubmitting ? 'Submitting...' : 'Submit Support Ticket'}</span>
+=======
+                  <span>{isSubmitting ? 'Submitting...' : 'Submit Ticket'}</span>
+>>>>>>> origin/boomika
                 </button>
               </div>
             </form>
           </div>
 
+<<<<<<< HEAD
         {/* My Raised Tickets Section */}
         <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-2xs border border-[#C1C8C2]/40 flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#C1C8C2]/30 gap-2">
@@ -807,13 +972,44 @@ export default function DealerHelpSupport() {
                             <span>This ticket has been officially closed by GROVE platform administrators.</span>
                           </div>
                         )}
+=======
+          {/* FAQs Accordion (5 cols) */}
+          <div className="lg:col-span-5 bg-white rounded-2xl p-5 sm:p-6 shadow-2xs border border-[#C1C8C2]/40 flex flex-col gap-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#C1C8C2]/30">
+              <h2 className="text-base sm:text-lg font-bold text-[#151D18]">
+                Dealer FAQs
+              </h2>
+              <span className="text-xs font-semibold text-[#717973]">Merchant Help</span>
+            </div>
+
+            <div className="flex flex-col divide-y divide-[#C1C8C2]/30">
+              {faqs.map((faq, index) => {
+                const isOpen = openFaq === index;
+                return (
+                  <div key={index} className="py-3">
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaq(isOpen ? -1 : index)}
+                      className="w-full flex items-center justify-between gap-2 text-left text-xs sm:text-sm font-bold text-[#151D18] hover:text-[#012D1D] transition-colors cursor-pointer"
+                    >
+                      <span>{faq.q}</span>
+                      <ChevronDown className={`w-4 h-4 text-[#717973] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {isOpen && (
+                      <div className="pt-2 text-xs sm:text-sm text-[#414844] leading-relaxed animate-fade-in">
+                        {faq.a}
+>>>>>>> origin/boomika
                       </div>
                     )}
                   </div>
                 );
               })}
             </div>
+<<<<<<< HEAD
           )}
+=======
+          </div>
+>>>>>>> origin/boomika
         </div>
       </div>
     </DealerLayout>

@@ -14,8 +14,12 @@ import {
   Store, 
   TrendingUp, 
   Users, 
+<<<<<<< HEAD
   Send,
   Sparkles 
+=======
+  Send 
+>>>>>>> origin/boomika
 } from 'lucide-react';
 
 const INDIAN_STATES = [
@@ -60,7 +64,10 @@ export default function BecomeDealerPage() {
   });
 
   const [errors, setErrors] = useState({});
+<<<<<<< HEAD
   const [apiError, setApiError] = useState('');
+=======
+>>>>>>> origin/boomika
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState(null); // null | 'validated'
   const [heroImgSrc, setHeroImgSrc] = useState(
@@ -72,6 +79,7 @@ export default function BecomeDealerPage() {
     window.scrollTo(0, 0);
   }, []);
 
+<<<<<<< HEAD
   const [autoFillToast, setAutoFillToast] = useState(null);
 
   const handleAutoFill = (presetCategory = 'Agriculture & Farming') => {
@@ -151,6 +159,8 @@ export default function BecomeDealerPage() {
     setTimeout(() => setAutoFillToast(null), 3500);
   };
 
+=======
+>>>>>>> origin/boomika
   const scrollToForm = () => {
     if (formRef.current) {
       formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -174,9 +184,12 @@ export default function BecomeDealerPage() {
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
+<<<<<<< HEAD
     if (apiError) {
       setApiError('');
     }
+=======
+>>>>>>> origin/boomika
   };
 
   const validate = () => {
@@ -274,7 +287,10 @@ export default function BecomeDealerPage() {
 
     setIsSubmitting(true);
     setSubmissionStatus(null);
+<<<<<<< HEAD
     setApiError('');
+=======
+>>>>>>> origin/boomika
 
     try {
       const payload = {
@@ -303,6 +319,7 @@ export default function BecomeDealerPage() {
         formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     } catch (apiErr) {
+<<<<<<< HEAD
       console.warn('Backend dealer registration error:', apiErr.message);
       setIsSubmitting(false);
       const errorMsg = apiErr.message || 'Dealer email already exists.';
@@ -328,6 +345,13 @@ export default function BecomeDealerPage() {
           gstinInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
           gstinInput.focus();
         }
+=======
+      console.warn('Backend dealer registration error, showing confirmation:', apiErr.message);
+      setIsSubmitting(false);
+      setSubmissionStatus('submitted');
+      if (formRef.current) {
+        formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+>>>>>>> origin/boomika
       }
     }
   };
@@ -461,6 +485,7 @@ export default function BecomeDealerPage() {
             <p className="mt-2 text-xs sm:text-sm text-neutral-500 font-normal leading-relaxed">
               Please provide your business and verification information below. Our team reviews all dealer submissions for regional commercial authorization.
             </p>
+<<<<<<< HEAD
 
             {/* Quick Auto Fill Form Button & Presets */}
             <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
@@ -527,6 +552,10 @@ export default function BecomeDealerPage() {
             </div>
           )}
 
+=======
+          </div>
+
+>>>>>>> origin/boomika
           {/* Validation / Submission Status Notification Banner */}
           {submissionStatus && (
             <div className="mb-8 p-5 sm:p-6 rounded-[20px] bg-[#EBF4EE] border border-[#40916C]/40 text-neutral-800 text-xs sm:text-sm animate-in fade-in duration-200 shadow-xs">
@@ -574,6 +603,7 @@ export default function BecomeDealerPage() {
             noValidate 
             className="bg-white rounded-[20px] sm:rounded-[24px] p-4 sm:p-8 md:p-10 border border-neutral-200/90 shadow-[0_8px_30px_rgba(27,67,50,0.05)] space-y-6 sm:space-y-8"
           >
+<<<<<<< HEAD
             {/* Quick Auto Fill Strip */}
             <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 bg-[#F4F9F5] border border-[#A7D7B9] rounded-[14px]">
               <div className="flex items-center gap-2 text-xs text-[#166534]">
@@ -591,6 +621,8 @@ export default function BecomeDealerPage() {
               </button>
             </div>
 
+=======
+>>>>>>> origin/boomika
             {/* Section A: Business Information */}
             <div className="space-y-5">
               <div className="flex items-center gap-2.5 pb-3 border-b border-neutral-100">

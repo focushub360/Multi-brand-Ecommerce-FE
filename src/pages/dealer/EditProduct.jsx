@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React, { useState, useEffect, useRef } from 'react';
+=======
+import React, { useState, useEffect } from 'react';
+>>>>>>> origin/boomika
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -9,8 +13,12 @@ import {
   ChevronUp, 
   Eye, 
   AlertCircle,
+<<<<<<< HEAD
   Lock,
   Upload
+=======
+  Lock
+>>>>>>> origin/boomika
 } from 'lucide-react';
 import DealerLayout from '../../components/dealer/DealerLayout';
 import { getDealerProductById, fetchDealerProductById, updateDealerProduct, deleteDealerProduct, getDealerStoreSettings } from '../../services/dealerService';
@@ -57,10 +65,14 @@ export default function EditProduct() {
   const storedDealer = getStoredDealer();
 
   const authorizedCategory = 
+<<<<<<< HEAD
     storedDealer?.primaryCategoryName ||
     storedDealer?.primaryCategory ||
     dealerSettings?.businessCategory || 
     dealerSettings?.primaryCategory ||
+=======
+    dealerSettings?.businessCategory || 
+>>>>>>> origin/boomika
     (storedDealer?.email?.includes('hub') ? 'Electronics & Gadgets' : 'Agriculture & Farming');
 
   const availableSubcategories = SUBCATEGORIES_BY_CATEGORY[authorizedCategory] || SUBCATEGORIES_BY_CATEGORY['Agriculture & Farming'];
@@ -134,6 +146,7 @@ export default function EditProduct() {
     );
   }
 
+<<<<<<< HEAD
   const fileInputRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -227,6 +240,8 @@ export default function EditProduct() {
     }
   };
 
+=======
+>>>>>>> origin/boomika
   const discountPercent = formData.mrpPrice > formData.sellingPrice
     ? Math.round(((formData.mrpPrice - formData.sellingPrice) / formData.mrpPrice) * 100)
     : 0;
@@ -240,7 +255,11 @@ export default function EditProduct() {
     return Object.keys(errs).length === 0;
   };
 
+<<<<<<< HEAD
   const handleSave = async (e) => {
+=======
+  const handleSave = (e) => {
+>>>>>>> origin/boomika
     e.preventDefault();
     if (!validate()) return;
     setIsSaving(true);
@@ -264,16 +283,20 @@ export default function EditProduct() {
         pipeSize: formData.pipeSize,
         flowRate: formData.flowRate
       },
+<<<<<<< HEAD
       specifications: {
         material: formData.material,
         pipeSize: formData.pipeSize,
         flowRate: formData.flowRate
       },
+=======
+>>>>>>> origin/boomika
       image: formData.images[0] || '/images/card-agri-clean.png',
       images: formData.images
     };
 
     const activeId = getActiveDealerId();
+<<<<<<< HEAD
     const targetId = product?._id || product?.id || id;
     try {
       await updateDealerProduct(targetId, updated, activeId);
@@ -295,6 +318,19 @@ export default function EditProduct() {
       } catch (err) {
         console.error('Error deleting product:', err);
       }
+=======
+    setTimeout(() => {
+      updateDealerProduct(product.id, updated, activeId);
+      setIsSaving(false);
+      navigate('/dealer/products');
+    }, 400);
+  };
+
+  const handleDelete = () => {
+    if (window.confirm(`Are you sure you want to permanently delete "${formData.name}"?`)) {
+      const activeId = getActiveDealerId();
+      deleteDealerProduct(product.id, activeId);
+>>>>>>> origin/boomika
       navigate('/dealer/products');
     }
   };
@@ -380,6 +416,7 @@ export default function EditProduct() {
               </div>
             </section>
 
+<<<<<<< HEAD
             {/* Product Images */}
             <section className="bg-white border border-[#C1C8C2]/40 rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col gap-4">
               <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
@@ -456,6 +493,8 @@ export default function EditProduct() {
               )}
             </section>
 
+=======
+>>>>>>> origin/boomika
             {/* Category & Specs */}
             <section className="bg-white border border-[#C1C8C2]/40 rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col gap-4">
               <span className="text-sm font-bold text-[#151D18] pb-2 border-b border-neutral-100">

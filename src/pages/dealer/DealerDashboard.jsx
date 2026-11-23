@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React, { useState, useEffect, useRef } from 'react';
+=======
+import React, { useState, useEffect } from 'react';
+>>>>>>> origin/boomika
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   ArrowUpRight, 
@@ -12,8 +16,12 @@ import {
   Truck, 
   Clock, 
   Filter,
+<<<<<<< HEAD
   Layers,
   ChevronDown
+=======
+  Layers
+>>>>>>> origin/boomika
 } from 'lucide-react';
 import DealerLayout from '../../components/dealer/DealerLayout';
 import { getStoredDealer, getActiveDealerId } from '../../utils/auth';
@@ -21,14 +29,19 @@ import {
   getDealerDashboardMetrics, 
   getDealerStoreSettings, 
   saveDealerStoreSettings,
+<<<<<<< HEAD
   syncDealerDataFromApi,
   fetchDealerAnalytics
+=======
+  syncDealerDataFromApi
+>>>>>>> origin/boomika
 } from '../../services/dealerService';
 
 export default function DealerDashboard() {
   const navigate = useNavigate();
   const user = getStoredDealer();
 
+<<<<<<< HEAD
   const [activeRange, setActiveRange] = useState('30D');
   const [metrics, setMetrics] = useState(() => getDealerDashboardMetrics(getActiveDealerId(), '30D'));
   const [settings, setSettings] = useState(() => getDealerStoreSettings(getActiveDealerId()));
@@ -45,6 +58,15 @@ export default function DealerDashboard() {
   const refreshData = (range = activeRange) => {
     const activeId = getActiveDealerId();
     const updatedMetrics = getDealerDashboardMetrics(activeId, range);
+=======
+  const [metrics, setMetrics] = useState(() => getDealerDashboardMetrics(getActiveDealerId()));
+  const [settings, setSettings] = useState(() => getDealerStoreSettings(getActiveDealerId()));
+  const [activeRange, setActiveRange] = useState('30D');
+
+  const refreshData = () => {
+    const activeId = getActiveDealerId();
+    const updatedMetrics = getDealerDashboardMetrics(activeId);
+>>>>>>> origin/boomika
     setMetrics(updatedMetrics);
     setSettings(getDealerStoreSettings(activeId));
   };
@@ -52,6 +74,7 @@ export default function DealerDashboard() {
   useEffect(() => {
     document.title = 'Dealer Overview | GROVE B2B Portal';
     window.scrollTo(0, 0);
+<<<<<<< HEAD
     refreshData(activeRange);
     const activeId = getActiveDealerId();
     syncDealerDataFromApi(activeId).then(() => {
@@ -81,12 +104,25 @@ export default function DealerDashboard() {
     }).catch(() => {});
   };
 
+=======
+    refreshData();
+    const activeId = getActiveDealerId();
+    syncDealerDataFromApi(activeId).then(() => {
+      refreshData();
+    });
+  }, []);
+
+>>>>>>> origin/boomika
   const handleToggleStore = () => {
     const activeId = getActiveDealerId();
     const updated = { ...settings, storeOpen: !settings.storeOpen };
     setSettings(updated);
     saveDealerStoreSettings(updated, activeId);
+<<<<<<< HEAD
     refreshData(activeRange);
+=======
+    refreshData();
+>>>>>>> origin/boomika
   };
 
   const dealerName = metrics?.dealerName || user?.name || 'Apex Agri-Tech';
@@ -113,6 +149,7 @@ export default function DealerDashboard() {
           </div>
 
           <div className="flex items-center gap-2.5 shrink-0">
+<<<<<<< HEAD
             <div className="relative" ref={rangeRef}>
               <button 
                 type="button"
@@ -147,6 +184,17 @@ export default function DealerDashboard() {
                   ))}
                 </div>
               )}
+=======
+            <div className="relative">
+              <button 
+                type="button"
+                onClick={() => setActiveRange((prev) => (prev === '30D' ? '7D' : '30D'))}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white text-[#151D18] text-xs font-semibold hover:bg-[#EDF6ED] transition-colors border border-[#C1C8C2]/50 shadow-2xs cursor-pointer"
+              >
+                <Filter className="w-3.5 h-3.5 text-[#717973]" />
+                <span>Filter Range: {activeRange}</span>
+              </button>
+>>>>>>> origin/boomika
             </div>
 
             <Link
@@ -232,9 +280,13 @@ export default function DealerDashboard() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-neutral-100">
                 <div className="flex flex-col gap-0.5">
                   <span className="text-base font-bold text-[#151D18]">Sales Overview</span>
+<<<<<<< HEAD
                   <span className="text-xs text-[#717973]">
                     Gross merchandise value trajectory over past {activeRange === '7D' ? '7 days' : activeRange === '30D' ? '30 days' : activeRange === '90D' ? '90 days' : '1 year'}
                   </span>
+=======
+                  <span className="text-xs text-[#717973]">Gross merchandise value trajectory over past 30 days</span>
+>>>>>>> origin/boomika
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1.5 bg-[#EDF6ED] px-2.5 py-1 rounded-lg">

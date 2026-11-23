@@ -22,8 +22,11 @@ import { getStoredCustomer } from '../../utils/auth';
 import { useCart } from '../../hooks/useCart';
 import { 
   getOrderById, 
+<<<<<<< HEAD
   fetchCustomerOrderById,
   syncCustomerOrders,
+=======
+>>>>>>> origin/boomika
   cancelOrder, 
   formatCurrency, 
   formatOrderDate 
@@ -41,6 +44,7 @@ export default function OrderDetailsPage() {
   const [cancelReason, setCancelReason] = useState('Change in farming requirement');
   const [feedback, setFeedback] = useState('');
 
+<<<<<<< HEAD
   useEffect(() => {
     let isMounted = true;
     let isFetching = false;
@@ -112,6 +116,20 @@ export default function OrderDetailsPage() {
         } catch {}
       }
     };
+=======
+  const loadOrder = () => {
+    if (!customer?.id || !orderId) {
+      setLoading(false);
+      return;
+    }
+    const found = getOrderById(customer.id, orderId);
+    setOrder(found);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadOrder();
+>>>>>>> origin/boomika
   }, [customer?.id, orderId]);
 
   const handleBuyAgain = (item) => {
@@ -185,6 +203,7 @@ export default function OrderDetailsPage() {
   const canCancel = order.status !== 'Delivered' && order.status !== 'Cancelled';
 
   // Standard pipeline steps
+<<<<<<< HEAD
   const standardSteps = ['Order Placed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered'];
   const getStepIndex = (statusStr) => {
     if (!statusStr || statusStr === 'Cancelled') return -1;
@@ -198,6 +217,12 @@ export default function OrderDetailsPage() {
   };
 
   const currentStepIndex = getStepIndex(order.status);
+=======
+  const standardSteps = ['Order Placed', 'Confirmed', 'Shipped', 'Out for Delivery', 'Delivered'];
+  const currentStepIndex = order.status === 'Cancelled' 
+    ? -1 
+    : standardSteps.findIndex((s) => s.toLowerCase() === order.status.toLowerCase());
+>>>>>>> origin/boomika
 
   return (
     <div className="min-h-screen bg-[#F3FCF3]/40 flex flex-col">
@@ -303,6 +328,7 @@ export default function OrderDetailsPage() {
           {/* Stepper Pipeline (if not cancelled) */}
           {order.status !== 'Cancelled' ? (
             <div className="pt-6">
+<<<<<<< HEAD
               <div className="relative">
                 {/* Horizontal Progress Track for sm and up screens */}
                 <div className="hidden sm:block absolute top-5 left-[10%] right-[10%] h-1 bg-gray-200 rounded-full" />
@@ -363,6 +389,30 @@ export default function OrderDetailsPage() {
                     );
                   })}
                 </div>
+=======
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 relative">
+                {standardSteps.map((stepName, idx) => {
+                  const isDone = idx <= currentStepIndex;
+                  const isCurrent = idx === currentStepIndex;
+
+                  return (
+                    <div key={stepName} className="flex flex-col items-center text-center">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs mb-2 transition-all ${
+                        isDone
+                          ? 'bg-[#1B4332] text-white ring-4 ring-[#E9F3ED]'
+                          : 'bg-gray-100 text-gray-400 border border-gray-200'
+                      }`}>
+                        {isDone ? <CheckCircle2 className="w-4 h-4" /> : idx + 1}
+                      </div>
+                      <span className={`text-xs font-bold ${
+                        isCurrent ? 'text-[#012D1D]' : isDone ? 'text-gray-800' : 'text-gray-400'
+                      }`}>
+                        {stepName}
+                      </span>
+                    </div>
+                  );
+                })}
+>>>>>>> origin/boomika
               </div>
             </div>
           ) : (
