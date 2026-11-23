@@ -5,7 +5,12 @@ import {
   Heart, 
   ShoppingCart, 
   Check, 
+<<<<<<< HEAD
+  Eye,
+  Ban
+=======
   Eye 
+>>>>>>> origin/boomika
 } from 'lucide-react';
 import { formatPrice } from '../../utils/formatters';
 
@@ -19,6 +24,13 @@ export default function AgricultureProductCard({
   const [imgSrc, setImgSrc] = useState(product.image);
   const [isAdded, setIsAdded] = useState(false);
 
+<<<<<<< HEAD
+  const isOutOfStock = product.stock !== undefined
+    ? Number(product.stock) <= 0
+    : (product.stockStatus === 'Out of Stock' || product.status === 'Draft' || product.inStock === false);
+
+=======
+>>>>>>> origin/boomika
   const handleImageError = () => {
     setImgSrc(product.fallbackImage || '/images/prod-tractor.png');
   };
@@ -26,6 +38,10 @@ export default function AgricultureProductCard({
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
+<<<<<<< HEAD
+    if (isOutOfStock) return;
+=======
+>>>>>>> origin/boomika
     if (onAddToCart) {
       const added = onAddToCart(product);
       if (added !== false) {
@@ -172,6 +188,40 @@ export default function AgricultureProductCard({
 
       {/* Add to Cart & View Details Action Row */}
       <div className="mt-3.5 pt-2 border-t border-neutral-100 flex items-center gap-2">
+<<<<<<< HEAD
+        {isOutOfStock ? (
+          <button
+            type="button"
+            disabled
+            className="flex-1 py-2 px-3 rounded-[12px] text-xs font-bold bg-neutral-100 text-neutral-400 border border-neutral-200 cursor-not-allowed flex items-center justify-center gap-1.5 shadow-none"
+          >
+            <Ban className="w-3.5 h-3.5 text-neutral-400" />
+            <span>Out of Stock</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            className={`flex-1 py-2 px-3 rounded-[12px] text-xs font-bold transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs active:scale-[0.98] ${
+              isAdded
+                ? 'bg-emerald-600 text-white'
+                : 'bg-[#1B4332] hover:bg-[#081C15] text-white hover:shadow-xs'
+            }`}
+          >
+            {isAdded ? (
+              <>
+                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>Added to Cart</span>
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="w-3.5 h-3.5" />
+                <span>Add to Cart</span>
+              </>
+            )}
+          </button>
+        )}
+=======
         <button
           type="button"
           onClick={handleAddToCart}
@@ -193,6 +243,7 @@ export default function AgricultureProductCard({
             </>
           )}
         </button>
+>>>>>>> origin/boomika
 
         <Link
           to={productUrl}

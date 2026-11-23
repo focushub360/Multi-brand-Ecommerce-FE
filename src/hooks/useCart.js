@@ -3,6 +3,60 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { getStoredCustomer, setPendingAction, clearStoredCustomer } from '../utils/auth';
 import { cartApi } from '../services/apiClient.js';
 
+<<<<<<< HEAD
+// Module-level deduplication cache to avoid parallel/rapid cart requests
+let inFlightCartPromise = null;
+let lastCartFetchTime = 0;
+const CART_CACHE_TTL_MS = 60 * 1000; // 60s cache
+
+export function resetCartCache() {
+  lastCartFetchTime = 0;
+  inFlightCartPromise = null;
+}
+
+async function fetchCustomerCartDeduplicated(customerId, force = false) {
+  if (!customerId) return [];
+  const now = Date.now();
+  if (!force && (now - lastCartFetchTime < CART_CACHE_TTL_MS)) {
+    try {
+      const stored = localStorage.getItem(`grove_cart_${customerId}`);
+      if (stored) return JSON.parse(stored);
+    } catch {}
+  }
+
+  if (inFlightCartPromise) {
+    return inFlightCartPromise;
+  }
+
+  inFlightCartPromise = cartApi.get()
+    .then((res) => {
+      if (Array.isArray(res?.items)) {
+        const cartKey = `grove_cart_${customerId}`;
+        try {
+          localStorage.setItem(cartKey, JSON.stringify(res.items));
+        } catch {}
+        lastCartFetchTime = Date.now();
+        return res.items;
+      }
+      return [];
+    })
+    .catch((err) => {
+      if (err.status === 401) {
+        clearStoredCustomer();
+      } else {
+        console.warn('Backend cart sync warning:', err.message);
+      }
+      throw err;
+    })
+    .finally(() => {
+      inFlightCartPromise = null;
+    });
+
+  return inFlightCartPromise;
+}
+
+=======
+>>>>>>> origin/boomika
 export function useCart() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,6 +75,19 @@ export function useCart() {
   const [cart, setCart] = useState(getCustomerCart);
   const [lastAddedItem, setLastAddedItem] = useState(null);
 
+<<<<<<< HEAD
+  // Synchronize cart with live MongoDB database using request deduplication
+  useEffect(() => {
+    const customer = getStoredCustomer();
+    if (customer?.id) {
+      fetchCustomerCartDeduplicated(customer.id)
+        .then((items) => {
+          if (Array.isArray(items)) {
+            setCart(items);
+          }
+        })
+        .catch(() => {});
+=======
   // Synchronize cart with live MongoDB database
   useEffect(() => {
     const customer = getStoredCustomer();
@@ -40,6 +107,7 @@ export function useCart() {
             console.warn('Backend cart sync warning:', err.message);
           }
         });
+>>>>>>> origin/boomika
     }
 
     const syncCart = () => {
@@ -63,6 +131,11 @@ export function useCart() {
    */
   const addToCart = (product, quantity = 1) => {
     if (!product) return false;
+<<<<<<< HEAD
+    if (product.stock !== undefined && Number(product.stock) <= 0) return false;
+    if (product.stockStatus === 'Out of Stock' || product.status === 'Draft' || product.inStock === false) return false;
+=======
+>>>>>>> origin/boomika
 
     const customer = getStoredCustomer();
     if (!customer?.id) {
@@ -113,6 +186,10 @@ export function useCart() {
 
     setCart(updatedCart);
     setLastAddedItem(product);
+<<<<<<< HEAD
+    lastCartFetchTime = 0;
+=======
+>>>>>>> origin/boomika
     window.dispatchEvent(new Event('grove_cart_updated'));
 
     // Persist immediately in MongoDB Atlas
@@ -150,6 +227,10 @@ export function useCart() {
     } catch {}
 
     setCart(updated);
+<<<<<<< HEAD
+    lastCartFetchTime = 0;
+=======
+>>>>>>> origin/boomika
     window.dispatchEvent(new Event('grove_cart_updated'));
 
     // Remove from MongoDB database
@@ -192,6 +273,10 @@ export function useCart() {
     } catch {}
 
     setCart(updated);
+<<<<<<< HEAD
+    lastCartFetchTime = 0;
+=======
+>>>>>>> origin/boomika
     window.dispatchEvent(new Event('grove_cart_updated'));
 
     // Persist quantity change in MongoDB database
@@ -233,6 +318,10 @@ export function useCart() {
     } catch {}
 
     setCart([]);
+<<<<<<< HEAD
+    lastCartFetchTime = 0;
+=======
+>>>>>>> origin/boomika
     window.dispatchEvent(new Event('grove_cart_updated'));
 
     // Clear cart in MongoDB database

@@ -66,6 +66,7 @@ export default function AdminDashboardOverview() {
   const recentOrders = getAdminRecentOrders();
   const recentTickets = getAdminRecentTickets();
 
+<<<<<<< HEAD
 
     // SVG Chart calculation (safe for empty data)
   const chartData =
@@ -96,6 +97,8 @@ export default function AdminDashboardOverview() {
 
   const areaD = `${pathD} L ${points[points.length - 1].x} ${chartHeight - paddingY} L ${points[0].x} ${chartHeight - paddingY} Z`;
 
+=======
+>>>>>>> origin/boomika
   // Handle report export simulation
   const handleExportReport = () => {
     setIsExporting(true);
@@ -106,6 +109,30 @@ export default function AdminDashboardOverview() {
     }, 600);
   };
 
+<<<<<<< HEAD
+=======
+  // SVG Chart calculation
+  const maxRevenue = Math.max(...revenueTrend.map((d) => d.revenue));
+  const chartHeight = 160;
+  const chartWidth = 560;
+  const paddingX = 40;
+  const paddingY = 25;
+  const availableWidth = chartWidth - paddingX * 2;
+  const availableHeight = chartHeight - paddingY * 2;
+
+  const points = revenueTrend.map((d, index) => {
+    const x = paddingX + (index / (revenueTrend.length - 1)) * availableWidth;
+    const y = chartHeight - paddingY - (d.revenue / maxRevenue) * availableHeight;
+    return { ...d, x, y };
+  });
+
+  const pathD = points.reduce((acc, point, i) => {
+    return i === 0 ? `M ${point.x} ${point.y}` : `${acc} L ${point.x} ${point.y}`;
+  }, '');
+
+  const areaD = `${pathD} L ${points[points.length - 1].x} ${chartHeight - paddingY} L ${points[0].x} ${chartHeight - paddingY} Z`;
+
+>>>>>>> origin/boomika
   // Status badge styling helper
   const getStatusBadge = (status) => {
     switch (status?.toLowerCase()) {

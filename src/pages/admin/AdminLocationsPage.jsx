@@ -6,7 +6,10 @@ import {
   createAdminLocation,
   updateAdminLocation,
   deleteAdminLocation,
+<<<<<<< HEAD
   getAdminDealers,
+=======
+>>>>>>> origin/boomika
   syncAdminDataFromApi
 } from '../../services/adminService';
 import {
@@ -21,7 +24,10 @@ import {
 
 export default function AdminLocationsPage() {
   const [locations, setLocations] = useState([]);
+<<<<<<< HEAD
   const [dealers, setDealers] = useState([]);
+=======
+>>>>>>> origin/boomika
   const [searchQuery, setSearchQuery] = useState('');
   const [stateFilter, setStateFilter] = useState('All');
   const [typeFilter, setTypeFilter] = useState('All');
@@ -29,12 +35,20 @@ export default function AdminLocationsPage() {
   // Modals
   const [isAddEditOpen, setIsAddEditOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+<<<<<<< HEAD
+=======
+  const [selectedLoc, setSelectedLoc] = useState(null);
+>>>>>>> origin/boomika
   const [toastMessage, setToastMessage] = useState(null);
 
   const initialForm = {
     hubCode: '',
     dealerName: 'Apex Agri-Tech & Machinery',
+<<<<<<< HEAD
     dealerId: '',
+=======
+    dealerId: 'DEALER_001',
+>>>>>>> origin/boomika
     hubType: 'Regional Spares Depot',
     city: 'Pune',
     state: 'Maharashtra',
@@ -43,16 +57,23 @@ export default function AdminLocationsPage() {
     contactPhone: '+91 98201 44219',
     capacityTons: 250,
     serviceRadiusKm: 140,
+<<<<<<< HEAD
     activePinCodes: [],
     latitude: 18.5204,
     longitude: 73.8567,
+=======
+    activePinCodesCount: 45,
+>>>>>>> origin/boomika
     status: 'Operational'
   };
   const [formData, setFormData] = useState(initialForm);
 
   const loadData = () => {
     setLocations(getAdminLocations());
+<<<<<<< HEAD
     setDealers(getAdminDealers().filter((dealer) => dealer.status === 'Active'));
+=======
+>>>>>>> origin/boomika
   };
 
   useEffect(() => {
@@ -91,19 +112,28 @@ export default function AdminLocationsPage() {
   }, [locations, searchQuery, stateFilter, typeFilter]);
 
   const handleOpenAdd = () => {
+<<<<<<< HEAD
     const firstDealer = getAdminDealers().find((dealer) => dealer.status === 'Active');
     setFormData({ ...initialForm, dealerId: firstDealer?.id || '', dealerName: firstDealer?.businessName || '' });
+=======
+    setFormData(initialForm);
+>>>>>>> origin/boomika
     setIsEditing(false);
     setIsAddEditOpen(true);
   };
 
   const handleOpenEdit = (loc, e) => {
     if (e) e.stopPropagation();
+<<<<<<< HEAD
     setFormData({ ...initialForm, ...loc, activePincodes: loc.activePincodes || [] });
+=======
+    setFormData(loc);
+>>>>>>> origin/boomika
     setIsEditing(true);
     setIsAddEditOpen(true);
   };
 
+<<<<<<< HEAD
   const handleSave = async (e) => {
     e.preventDefault();
     if (!formData.dealerId) return showToast('Select an approved dealer for this location.');
@@ -128,6 +158,33 @@ export default function AdminLocationsPage() {
         loadData();
         showToast('Location deleted.');
       } catch (error) { showToast(error.message || 'Unable to delete location.'); }
+=======
+  const handleSave = (e) => {
+    e.preventDefault();
+    if (!formData.city.trim() || !formData.address.trim()) {
+      showToast('City and physical address are required.');
+      return;
+    }
+
+    if (isEditing && formData.id) {
+      updateAdminLocation(formData.id, formData);
+      showToast(`Updated hub location ${formData.hubCode}.`);
+    } else {
+      createAdminLocation(formData);
+      showToast(`Created new regional hub in ${formData.city}.`);
+    }
+
+    loadData();
+    setIsAddEditOpen(false);
+  };
+
+  const handleDelete = (id, e) => {
+    if (e) e.stopPropagation();
+    if (window.confirm('Delete this dealer location from the regional fulfillment network?')) {
+      deleteAdminLocation(id);
+      loadData();
+      showToast('Location deleted.');
+>>>>>>> origin/boomika
     }
   };
 
@@ -369,6 +426,7 @@ export default function AdminLocationsPage() {
                 <div>
                   <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Associated Dealer</label>
                   <select
+<<<<<<< HEAD
                     required
                     value={formData.dealerId}
                     onChange={(e) => {
@@ -379,6 +437,17 @@ export default function AdminLocationsPage() {
                   >
                     <option value="">Select approved dealer</option>
                     {dealers.map((dealer) => <option key={dealer.id} value={dealer.id}>{dealer.businessName}</option>)}
+=======
+                    value={formData.dealerName}
+                    onChange={(e) => setFormData({ ...formData, dealerName: e.target.value })}
+                    className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs"
+                  >
+                    <option value="Apex Agri-Tech & Machinery">Apex Agri-Tech & Machinery</option>
+                    <option value="Kisan Agro Hub & Spares">Kisan Agro Hub & Spares</option>
+                    <option value="Sahyadri Agro Implement Works">Sahyadri Agro Implement Works</option>
+                    <option value="Punjab Agri Tractors & Combines">Punjab Agri Tractors & Combines</option>
+                    <option value="Malwa Farm Equipment Co.">Malwa Farm Equipment Co.</option>
+>>>>>>> origin/boomika
                   </select>
                 </div>
               </div>
@@ -389,8 +458,11 @@ export default function AdminLocationsPage() {
                   <input
                     type="text"
                     required
+<<<<<<< HEAD
                     minLength={2}
                     maxLength={100}
+=======
+>>>>>>> origin/boomika
                     value={formData.state}
                     onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                     className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs"
@@ -401,8 +473,11 @@ export default function AdminLocationsPage() {
                   <input
                     type="text"
                     required
+<<<<<<< HEAD
                     minLength={2}
                     maxLength={100}
+=======
+>>>>>>> origin/boomika
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                     className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs"
@@ -413,8 +488,11 @@ export default function AdminLocationsPage() {
                   <input
                     type="text"
                     required
+<<<<<<< HEAD
                     pattern="[0-9]{6}"
                     maxLength={6}
+=======
+>>>>>>> origin/boomika
                     value={formData.pincode}
                     onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
                     className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs"
@@ -439,9 +517,12 @@ export default function AdminLocationsPage() {
                   <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Capacity (Tons)</label>
                   <input
                     type="number"
+<<<<<<< HEAD
                     min="0"
                     max="100000"
                     required
+=======
+>>>>>>> origin/boomika
                     value={formData.capacityTons}
                     onChange={(e) => setFormData({ ...formData, capacityTons: e.target.value })}
                     className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-mono"
@@ -451,9 +532,12 @@ export default function AdminLocationsPage() {
                   <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Service Radius (km)</label>
                   <input
                     type="number"
+<<<<<<< HEAD
                     min="1"
                     max="5000"
                     required
+=======
+>>>>>>> origin/boomika
                     value={formData.serviceRadiusKm}
                     onChange={(e) => setFormData({ ...formData, serviceRadiusKm: e.target.value })}
                     className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-mono"
@@ -461,6 +545,7 @@ export default function AdminLocationsPage() {
                 </div>
               </div>
 
+<<<<<<< HEAD
               <div className="grid grid-cols-2 gap-3">
                 <label className="text-[11px] font-bold text-[#3F4943]">Contact Phone *<input type="tel" required pattern="[6-9][0-9]{9}" maxLength={10} value={formData.contactPhone.replace(/\D/g, '').slice(-10)} onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })} className="mt-1 w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs" /></label>
                 <label className="text-[11px] font-bold text-[#3F4943]">Operational Status *<select required value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className="mt-1 w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs"><option>Operational</option><option>Maintenance</option><option>Closed</option></select></label>
@@ -469,6 +554,8 @@ export default function AdminLocationsPage() {
                 <label className="col-span-2 text-[11px] font-bold text-[#3F4943]">Additional Serviceable PIN Codes (comma separated)<input value={(formData.activePincodes || []).join(', ')} onChange={(e) => setFormData({ ...formData, activePincodes: e.target.value.split(',').map((value) => value.trim()).filter(Boolean) })} pattern="[0-9, ]*" placeholder="411001, 411002" className="mt-1 w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs" /></label>
               </div>
 
+=======
+>>>>>>> origin/boomika
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#C1C8C2]/40">
                 <button
                   type="button"

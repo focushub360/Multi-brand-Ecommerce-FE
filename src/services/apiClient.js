@@ -8,7 +8,12 @@
  * ==============================================================================
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
+<<<<<<< HEAD
+const rawBaseUrl = import.meta.env.VITE_API_URL || '/api/v1';
+const API_BASE_URL = rawBaseUrl.replace(/\/+$/, '');
+=======
+const API_BASE_URL = import.meta.env.API_URL || '/api/v1';
+>>>>>>> origin/boomika
 
 // Unified token storage keys
 export const TOKEN_STORAGE_KEY = 'grove_auth_token';
@@ -18,8 +23,49 @@ export const REFRESH_TOKEN_STORAGE_KEY = 'grove_refresh_token';
  * Retrieves the currently active authorization token.
  * Checks primary token key, with fallbacks to role-specific storage keys.
  */
+<<<<<<< HEAD
+export function getAuthToken(targetEndpoint = '') {
+  try {
+    const ep = String(targetEndpoint || '').toLowerCase();
+    const pathname = typeof window !== 'undefined' ? window.location.pathname.toLowerCase() : '';
+
+    // If endpoint or current page is dealer-related, prioritize dealer token
+    if (ep.includes('/dealer') || (!ep.includes('/admin') && !ep.includes('/my-orders') && pathname.startsWith('/dealer'))) {
+      const dealerToken = localStorage.getItem('grove_dealer_token');
+      if (dealerToken) return dealerToken;
+      const dealer = localStorage.getItem('grove_dealer_user');
+      if (dealer) {
+        const parsed = JSON.parse(dealer);
+        if (parsed.token) return parsed.token;
+      }
+    }
+
+    // If endpoint or current page is admin-related, prioritize admin token
+    if (ep.includes('/admin') || (!ep.includes('/dealer') && !ep.includes('/my-orders') && pathname.startsWith('/admin'))) {
+      const adminToken = localStorage.getItem('grove_admin_token');
+      if (adminToken) return adminToken;
+      const admin = localStorage.getItem('grove_admin_user');
+      if (admin) {
+        const parsed = JSON.parse(admin);
+        if (parsed.token) return parsed.token;
+      }
+    }
+
+    // If endpoint or current page is customer/cart/account, prioritize customer token
+    if (ep.includes('/my-orders') || ep.includes('/cart') || pathname.startsWith('/account')) {
+      const customerToken = localStorage.getItem('grove_customer_token');
+      if (customerToken) return customerToken;
+      const customer = localStorage.getItem('grove_current_user');
+      if (customer) {
+        const parsed = JSON.parse(customer);
+        if (parsed.token) return parsed.token;
+      }
+    }
+
+=======
 export function getAuthToken() {
   try {
+>>>>>>> origin/boomika
     const directToken = localStorage.getItem(TOKEN_STORAGE_KEY);
     if (directToken) return directToken;
 
@@ -91,7 +137,11 @@ async function request(endpoint, options = {}) {
     ? endpoint
     : `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
+<<<<<<< HEAD
+  const token = getAuthToken(endpoint);
+=======
   const token = getAuthToken();
+>>>>>>> origin/boomika
   const headers = {
     Accept: 'application/json',
     ...(options.body && !(options.body instanceof FormData)
@@ -103,7 +153,6 @@ async function request(endpoint, options = {}) {
 
   const config = {
     ...options,
-    cache: options.cache || 'no-store',
     headers,
     credentials: 'include' // allows refresh token cookies
   };
@@ -200,6 +249,10 @@ async function request(endpoint, options = {}) {
     // Unwrap standardized ApiResponse format { success: true, data: ..., pagination: ... }
     return data;
   } catch (err) {
+<<<<<<< HEAD
+=======
+    // Re-throw with descriptive context
+>>>>>>> origin/boomika
     throw err;
   }
 }
@@ -264,6 +317,26 @@ export const authApi = {
     }
   },
 
+<<<<<<< HEAD
+  firstTimePassword: async (newPassword, confirmPassword) => {
+    const res = await apiClient.post('/auth/first-time-password', {
+      newPassword,
+      confirmPassword
+    });
+    return res.data;
+  },
+
+  changePassword: async (currentPassword, newPassword, confirmPassword) => {
+    const res = await apiClient.post('/auth/change-password', {
+      currentPassword,
+      newPassword,
+      confirmPassword
+    });
+    return res.data;
+  },
+
+=======
+>>>>>>> origin/boomika
   registerDealer: async (applicationData) => {
     const res = await apiClient.post('/dealers/apply', applicationData);
     return res.data;
@@ -276,6 +349,10 @@ export const authApi = {
 export const productsApi = {
   getAll: async (params = {}) => {
     const res = await apiClient.get('/products', params);
+<<<<<<< HEAD
+=======
+    // Returns { products: [...], pagination: { page, limit, total, pages } }
+>>>>>>> origin/boomika
     return res.data;
   },
 
@@ -314,11 +391,14 @@ export const categoriesApi = {
     return res.data;
   },
 
+<<<<<<< HEAD
   getAllAdmin: async () => {
     const res = await apiClient.get('/categories/admin/all');
     return res.data;
   },
 
+=======
+>>>>>>> origin/boomika
   getBySlug: async (slug) => {
     const res = await apiClient.get(`/categories/${slug}`);
     return res.data;
@@ -337,11 +417,14 @@ export const categoriesApi = {
   delete: async (id) => {
     const res = await apiClient.delete(`/categories/${id}`);
     return res.data;
+<<<<<<< HEAD
   },
 
   addSubcategory: async (id, subcategory) => {
     const res = await apiClient.post(`/categories/${id}/subcategories`, subcategory);
     return res.data;
+=======
+>>>>>>> origin/boomika
   }
 };
 
@@ -476,6 +559,39 @@ export const wishlistApi = {
 };
 
 /**
+<<<<<<< HEAD
+ * 7b. Customer Support Ticket APIs
+ */
+export const customerSupportApi = {
+  createTicket: async (ticketData) => {
+    const res = await apiClient.post('/complaints', ticketData);
+    return res.data;
+  },
+  getMyTickets: async () => {
+    const res = await apiClient.get('/complaints/my-tickets');
+    return res.data;
+  },
+  replyToTicket: async (ticketId, text, attachments = []) => {
+    const res = await apiClient.post(`/complaints/${ticketId}/messages`, { text, attachments });
+    return res.data;
+  },
+  reopenTicket: async (ticketId, reason = '') => {
+    const res = await apiClient.post(`/complaints/${ticketId}/reopen`, { reason });
+    return res.data;
+  },
+  getNotifications: async () => {
+    const res = await apiClient.get('/complaints/customer/notifications');
+    return res.data;
+  },
+  markNotificationRead: async (id) => {
+    const res = await apiClient.patch(`/complaints/customer/notifications/${id}/read`);
+    return res.data;
+  }
+};
+
+/**
+=======
+>>>>>>> origin/boomika
  * 8. Dealer Operations APIs
  */
 export const dealerApi = {
@@ -489,6 +605,19 @@ export const dealerApi = {
     return res.data;
   },
 
+<<<<<<< HEAD
+  verifyBankDetails: async (bankData) => {
+    const res = await apiClient.put('/dealers/bank-details/verify', bankData);
+    return res.data;
+  },
+
+  submitOnboardingBankDetails: async (bankData) => {
+    const res = await apiClient.put('/dealers/onboarding/bank-details', bankData);
+    return res.data;
+  },
+
+=======
+>>>>>>> origin/boomika
   getInventory: async () => {
     const res = await apiClient.get('/inventory/my-inventory');
     return res.data;
@@ -504,8 +633,43 @@ export const dealerApi = {
     return res.data;
   },
 
+<<<<<<< HEAD
+  getAnalytics: async (range = '30D') => {
+    const res = await apiClient.get(`/analytics/dealer?range=${range}`);
+    return res.data;
+  },
+
+  createSupportTicket: async (ticketData) => {
+    const res = await apiClient.post('/complaints', ticketData);
+    return res.data;
+  },
+
+  getMySupportTickets: async () => {
+    const res = await apiClient.get('/complaints/my-tickets');
+    return res.data;
+  },
+
+  replyToSupportTicket: async (ticketId, text, attachments = []) => {
+    const res = await apiClient.post(`/complaints/${ticketId}/messages`, { text, attachments });
+    return res.data;
+  },
+
+  reopenSupportTicket: async (ticketId, reason = '') => {
+    const res = await apiClient.post(`/complaints/${ticketId}/reopen`, { reason });
+    return res.data;
+  },
+
+  getDealerNotifications: async () => {
+    const res = await apiClient.get('/complaints/dealer/notifications');
+    return res.data;
+  },
+
+  markDealerNotificationRead: async (id) => {
+    const res = await apiClient.patch(`/complaints/dealer/notifications/${id}/read`);
+=======
   getAnalytics: async () => {
     const res = await apiClient.get('/analytics/dealer');
+>>>>>>> origin/boomika
     return res.data;
   }
 };
@@ -519,6 +683,7 @@ export const adminApi = {
     return res.data;
   },
 
+<<<<<<< HEAD
   getProducts: async (params = {}) => {
     const res = await apiClient.get('/products/admin', params);
     return res.data;
@@ -542,10 +707,15 @@ export const adminApi = {
 
   getDealers: async () => {
     const res = await apiClient.get('/admin/dealers');
+=======
+  getDealers: async () => {
+    const res = await apiClient.get('/dealers');
+>>>>>>> origin/boomika
     return res.data;
   },
 
   getDealerById: async (id) => {
+<<<<<<< HEAD
     const res = await apiClient.get(`/admin/dealers/${id}`);
     return res.data;
   },
@@ -556,6 +726,9 @@ export const adminApi = {
   },
   resetDealerCredentials: async (id) => {
     const res = await apiClient.post(`/admin/dealers/${id}/reset-credentials`);
+=======
+    const res = await apiClient.get(`/dealers/${id}`);
+>>>>>>> origin/boomika
     return res.data;
   },
 
@@ -564,6 +737,14 @@ export const adminApi = {
     return res.data;
   },
 
+<<<<<<< HEAD
+  verifyDealerKyc: async (id, payload = {}) => {
+    const res = await apiClient.patch(`/admin/dealers/${id}/verify-kyc`, payload);
+    return res.data;
+  },
+
+=======
+>>>>>>> origin/boomika
   rejectDealer: async (id, reason) => {
     const res = await apiClient.post(`/admin/dealers/${id}/reject`, { reason });
     return res.data;
@@ -583,6 +764,7 @@ export const adminApi = {
     const res = await apiClient.get('/dealer-locations');
     return res.data;
   },
+<<<<<<< HEAD
   createLocation: async (payload) => {
     const res = await apiClient.post('/dealer-locations', payload);
     return res.data;
@@ -595,6 +777,8 @@ export const adminApi = {
     const res = await apiClient.delete(`/dealer-locations/${id}`);
     return res.data;
   },
+=======
+>>>>>>> origin/boomika
 
   getPayments: async () => {
     const res = await apiClient.get('/payments');
@@ -606,17 +790,37 @@ export const adminApi = {
     return res.data;
   },
 
+<<<<<<< HEAD
+  getComplaints: async (params = {}) => {
+    const res = await apiClient.get('/complaints/admin/all', params);
+    return res.data;
+  },
+
+  updateComplaintStatus: async (ticketId, status, note = '', reason = '') => {
+    const res = await apiClient.patch(`/complaints/admin/${ticketId}/status`, { status, note, reason });
+    return res.data;
+  },
+  replyToComplaint: async (ticketId, text, internalNote = false, status = null, attachments = []) => {
+    const res = await apiClient.post(`/complaints/admin/${ticketId}/replies`, {
+      text,
+      internalNote,
+      ...(status ? { status } : {}),
+      attachments: attachments || []
+    });
+=======
+  releaseSettlement: async (id) => {
+    const res = await apiClient.post(`/settlements/${id}/release`);
+    return res.data;
+  },
+
   getComplaints: async () => {
     const res = await apiClient.get('/complaints/admin/all');
     return res.data;
   },
 
-  updateComplaintStatus: async (ticketId, status, priority) => {
-    const res = await apiClient.patch(`/complaints/admin/${ticketId}/status`, { status, ...(priority ? { priority } : {}) });
-    return res.data;
-  },
-  replyToComplaint: async (ticketId, text, internalNote = false) => {
-    const res = await apiClient.post(`/complaints/admin/${ticketId}/replies`, { text, internalNote });
+  updateComplaintStatus: async (ticketId, status) => {
+    const res = await apiClient.patch(`/complaints/admin/${ticketId}/status`, { status });
+>>>>>>> origin/boomika
     return res.data;
   },
 
@@ -635,6 +839,7 @@ export const adminApi = {
     return res.data;
   },
 
+<<<<<<< HEAD
  
 
   getNotifications: async () => {
@@ -683,3 +888,13 @@ export const adminApi = {
 
 
 export default apiClient;
+=======
+  getUsers: async () => {
+    const res = await apiClient.get('/users');
+    return res.data;
+  }
+};
+
+export default apiClient;
+
+>>>>>>> origin/boomika

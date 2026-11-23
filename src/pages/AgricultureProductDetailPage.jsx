@@ -142,6 +142,10 @@ export default function AgricultureProductDetailPage() {
 
   // Handler for Buy Now (fast-track checkout without adding to cart)
   const handleBuyNow = (prod, quantity) => {
+<<<<<<< HEAD
+    if (Number(prod?.stock) <= 0 || prod?.stockStatus === 'Out of Stock' || prod?.status === 'Draft' || prod?.inStock === false) return;
+=======
+>>>>>>> origin/boomika
     const qty = Math.max(1, parseInt(quantity, 10) || 1);
     if (!isCustomerAuthenticated()) {
       setPendingAction({

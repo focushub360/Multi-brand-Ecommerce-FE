@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import AdminLayout from '../../components/admin/AdminLayout';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import {
+<<<<<<< HEAD
   fetchAdminUsers,
   fetchAdminUserStats,
   changeAdminUserStatus,
@@ -23,15 +24,54 @@ export default function AdminUsersPage() {
   const [typeFilter, setTypeFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
 
+=======
+  getAdminCustomers,
+  toggleCustomerStatus,
+  syncAdminDataFromApi
+} from '../../services/adminService';
+import {
+  Search,
+  CheckCircle2,
+  Eye,
+  UserCheck,
+  UserX,
+  X
+} from 'lucide-react';
+
+export default function AdminUsersPage() {
+  const [customers, setCustomers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
+
+  // Customer Detail Drawer
+>>>>>>> origin/boomika
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
+<<<<<<< HEAD
+=======
+  const loadData = () => {
+    setCustomers(getAdminCustomers());
+  };
+
+  useEffect(() => {
+    document.title = 'User Management | GROVE Admin';
+    window.scrollTo(0, 0);
+    loadData();
+    syncAdminDataFromApi().then(() => {
+      loadData();
+    }).catch(() => {});
+  }, []);
+
+>>>>>>> origin/boomika
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+<<<<<<< HEAD
   const loadBuyers = async () => {
     try {
       setLoading(true);
@@ -131,6 +171,36 @@ export default function AdminUsersPage() {
   const statusLabel = (s) => (s === 'ACTIVE' ? 'Active' : 'Inactive');
   const hasFilters = searchQuery || typeFilter !== 'All' || statusFilter !== 'All';
 
+=======
+  const filteredCustomers = useMemo(() => {
+    return customers.filter((c) => {
+      const q = searchQuery.toLowerCase().trim();
+      const matchSearch =
+        !q ||
+        c.name.toLowerCase().includes(q) ||
+        c.contactPerson.toLowerCase().includes(q) ||
+        c.email.toLowerCase().includes(q) ||
+        c.city.toLowerCase().includes(q) ||
+        c.phone.toLowerCase().includes(q);
+
+      const matchType = typeFilter === 'All' || c.type === typeFilter;
+      const matchStatus = statusFilter === 'All' || c.status === statusFilter;
+
+      return matchSearch && matchType && matchStatus;
+    });
+  }, [customers, searchQuery, typeFilter, statusFilter]);
+
+  const handleToggleStatus = (id, e) => {
+    if (e) e.stopPropagation();
+    const updated = toggleCustomerStatus(id);
+    loadData();
+    if (selectedCustomer && selectedCustomer.id === id) {
+      setSelectedCustomer(updated);
+    }
+    showToast(`Account status updated for ${updated?.name || 'customer'}.`);
+  };
+
+>>>>>>> origin/boomika
   return (
     <AdminLayout>
       {toastMessage && (
@@ -143,6 +213,7 @@ export default function AdminUsersPage() {
       <AdminPageHeader
         title="User & Buyer Management"
         subtitle="Manage verified farm buyers, agricultural cooperatives (FPOs), agritech companies, and retail farm accounts."
+<<<<<<< HEAD
         badge={`${pagination.total} Registered Buyers`}
         breadcrumbs={[{ label: 'Users' }]}
       />
@@ -169,6 +240,39 @@ export default function AdminUsersPage() {
       )}
 
       {/* Filters */}
+=======
+        badge={`${customers.length} Registered Buyers`}
+        breadcrumbs={[{ label: 'Users' }]}
+      />
+
+      {/* 1. Summary Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+        <div className="p-4 rounded-2xl bg-white border border-[#C1C8C2]/60 shadow-2xs">
+          <span className="text-[10px] font-mono uppercase font-bold text-[#717973]">Total Buyers</span>
+          <span className="text-2xl font-black text-[#012D1D] block mt-1">{customers.length}</span>
+        </div>
+        <div className="p-4 rounded-2xl bg-white border border-emerald-300 shadow-2xs">
+          <span className="text-[10px] font-mono uppercase font-bold text-emerald-800">Active Accounts</span>
+          <span className="text-2xl font-black text-[#0E5138] block mt-1">
+            {customers.filter((c) => c.status === 'Active').length}
+          </span>
+        </div>
+        <div className="p-4 rounded-2xl bg-white border border-[#C1C8C2]/60 shadow-2xs">
+          <span className="text-[10px] font-mono uppercase font-bold text-[#717973]">FPO Cooperatives</span>
+          <span className="text-2xl font-black text-[#012D1D] block mt-1">
+            {customers.filter((c) => c.type === 'FPO Cooperative').length}
+          </span>
+        </div>
+        <div className="p-4 rounded-2xl bg-white border border-rose-300 shadow-2xs">
+          <span className="text-[10px] font-mono uppercase font-bold text-rose-800">Inactive / Suspended</span>
+          <span className="text-2xl font-black text-rose-900 block mt-1">
+            {customers.filter((c) => c.status !== 'Active').length}
+          </span>
+        </div>
+      </div>
+
+      {/* 2. Filters */}
+>>>>>>> origin/boomika
       <div className="bg-white rounded-3xl border border-[#C1C8C2]/60 p-4 shadow-xs space-y-3">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="relative flex-1 max-w-md">
@@ -182,8 +286,24 @@ export default function AdminUsersPage() {
             />
           </div>
 
+<<<<<<< HEAD
           <div className="flex items-center gap-1 flex-wrap">
             
+=======
+          <div className="flex items-center gap-2 flex-wrap">
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="h-10 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-semibold text-[#151D18]"
+            >
+              <option value="All">All Buyer Types</option>
+              <option value="FPO Cooperative">FPO Cooperative</option>
+              <option value="Commercial Agritech">Commercial Agritech</option>
+              <option value="Agro Retailer">Agro Retailer</option>
+              <option value="Institutional Buyer">Institutional Buyer</option>
+              <option value="Individual Farmer">Individual Farmer</option>
+            </select>
+>>>>>>> origin/boomika
 
             <select
               value={statusFilter}
@@ -191,11 +311,19 @@ export default function AdminUsersPage() {
               className="h-10 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-semibold text-[#151D18]"
             >
               <option value="All">All Statuses</option>
+<<<<<<< HEAD
               <option value="ACTIVE">Active</option>
               <option value="INACTIVE">Inactive</option>
             </select>
 
             {hasFilters && (
+=======
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+
+            {(searchQuery || typeFilter !== 'All' || statusFilter !== 'All') && (
+>>>>>>> origin/boomika
               <button
                 type="button"
                 onClick={() => {
@@ -212,12 +340,16 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
+<<<<<<< HEAD
       {error && (
         <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs">{error}</div>
       )}
       {loading && <div className="text-xs text-[#717973]">Loading buyers...</div>}
 
       {/* Table */}
+=======
+      {/* 3. Customer Table */}
+>>>>>>> origin/boomika
       <div className="bg-white rounded-3xl border border-[#C1C8C2]/60 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
@@ -237,7 +369,11 @@ export default function AdminUsersPage() {
               {filteredCustomers.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="py-10 text-center text-[#717973]">
+<<<<<<< HEAD
                     {loading ? 'Loading...' : 'No buyer accounts found matching filters.'}
+=======
+                    No buyer accounts found matching filters.
+>>>>>>> origin/boomika
                   </td>
                 </tr>
               ) : (
@@ -253,10 +389,19 @@ export default function AdminUsersPage() {
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-xl bg-[#012D1D] text-[#AEEECB] font-mono font-bold text-xs flex items-center justify-center shrink-0">
+<<<<<<< HEAD
                           {String(cust.name).substring(0, 2).toUpperCase()}
                         </div>
                         <div className="flex flex-col min-w-0">
                           <span className="font-extrabold text-[#151D18] truncate max-w-[200px]">{cust.name}</span>
+=======
+                          {cust.name.substring(0, 2).toUpperCase()}
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="font-extrabold text-[#151D18] truncate max-w-[200px]">
+                            {cust.name}
+                          </span>
+>>>>>>> origin/boomika
                           <span className="text-[11px] text-[#717973]">
                             {cust.contactPerson} • {cust.city}, {cust.state}
                           </span>
@@ -275,6 +420,7 @@ export default function AdminUsersPage() {
                       <span className="text-[10px] font-mono text-[#717973]">{cust.phone}</span>
                     </td>
 
+<<<<<<< HEAD
                     <td className="py-3.5 px-4 text-[#717973] font-mono text-[11px]">{cust.registeredDate}</td>
                     <td className="py-3.5 px-3 text-center font-mono font-bold text-[#012D1D]">{cust.totalOrders}</td>
                     <td className="py-3.5 px-4 text-right font-mono font-black text-[#0E5138]">{cust.totalSpend}</td>
@@ -288,6 +434,27 @@ export default function AdminUsersPage() {
                         }`}
                       >
                         {statusLabel(cust.status)}
+=======
+                    <td className="py-3.5 px-4 text-[#717973] font-mono text-[11px]">
+                      {cust.registeredDate}
+                    </td>
+
+                    <td className="py-3.5 px-3 text-center font-mono font-bold text-[#012D1D]">
+                      {cust.totalOrders}
+                    </td>
+
+                    <td className="py-3.5 px-4 text-right font-mono font-black text-[#0E5138]">
+                      {cust.totalSpend}
+                    </td>
+
+                    <td className="py-3.5 px-4 text-center">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold border ${
+                        cust.status === 'Active'
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                          : 'bg-rose-50 text-rose-800 border-rose-300'
+                      }`}>
+                        {cust.status}
+>>>>>>> origin/boomika
                       </span>
                     </td>
 
@@ -306,6 +473,7 @@ export default function AdminUsersPage() {
                         </button>
                         <button
                           type="button"
+<<<<<<< HEAD
                           onClick={() => handleToggleStatus(cust)}
                           className={`p-1.5 rounded-lg ${
                             cust.status === 'ACTIVE'
@@ -315,6 +483,17 @@ export default function AdminUsersPage() {
                           title={cust.status === 'ACTIVE' ? 'Deactivate Buyer' : 'Reactivate Buyer'}
                         >
                           {cust.status === 'ACTIVE' ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
+=======
+                          onClick={(e) => handleToggleStatus(cust.id, e)}
+                          className={`p-1.5 rounded-lg ${
+                            cust.status === 'Active'
+                              ? 'text-rose-700 hover:bg-rose-50'
+                              : 'text-emerald-700 hover:bg-emerald-50'
+                          }`}
+                          title={cust.status === 'Active' ? 'Deactivate Buyer' : 'Reactivate Buyer'}
+                        >
+                          {cust.status === 'Active' ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
+>>>>>>> origin/boomika
                         </button>
                       </div>
                     </td>
@@ -324,6 +503,7 @@ export default function AdminUsersPage() {
             </tbody>
           </table>
         </div>
+<<<<<<< HEAD
 
         {/* Pagination */}
         <div className="flex items-center justify-between px-4 py-3 text-xs border-t border-[#C1C8C2]/40">
@@ -348,6 +528,11 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Detail Drawer */}
+=======
+      </div>
+
+      {/* Customer Detail Drawer */}
+>>>>>>> origin/boomika
       {isDetailOpen && selectedCustomer && (
         <div className="fixed inset-0 z-50 flex items-center justify-end">
           <div className="fixed inset-0 bg-[#012D1D]/50 backdrop-blur-xs" onClick={() => setIsDetailOpen(false)} />
@@ -386,13 +571,20 @@ export default function AdminUsersPage() {
                 <span className="font-bold text-[#151D18] block">Account Governance</span>
                 <button
                   type="button"
+<<<<<<< HEAD
                   onClick={() => handleToggleStatus(selectedCustomer)}
                   className={`w-full py-2.5 rounded-xl font-bold text-xs transition-colors ${
                     selectedCustomer.status === 'ACTIVE'
+=======
+                  onClick={() => handleToggleStatus(selectedCustomer.id)}
+                  className={`w-full py-2.5 rounded-xl font-bold text-xs transition-colors ${
+                    selectedCustomer.status === 'Active'
+>>>>>>> origin/boomika
                       ? 'bg-rose-50 text-rose-800 border border-rose-300 hover:bg-rose-100'
                       : 'bg-emerald-600 text-white hover:bg-emerald-700'
                   }`}
                 >
+<<<<<<< HEAD
                   {selectedCustomer.status === 'ACTIVE' ? 'Deactivate Buyer Account' : 'Reactivate Buyer Account'}
                 </button>
                 <button
@@ -401,6 +593,9 @@ export default function AdminUsersPage() {
                   className="w-full py-2.5 rounded-xl bg-rose-600 text-white font-bold text-xs hover:bg-rose-700"
                 >
                   Delete Buyer Account
+=======
+                  {selectedCustomer.status === 'Active' ? 'Deactivate Buyer Account' : 'Reactivate Buyer Account'}
+>>>>>>> origin/boomika
                 </button>
               </div>
             </div>
@@ -409,4 +604,9 @@ export default function AdminUsersPage() {
       )}
     </AdminLayout>
   );
+<<<<<<< HEAD
 }
+=======
+}
+
+>>>>>>> origin/boomika

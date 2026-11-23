@@ -1,6 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
+<<<<<<< HEAD
+  ArrowLeft,
+=======
+>>>>>>> origin/boomika
   ShoppingCart, 
   Trash2, 
   Heart, 
@@ -140,6 +144,32 @@ export default function CartPage() {
 
         {/* Page Title */}
         <div className="pb-6 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<<<<<<< HEAD
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                if (window.history.length > 1) navigate(-1);
+                else navigate('/');
+              }}
+              className="p-2 sm:p-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 hover:text-gray-950 hover:bg-gray-50 active:scale-95 shadow-2xs transition-all cursor-pointer flex items-center justify-center shrink-0"
+              title="Go Back"
+              aria-label="Go Back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
+                <span>Shopping Cart</span>
+                <span className="text-sm font-semibold px-2.5 py-0.5 rounded-full bg-[#E9F3ED] text-[#1B4332] border border-[#c4e3cf]">
+                  {cart.length} {cart.length === 1 ? 'item' : 'items'}
+                </span>
+              </h1>
+              <p className="text-sm text-gray-500 mt-1">
+                Select items to proceed to checkout or save for later
+              </p>
+            </div>
+=======
           <div>
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
               <span>Shopping Cart</span>
@@ -150,6 +180,7 @@ export default function CartPage() {
             <p className="text-sm text-gray-500 mt-1">
               Select items to proceed to checkout or save for later
             </p>
+>>>>>>> origin/boomika
           </div>
 
           {cart.length > 0 && (

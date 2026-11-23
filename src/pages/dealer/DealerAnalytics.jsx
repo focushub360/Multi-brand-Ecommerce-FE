@@ -64,7 +64,23 @@ export default function DealerAnalytics() {
 
   const handleExport = () => {
     const activeId = getActiveDealerId();
+<<<<<<< HEAD
+    const allOrders = getDealerOrders(activeId);
+    let days = 30;
+    if (timeRange === '7D') days = 7;
+    else if (timeRange === '90D') days = 90;
+    else if (timeRange === '1Y') days = 365;
+
+    const cutoff = Date.now() - (days * 24 * 60 * 60 * 1000);
+    const orders = allOrders.filter((o) => {
+      if (!o.createdAt && !o.placedAt) return true;
+      const t = new Date(o.createdAt || o.placedAt).getTime();
+      return !isNaN(t) ? t >= cutoff : true;
+    });
+
+=======
     const orders = getDealerOrders(activeId);
+>>>>>>> origin/boomika
     const headers = [
       'Order ID',
       'Placed Date',
@@ -121,7 +137,12 @@ export default function DealerAnalytics() {
     inventoryParity: '99.8% Sync'
   };
 
+<<<<<<< HEAD
+  const maxRev = Math.max(...monthlyData.map(d => d.revenue || 0), 1);
+  const maxOrders = Math.max(...monthlyData.map(d => d.orders || 0), 1);
+=======
   const maxRev = Math.max(...monthlyData.map(d => d.revenue), 1);
+>>>>>>> origin/boomika
 
   return (
     <DealerLayout>
@@ -205,7 +226,11 @@ export default function DealerAnalytics() {
                 </div>
                 <div className="mt-4 flex flex-col gap-1">
                   <div className="text-2xl sm:text-3xl font-extrabold text-[#151D18] tracking-tight">
+<<<<<<< HEAD
+                    {typeof kpi.value === 'string' ? kpi.value.replace(/%%+/g, '%') : kpi.value}
+=======
                     {kpi.value}
+>>>>>>> origin/boomika
                   </div>
                   <span className="text-xs text-[#717973]">{kpi.subtext}</span>
                 </div>
@@ -221,7 +246,16 @@ export default function DealerAnalytics() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#C1C8C2]/30">
               <div>
                 <h2 className="text-base sm:text-lg font-bold text-[#151D18]">Revenue & Order Trajectory</h2>
+<<<<<<< HEAD
+                <p className="text-xs text-[#717973] mt-0.5">
+                  {timeRange === '7D' && 'Daily gross sales trajectory over the past 7 days'}
+                  {timeRange === '30D' && 'Weekly gross sales trajectory over the past 30 days'}
+                  {timeRange === '90D' && 'Monthly gross sales trajectory over the past 90 days'}
+                  {timeRange === '1Y' && 'Monthly gross sales trajectory over the past year'}
+                </p>
+=======
                 <p className="text-xs text-[#717973] mt-0.5">Historical monthly gross sales volume</p>
+>>>>>>> origin/boomika
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -251,15 +285,34 @@ export default function DealerAnalytics() {
 
             {/* Bar Chart Visualization */}
             <div className="pt-2 flex flex-col gap-4">
+<<<<<<< HEAD
+              <div className="flex items-end justify-between gap-1 sm:gap-3 h-56 pt-6 px-2 overflow-x-auto">
+                {monthlyData.map((d, index) => {
+                  const heightPercent = activeChartTab === 'revenue'
+                    ? Math.round((d.revenue / maxRev) * 100)
+                    : Math.round(((d.orders || 0) / maxOrders) * 100);
+=======
               <div className="grid grid-cols-6 gap-2 sm:gap-4 items-end h-56 pt-6 px-2">
                 {monthlyData.map((d, index) => {
                   const heightPercent = activeChartTab === 'revenue'
                     ? Math.round((d.revenue / maxRev) * 100)
                     : Math.round((d.orders / 60) * 100);
+>>>>>>> origin/boomika
 
                   const isLatest = index === monthlyData.length - 1;
 
                   return (
+<<<<<<< HEAD
+                    <div key={`${d.month}-${index}`} className="flex-1 min-w-[32px] max-w-[56px] flex flex-col items-center gap-2 h-full justify-end group">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[11px] font-bold text-[#012D1D] bg-[#AEEECB] px-2 py-0.5 rounded shadow-2xs mb-1 whitespace-nowrap">
+                        {activeChartTab === 'revenue' 
+                          ? (d.revenue >= 100000 ? `₹${(d.revenue / 100000).toFixed(2)}L` : `₹${Number(d.revenue || 0).toLocaleString('en-IN')}`)
+                          : `${d.orders || 0} orders`}
+                      </div>
+                      <div className="w-full bg-[#F3FCF3] rounded-t-xl overflow-hidden flex flex-col justify-end h-full">
+                        <div
+                          style={{ height: `${Math.max(4, heightPercent)}%` }}
+=======
                     <div key={d.month} className="flex flex-col items-center gap-2 h-full justify-end group">
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[11px] font-bold text-[#012D1D] bg-[#AEEECB] px-2 py-0.5 rounded shadow-2xs mb-1">
                         {activeChartTab === 'revenue' ? `₹${(d.revenue / 100000).toFixed(2)}L` : `${d.orders} orders`}
@@ -267,12 +320,17 @@ export default function DealerAnalytics() {
                       <div className="w-full max-w-[48px] bg-[#F3FCF3] rounded-t-xl overflow-hidden flex flex-col justify-end h-full">
                         <div
                           style={{ height: `${heightPercent}%` }}
+>>>>>>> origin/boomika
                           className={`w-full rounded-t-xl transition-all duration-500 ${
                             isLatest ? 'bg-[#012D1D]' : 'bg-[#2C694E] hover:bg-[#012D1D]'
                           }`}
                         ></div>
                       </div>
+<<<<<<< HEAD
+                      <span className={`font-mono text-[10px] sm:text-xs truncate max-w-full text-center ${isLatest ? 'text-[#012D1D] font-bold' : 'text-[#717973]'}`}>
+=======
                       <span className={`font-mono text-xs ${isLatest ? 'text-[#012D1D] font-bold' : 'text-[#717973]'}`}>
+>>>>>>> origin/boomika
                         {d.month}
                       </span>
                     </div>
@@ -281,8 +339,21 @@ export default function DealerAnalytics() {
               </div>
 
               <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 border-t border-[#C1C8C2]/30 text-[#717973] text-xs gap-2">
+<<<<<<< HEAD
+                <span>
+                  Top revenue category:{' '}
+                  <strong className="text-[#151D18] font-semibold">
+                    {analyticsData?.fastestCategory?.name || categoryBreakdown[0]?.name || 'Commercial Supplies'}
+                    {analyticsData?.fastestCategory?.share ? ` (${analyticsData.fastestCategory.share})` : ''}
+                  </strong>
+                </span>
+                <span className="font-mono text-[#2C694E] font-bold">
+                  Active Filter: {timeRange}
+                </span>
+=======
                 <span>Fastest growing category: <strong className="text-[#151D18] font-semibold">Micro-Irrigation (+34%)</strong></span>
                 <span className="font-mono text-[#2C694E] font-bold">CAGR: +24.8% YoY</span>
+>>>>>>> origin/boomika
               </div>
             </div>
           </div>
@@ -331,6 +402,57 @@ export default function DealerAnalytics() {
           </div>
         </div>
 
+<<<<<<< HEAD
+        {/* Top Selling Products */}
+        <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-2xs border border-[#C1C8C2]/40 flex flex-col gap-4">
+          <div className="flex items-center justify-between pb-3 border-b border-[#C1C8C2]/30">
+            <h2 className="text-base sm:text-lg font-bold text-[#151D18]">Top Performing Catalog SKUs</h2>
+            <Link to="/dealer/products" className="text-[#2C694E] text-xs font-bold hover:underline">
+              View Full Catalog
+            </Link>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs sm:text-sm">
+              <thead className="bg-[#EDF6ED]/70 border-b border-[#C1C8C2]/40 text-[#414844] text-[11px] sm:text-xs font-bold uppercase tracking-wider">
+                <tr>
+                  <th className="py-2.5 px-3">Product</th>
+                  <th className="py-2.5 px-3">Units Sold</th>
+                  <th className="py-2.5 px-3">Gross Revenue</th>
+                  <th className="py-2.5 px-3 text-right">Stock</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#C1C8C2]/30">
+                {topProducts.map((p) => (
+                  <tr key={p.sku} className="hover:bg-[#F3FCF3]/60">
+                    <td className="py-3 px-3">
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-xs sm:text-sm text-[#151D18] truncate max-w-[220px]">
+                          {p.name}
+                        </span>
+                        <span className="font-mono text-[11px] text-[#717973]">{p.sku}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-3 font-mono font-bold text-[#151D18]">
+                      {p.unitsSold}
+                    </td>
+                    <td className="py-3 px-3 font-mono font-bold text-[#012D1D]">
+                      {p.revenue}
+                    </td>
+                    <td className="py-3 px-3 text-right">
+                      <span className={`px-2 py-0.5 rounded font-mono text-[11px] font-bold ${
+                        p.stockLeft < 10
+                          ? 'bg-amber-100 text-amber-800'
+                          : 'bg-[#EDF6ED] text-[#151D18]'
+                      }`}>
+                        {p.stockLeft} units
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+=======
         {/* Category Share + Top Selling Products */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Category Distribution (5 cols) */}
@@ -411,6 +533,7 @@ export default function DealerAnalytics() {
                 </tbody>
               </table>
             </div>
+>>>>>>> origin/boomika
           </div>
         </div>
       </div>

@@ -1,5 +1,9 @@
 import React from 'react';
+<<<<<<< HEAD
+import { NavLink, useLocation } from 'react-router-dom';
+=======
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+>>>>>>> origin/boomika
 import { 
   LayoutDashboard, 
   Package, 
@@ -8,6 +12,11 @@ import {
   BarChart3, 
   Settings, 
   HelpCircle, 
+<<<<<<< HEAD
+  X,
+  ExternalLink
+} from 'lucide-react';
+=======
   LogOut, 
   CheckCircle2, 
   X,
@@ -15,6 +24,7 @@ import {
 } from 'lucide-react';
 import { getStoredDealer, clearStoredDealer, getActiveDealerId } from '../../utils/auth';
 import { getDealerById } from '../../services/dealerService';
+>>>>>>> origin/boomika
 
 const NAV_ITEMS = [
   { name: 'Overview', path: '/dealer/dashboard', icon: LayoutDashboard },
@@ -27,6 +37,9 @@ const NAV_ITEMS = [
 ];
 
 export default function DealerSidebar({ mobileOpen, onCloseMobile }) {
+<<<<<<< HEAD
+  const location = useLocation();
+=======
   const navigate = useNavigate();
   const location = useLocation();
   const user = getStoredDealer();
@@ -40,6 +53,7 @@ export default function DealerSidebar({ mobileOpen, onCloseMobile }) {
     clearStoredDealer();
     navigate('/login', { replace: true });
   };
+>>>>>>> origin/boomika
 
   const isItemActive = (path) => {
     if (path === '/dealer/dashboard') {
@@ -136,6 +150,8 @@ export default function DealerSidebar({ mobileOpen, onCloseMobile }) {
             })}
           </nav>
         </div>
+<<<<<<< HEAD
+=======
 
         {/* Bottom Profile and Quick Info */}
         <div className="p-2.5 border-t border-[#C1C8C2]/40 bg-[#EDF6ED]">
@@ -165,6 +181,7 @@ export default function DealerSidebar({ mobileOpen, onCloseMobile }) {
             </div>
           </div>
         </div>
+>>>>>>> origin/boomika
       </aside>
     </>
   );

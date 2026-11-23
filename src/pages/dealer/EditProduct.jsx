@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+import React, { useState, useEffect, useRef } from 'react';
+=======
 import React, { useState, useEffect } from 'react';
+>>>>>>> origin/boomika
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -9,7 +13,12 @@ import {
   ChevronUp, 
   Eye, 
   AlertCircle,
+<<<<<<< HEAD
+  Lock,
+  Upload
+=======
   Lock
+>>>>>>> origin/boomika
 } from 'lucide-react';
 import DealerLayout from '../../components/dealer/DealerLayout';
 import { getDealerProductById, fetchDealerProductById, updateDealerProduct, deleteDealerProduct, getDealerStoreSettings } from '../../services/dealerService';
@@ -56,7 +65,14 @@ export default function EditProduct() {
   const storedDealer = getStoredDealer();
 
   const authorizedCategory = 
+<<<<<<< HEAD
+    storedDealer?.primaryCategoryName ||
+    storedDealer?.primaryCategory ||
     dealerSettings?.businessCategory || 
+    dealerSettings?.primaryCategory ||
+=======
+    dealerSettings?.businessCategory || 
+>>>>>>> origin/boomika
     (storedDealer?.email?.includes('hub') ? 'Electronics & Gadgets' : 'Agriculture & Farming');
 
   const availableSubcategories = SUBCATEGORIES_BY_CATEGORY[authorizedCategory] || SUBCATEGORIES_BY_CATEGORY['Agriculture & Farming'];
@@ -130,6 +146,102 @@ export default function EditProduct() {
     );
   }
 
+<<<<<<< HEAD
+  const fileInputRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleRemoveImage = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+  };
+
+  const compressImage = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 1200;
+
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Export compressed JPEG base64 Data URL
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          resolve(dataUrl);
+        };
+        img.onerror = () => reject(new Error('Failed to load image for compression'));
+        img.src = event.target.result;
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageFiles = async (files) => {
+    if (!files || !files.length) return;
+    const validFiles = Array.from(files).filter((f) => f.type.startsWith('image/'));
+    if (!validFiles.length) {
+      alert('Please select valid image files (PNG, JPG, JPEG, WEBP).');
+      return;
+    }
+
+    try {
+      const compressedUrls = await Promise.all(validFiles.map(compressImage));
+      setFormData((prev) => ({
+        ...prev,
+        images: [...prev.images, ...compressedUrls]
+      }));
+    } catch (err) {
+      console.error('Error reading/compressing local images:', err);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    handleImageFiles(e.target.files);
+    e.target.value = '';
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    if (e.dataTransfer?.files) {
+      handleImageFiles(e.dataTransfer.files);
+    }
+  };
+
+=======
+>>>>>>> origin/boomika
   const discountPercent = formData.mrpPrice > formData.sellingPrice
     ? Math.round(((formData.mrpPrice - formData.sellingPrice) / formData.mrpPrice) * 100)
     : 0;
@@ -143,7 +255,11 @@ export default function EditProduct() {
     return Object.keys(errs).length === 0;
   };
 
+<<<<<<< HEAD
+  const handleSave = async (e) => {
+=======
   const handleSave = (e) => {
+>>>>>>> origin/boomika
     e.preventDefault();
     if (!validate()) return;
     setIsSaving(true);
@@ -167,11 +283,42 @@ export default function EditProduct() {
         pipeSize: formData.pipeSize,
         flowRate: formData.flowRate
       },
+<<<<<<< HEAD
+      specifications: {
+        material: formData.material,
+        pipeSize: formData.pipeSize,
+        flowRate: formData.flowRate
+      },
+=======
+>>>>>>> origin/boomika
       image: formData.images[0] || '/images/card-agri-clean.png',
       images: formData.images
     };
 
     const activeId = getActiveDealerId();
+<<<<<<< HEAD
+    const targetId = product?._id || product?.id || id;
+    try {
+      await updateDealerProduct(targetId, updated, activeId);
+      setIsSaving(false);
+      navigate('/dealer/products');
+    } catch (err) {
+      console.error('Error updating product:', err);
+      setIsSaving(false);
+      navigate('/dealer/products');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm(`Are you sure you want to permanently delete "${formData.name}"?`)) {
+      const activeId = getActiveDealerId();
+      const targetId = product?._id || product?.id || id;
+      try {
+        await deleteDealerProduct(targetId, activeId);
+      } catch (err) {
+        console.error('Error deleting product:', err);
+      }
+=======
     setTimeout(() => {
       updateDealerProduct(product.id, updated, activeId);
       setIsSaving(false);
@@ -183,6 +330,7 @@ export default function EditProduct() {
     if (window.confirm(`Are you sure you want to permanently delete "${formData.name}"?`)) {
       const activeId = getActiveDealerId();
       deleteDealerProduct(product.id, activeId);
+>>>>>>> origin/boomika
       navigate('/dealer/products');
     }
   };
@@ -268,6 +416,85 @@ export default function EditProduct() {
               </div>
             </section>
 
+<<<<<<< HEAD
+            {/* Product Images */}
+            <section className="bg-white border border-[#C1C8C2]/40 rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col gap-4">
+              <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#2C694E]" />
+                  <h2 className="text-sm font-bold text-[#151D18]">Product Images</h2>
+                </div>
+                <span className="text-[10px] font-semibold text-[#717973]">
+                  {formData.images.length} uploaded
+                </span>
+              </div>
+
+              {/* Upload Dropzone */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png, image/jpeg, image/webp"
+                multiple
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <div 
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`p-6 rounded-2xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center text-center group ${
+                  isDragging
+                    ? 'border-[#2C694E] bg-[#EDF6ED] scale-[1.01]'
+                    : 'border-[#C1C8C2]/80 bg-[#EDF6ED]/60 hover:bg-[#EDF6ED] hover:border-[#2C694E]'
+                }`}
+              >
+                <div className="w-10 h-10 rounded-xl bg-white shadow-2xs flex items-center justify-center text-[#2C694E] group-hover:scale-110 transition-transform">
+                  <Upload className="w-5 h-5" />
+                </div>
+                <div className="mt-2.5 flex flex-col gap-0.5">
+                  <span className="text-xs font-bold text-[#151D18]">
+                    Click or drag images to upload from your PC
+                  </span>
+                  <span className="text-[11px] text-[#717973]">
+                    PNG, JPG, WEBP formats up to 10MB
+                  </span>
+                </div>
+              </div>
+
+              {/* Uploaded Previews */}
+              {formData.images.length > 0 && (
+                <div className="grid grid-cols-3 gap-3 pt-1">
+                  {formData.images.map((img, idx) => (
+                    <div key={idx} className="relative group rounded-xl overflow-hidden bg-neutral-100 border border-[#C1C8C2]/40 aspect-square">
+                      <img 
+                        src={img} 
+                        alt={`Preview ${idx}`} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      {idx === 0 && (
+                        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-[#012D1D] text-white text-[9px] font-bold uppercase tracking-wider">
+                          Primary
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-[#012D1D]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(idx)}
+                          className="w-7 h-7 rounded-lg bg-white text-red-600 hover:bg-red-50 flex items-center justify-center shadow-sm cursor-pointer"
+                          title="Remove image"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
+=======
+>>>>>>> origin/boomika
             {/* Category & Specs */}
             <section className="bg-white border border-[#C1C8C2]/40 rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col gap-4">
               <span className="text-sm font-bold text-[#151D18] pb-2 border-b border-neutral-100">

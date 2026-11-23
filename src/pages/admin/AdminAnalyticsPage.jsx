@@ -3,29 +3,27 @@ import AdminLayout from '../../components/admin/AdminLayout';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import {
   getAdminAnalytics,
+<<<<<<< HEAD
   getAdminTopSellingProducts,
   syncAdminDataFromApi
+=======
+  getAdminTopSellingProducts
+>>>>>>> origin/boomika
 } from '../../services/adminService';
 
 export default function AdminAnalyticsPage() {
   const [period, setPeriod] = useState('monthly'); // 'daily', 'weekly', 'monthly'
   const [analytics, setAnalytics] = useState(null);
   const [hoveredIndex, setHoveredIndex] = useState(null);
-  const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
     document.title = 'Sales & Analytics | GROVE Admin';
     window.scrollTo(0, 0);
     setAnalytics(getAdminAnalytics());
-    let isMounted = true;
-    syncAdminDataFromApi().then((result) => {
-      if (!isMounted) return;
-      setAnalytics(getAdminAnalytics());
-      setLoadError(result?.analyticsError || '');
-    }).catch((error) => {
-      if (isMounted) setLoadError(error.message || 'Could not load sales analytics.');
-    });
-    return () => { isMounted = false; };
+<<<<<<< HEAD
+    syncAdminDataFromApi().then(() => setAnalytics(getAdminAnalytics())).catch(() => {});
+=======
+>>>>>>> origin/boomika
   }, []);
 
   const trendData = useMemo(() => {
@@ -35,10 +33,14 @@ export default function AdminAnalyticsPage() {
     return analytics.monthlyTrend || [];
   }, [analytics, period]);
 
+<<<<<<< HEAD
   const topProducts = analytics?.topProducts?.length ? analytics.topProducts : getAdminTopSellingProducts();
+=======
+  const topProducts = getAdminTopSellingProducts();
+>>>>>>> origin/boomika
 
   // SVG Chart calculation
-  const maxRevenue = Math.max(1, ...trendData.map((d) => Number(d.revenue) || 0));
+  const maxRevenue = trendData.length > 0 ? Math.max(...trendData.map((d) => d.revenue)) : 100000;
   const chartHeight = 180;
   const chartWidth = 600;
   const paddingX = 45;
@@ -89,12 +91,6 @@ export default function AdminAnalyticsPage() {
         }
       />
 
-      {loadError && (
-        <div role="alert" className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Analytics could not be refreshed: {loadError}
-        </div>
-      )}
-
       {/* 1. KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
         <div className="p-4 rounded-2xl bg-white border border-[#C1C8C2]/60 shadow-2xs">
@@ -106,10 +102,10 @@ export default function AdminAnalyticsPage() {
         </div>
 
         <div className="p-4 rounded-2xl bg-white border border-[#C1C8C2]/60 shadow-2xs">
-          <span className="text-[10px] font-mono uppercase font-bold text-[#717973]">Non-cancelled Orders</span>
+          <span className="text-[10px] font-mono uppercase font-bold text-[#717973]">Total Orders Fulfilled</span>
           <div className="flex items-baseline gap-2 mt-1">
             <span className="text-2xl font-black text-[#012D1D] font-heading">{analytics.kpis.totalOrders}</span>
-            <span className="text-[11px] font-mono text-[#717973]">All time</span>
+            <span className="text-[11px] font-mono text-emerald-600 font-bold">+14.2%</span>
           </div>
         </div>
 
@@ -125,7 +121,7 @@ export default function AdminAnalyticsPage() {
           <span className="text-[10px] font-mono uppercase font-bold text-emerald-800">Net Commission Retained</span>
           <div className="flex items-baseline gap-2 mt-1">
             <span className="text-2xl font-black text-[#0E5138] font-heading">{analytics.kpis.commissionEarned}</span>
-            <span className="text-[11px] font-mono text-emerald-700 font-bold">Eligible dealer orders</span>
+            <span className="text-[11px] font-mono text-emerald-700 font-bold">5.0% take</span>
           </div>
         </div>
       </div>
@@ -211,7 +207,7 @@ export default function AdminAnalyticsPage() {
           </div>
 
           <div className="space-y-4">
-            {(analytics.categoryBreakdown || []).map((cat, idx) => (
+            {analytics.categoryBreakdown.map((cat, idx) => (
               <div key={idx} className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-[#151D18]">{cat.category}</span>
@@ -223,9 +219,6 @@ export default function AdminAnalyticsPage() {
                 <span className="text-[10px] font-mono text-[#717973] block">{cat.orders} completed checkouts</span>
               </div>
             ))}
-            {analytics.categoryBreakdown?.length === 0 && (
-              <p className="text-xs text-[#717973]">No category sales data is available yet.</p>
-            )}
           </div>
         </div>
 
@@ -247,7 +240,7 @@ export default function AdminAnalyticsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#C1C8C2]/30">
-                {(analytics.dealerSalesRanking || []).map((dealer, idx) => (
+                {analytics.dealerSalesRanking.map((dealer, idx) => (
                   <tr key={idx} className="hover:bg-[#F8FAF8]">
                     <td className="py-2.5 font-bold text-[#151D18]">{dealer.dealerName}</td>
                     <td className="py-2.5 text-center font-mono text-[#717973]">{dealer.orders}</td>
@@ -255,48 +248,11 @@ export default function AdminAnalyticsPage() {
                     <td className="py-2.5 text-right font-mono font-bold text-emerald-700">{dealer.sharePercent}%</td>
                   </tr>
                 ))}
-                {analytics.dealerSalesRanking?.length === 0 && (
-                  <tr><td colSpan="4" className="py-6 text-center text-[#717973]">No dealer sales data is available yet.</td></tr>
-                )}
               </tbody>
             </table>
           </div>
         </div>
       </div>
-
-      <section className="bg-white rounded-3xl border border-[#C1C8C2]/60 p-5 sm:p-6 shadow-xs space-y-4">
-        <div>
-          <h3 className="font-extrabold text-base text-[#012D1D] font-heading">Best-selling Products</h3>
-          <p className="text-xs text-[#717973]">Top products ranked by recorded sales volume.</p>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-[#C1C8C2]/40 text-[#717973] font-mono uppercase text-[10px]">
-                <th className="pb-2 font-bold">Product</th>
-                <th className="pb-2 font-bold">SKU</th>
-                <th className="pb-2 font-bold">Category</th>
-                <th className="pb-2 font-bold text-right">Units Sold</th>
-                <th className="pb-2 font-bold text-right">Sales Value</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#C1C8C2]/30">
-              {(topProducts || []).map((product, index) => (
-                <tr key={product.id || product.sku || `${product.name}-${index}`} className="hover:bg-[#F8FAF8]">
-                  <td className="py-2.5 font-bold text-[#151D18]">{product.name || 'Product'}</td>
-                  <td className="py-2.5 font-mono text-[#717973]">{product.sku || '—'}</td>
-                  <td className="py-2.5 text-[#3F4943]">{product.category || '—'}</td>
-                  <td className="py-2.5 text-right font-mono text-[#717973]">{Number(product.unitsSold || product.totalSales || 0).toLocaleString('en-IN')}</td>
-                  <td className="py-2.5 text-right font-mono font-black text-[#012D1D]">{product.revenue || '₹0'}</td>
-                </tr>
-              ))}
-              {(!topProducts || topProducts.length === 0) && (
-                <tr><td colSpan="5" className="py-6 text-center text-[#717973]">No product sales data is available yet.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
     </AdminLayout>
   );
 }

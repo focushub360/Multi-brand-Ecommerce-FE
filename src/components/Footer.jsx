@@ -117,9 +117,15 @@ export default function Footer() {
                 </a>
               </li>
               <li>
+<<<<<<< HEAD
+                <Link to="/account/support" className="hover:text-white transition-colors">
+                  Help Center &amp; Support
+                </Link>
+=======
                 <a href="#help" className="hover:text-white transition-colors">
                   Help Center
                 </a>
+>>>>>>> origin/boomika
               </li>
               <li>
                 <a href="#tracking" className="hover:text-white transition-colors">

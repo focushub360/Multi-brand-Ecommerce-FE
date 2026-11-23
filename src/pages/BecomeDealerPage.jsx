@@ -14,7 +14,12 @@ import {
   Store, 
   TrendingUp, 
   Users, 
+<<<<<<< HEAD
+  Send,
+  Sparkles 
+=======
   Send 
+>>>>>>> origin/boomika
 } from 'lucide-react';
 
 const INDIAN_STATES = [
@@ -59,6 +64,10 @@ export default function BecomeDealerPage() {
   });
 
   const [errors, setErrors] = useState({});
+<<<<<<< HEAD
+  const [apiError, setApiError] = useState('');
+=======
+>>>>>>> origin/boomika
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState(null); // null | 'validated'
   const [heroImgSrc, setHeroImgSrc] = useState(
@@ -70,6 +79,88 @@ export default function BecomeDealerPage() {
     window.scrollTo(0, 0);
   }, []);
 
+<<<<<<< HEAD
+  const [autoFillToast, setAutoFillToast] = useState(null);
+
+  const handleAutoFill = (presetCategory = 'Agriculture & Farming') => {
+    const randomSuffix = Math.floor(100 + Math.random() * 900);
+    const randomGstinDigits = Math.floor(1000 + Math.random() * 9000);
+    const randomPhone = `98${Math.floor(10000000 + Math.random() * 90000000)}`;
+
+    const demoProfiles = {
+      'Agriculture & Farming': {
+        businessName: `Kisan Agro Machinery & Spares Depot ${randomSuffix}`,
+        businessType: 'Authorized Dealer',
+        businessCategory: 'Agriculture & Farming',
+        businessEmail: `dealer.kisan${randomSuffix}@gmail.com`,
+        businessPhone: randomPhone,
+        businessAddress: 'Plot 42, Krishi Industrial Area, NH-44',
+        city: 'Nagpur',
+        state: 'Maharashtra',
+        pincode: '440001',
+        ownerName: 'Rajesh Kumar Sharma',
+        ownerPhone: randomPhone,
+        ownerEmail: `rajesh.sharma${randomSuffix}@gmail.com`,
+        gstin: `27ABCDE${randomGstinDigits}F1Z5`,
+        regNumber: `UDYAM-MH-12-00${randomSuffix}`,
+        yearsInBusiness: '5 to 10 years',
+        brandsHandled: 'Mahindra Tractors, John Deere, Sonalika Implements, Kirloskar Pumps',
+        businessDescription: 'Authorized regional dealership specializing in heavy agricultural machinery, equipment sales, genuine spares, and on-field service support.',
+        agreedToTerms: true
+      },
+      'Electronics & Gadgets': {
+        businessName: `Apex Digital Retail & Electronics ${randomSuffix}`,
+        businessType: 'Retailer',
+        businessCategory: 'Electronics & Gadgets',
+        businessEmail: `dealer.apex${randomSuffix}@gmail.com`,
+        businessPhone: randomPhone,
+        businessAddress: 'Shop 104, City Plaza Mall, MG Road',
+        city: 'Bengaluru',
+        state: 'Karnataka',
+        pincode: '560001',
+        ownerName: 'Vikram Sundaram',
+        ownerPhone: randomPhone,
+        ownerEmail: `vikram.sundaram${randomSuffix}@gmail.com`,
+        gstin: `29ABCDE${randomGstinDigits}F1Z5`,
+        regNumber: `UDYAM-KA-03-00${randomSuffix}`,
+        yearsInBusiness: '3 to 5 years',
+        brandsHandled: 'Samsung, Sony, OnePlus, Xiaomi, boAt',
+        businessDescription: 'Leading consumer electronics showroom with verified brand partnerships, modern warehouse logistics, and same-day delivery coverage.',
+        agreedToTerms: true
+      },
+      'Automotive & Spare Parts': {
+        businessName: `Speedway Spares & Commercial Parts ${randomSuffix}`,
+        businessType: 'Wholesaler',
+        businessCategory: 'Automotive & Spare Parts',
+        businessEmail: `dealer.speedway${randomSuffix}@gmail.com`,
+        businessPhone: randomPhone,
+        businessAddress: 'Sector 18, Transport Nagar, GT Road',
+        city: 'Delhi (NCR)',
+        state: 'Delhi (NCR)',
+        pincode: '110036',
+        ownerName: 'Harpreet Singh',
+        ownerPhone: randomPhone,
+        ownerEmail: `harpreet.singh${randomSuffix}@gmail.com`,
+        gstin: `07ABCDE${randomGstinDigits}F1Z5`,
+        regNumber: `UDYAM-DL-01-00${randomSuffix}`,
+        yearsInBusiness: '10+ years',
+        brandsHandled: 'Bosch, Tata Motors Genuine Spares, Mahindra Parts, Castrol, MRF',
+        businessDescription: 'Multi-brand automotive and commercial vehicle parts distributor with a 25,000 sq.ft regional logistics warehouse and wholesale retail network.',
+        agreedToTerms: true
+      }
+    };
+
+    const selectedProfile = demoProfiles[presetCategory] || demoProfiles['Agriculture & Farming'];
+
+    setFormData(selectedProfile);
+    setErrors({});
+    setApiError('');
+    setAutoFillToast(`Form auto-filled with ${selectedProfile.businessCategory} dealer details!`);
+    setTimeout(() => setAutoFillToast(null), 3500);
+  };
+
+=======
+>>>>>>> origin/boomika
   const scrollToForm = () => {
     if (formRef.current) {
       formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -93,6 +184,12 @@ export default function BecomeDealerPage() {
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
+<<<<<<< HEAD
+    if (apiError) {
+      setApiError('');
+    }
+=======
+>>>>>>> origin/boomika
   };
 
   const validate = () => {
@@ -190,6 +287,10 @@ export default function BecomeDealerPage() {
 
     setIsSubmitting(true);
     setSubmissionStatus(null);
+<<<<<<< HEAD
+    setApiError('');
+=======
+>>>>>>> origin/boomika
 
     try {
       const payload = {
@@ -218,11 +319,39 @@ export default function BecomeDealerPage() {
         formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     } catch (apiErr) {
+<<<<<<< HEAD
+      console.warn('Backend dealer registration error:', apiErr.message);
+      setIsSubmitting(false);
+      const errorMsg = apiErr.message || 'Dealer email already exists.';
+      setApiError(errorMsg);
+
+      if (errorMsg.toLowerCase().includes('email') || apiErr.status === 409) {
+        setErrors((prev) => ({
+          ...prev,
+          businessEmail: 'Dealer email already exists.'
+        }));
+        const emailInput = document.getElementById('businessEmail');
+        if (emailInput) {
+          emailInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          emailInput.focus();
+        }
+      } else if (errorMsg.toLowerCase().includes('gstin')) {
+        setErrors((prev) => ({
+          ...prev,
+          gstin: 'A dealership with this GSTIN is already registered.'
+        }));
+        const gstinInput = document.getElementById('gstin');
+        if (gstinInput) {
+          gstinInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          gstinInput.focus();
+        }
+=======
       console.warn('Backend dealer registration error, showing confirmation:', apiErr.message);
       setIsSubmitting(false);
       setSubmissionStatus('submitted');
       if (formRef.current) {
         formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+>>>>>>> origin/boomika
       }
     }
   };
@@ -356,8 +485,77 @@ export default function BecomeDealerPage() {
             <p className="mt-2 text-xs sm:text-sm text-neutral-500 font-normal leading-relaxed">
               Please provide your business and verification information below. Our team reviews all dealer submissions for regional commercial authorization.
             </p>
+<<<<<<< HEAD
+
+            {/* Quick Auto Fill Form Button & Presets */}
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleAutoFill('Agriculture & Farming')}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-[#1B4332] hover:bg-[#2D6A4F] text-white rounded-xl text-xs font-bold transition-all shadow-md hover:shadow-lg cursor-pointer transform hover:-translate-y-0.5 active:translate-y-0"
+                title="Automatically fill form with sample valid dealer details"
+              >
+                <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+                <span>Auto Fill Form</span>
+              </button>
+
+              <div className="hidden sm:flex items-center gap-1.5 pl-2 border-l border-neutral-300">
+                <span className="text-[11px] font-semibold text-neutral-500">Presets:</span>
+                <button
+                  type="button"
+                  onClick={() => handleAutoFill('Agriculture & Farming')}
+                  className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 transition-colors cursor-pointer"
+                  title="Fill with Agriculture dealer details"
+                >
+                  🌾 Agriculture
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleAutoFill('Electronics & Gadgets')}
+                  className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 transition-colors cursor-pointer"
+                  title="Fill with Electronics dealer details"
+                >
+                  📱 Electronics
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleAutoFill('Automotive & Spare Parts')}
+                  className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-200 transition-colors cursor-pointer"
+                  title="Fill with Automotive dealer details"
+                >
+                  🚗 Automotive
+                </button>
+              </div>
+            </div>
+
+            {/* Auto Fill Toast Notification */}
+            {autoFillToast && (
+              <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium animate-in fade-in">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span>{autoFillToast}</span>
+              </div>
+            )}
           </div>
 
+          {/* Application Submission Error Banner */}
+          {apiError && (
+            <div className="mb-8 p-4 sm:p-5 rounded-[20px] bg-red-50 border border-red-200 text-red-900 text-xs sm:text-sm animate-in fade-in duration-200 shadow-xs flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <h3 className="font-bold text-sm sm:text-base text-red-800">
+                  Application Submission Error
+                </h3>
+                <p className="text-red-700 leading-relaxed text-xs sm:text-[13px]">
+                  {apiError}
+                </p>
+              </div>
+            </div>
+          )}
+
+=======
+          </div>
+
+>>>>>>> origin/boomika
           {/* Validation / Submission Status Notification Banner */}
           {submissionStatus && (
             <div className="mb-8 p-5 sm:p-6 rounded-[20px] bg-[#EBF4EE] border border-[#40916C]/40 text-neutral-800 text-xs sm:text-sm animate-in fade-in duration-200 shadow-xs">
@@ -405,6 +603,26 @@ export default function BecomeDealerPage() {
             noValidate 
             className="bg-white rounded-[20px] sm:rounded-[24px] p-4 sm:p-8 md:p-10 border border-neutral-200/90 shadow-[0_8px_30px_rgba(27,67,50,0.05)] space-y-6 sm:space-y-8"
           >
+<<<<<<< HEAD
+            {/* Quick Auto Fill Strip */}
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 bg-[#F4F9F5] border border-[#A7D7B9] rounded-[14px]">
+              <div className="flex items-center gap-2 text-xs text-[#166534]">
+                <Sparkles className="w-4 h-4 text-[#16A34A] shrink-0" />
+                <span className="font-bold">Want to test the onboarding process?</span>
+                <span className="text-neutral-600 hidden md:inline">Click auto fill to populate complete, valid application credentials instantly.</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleAutoFill()}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#1B4332] hover:bg-[#2D6A4F] text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>Auto Fill Form</span>
+              </button>
+            </div>
+
+=======
+>>>>>>> origin/boomika
             {/* Section A: Business Information */}
             <div className="space-y-5">
               <div className="flex items-center gap-2.5 pb-3 border-b border-neutral-100">

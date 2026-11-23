@@ -22,6 +22,11 @@ import { getStoredCustomer } from '../../utils/auth';
 import { useCart } from '../../hooks/useCart';
 import { 
   getOrderById, 
+<<<<<<< HEAD
+  fetchCustomerOrderById,
+  syncCustomerOrders,
+=======
+>>>>>>> origin/boomika
   cancelOrder, 
   formatCurrency, 
   formatOrderDate 
@@ -39,6 +44,79 @@ export default function OrderDetailsPage() {
   const [cancelReason, setCancelReason] = useState('Change in farming requirement');
   const [feedback, setFeedback] = useState('');
 
+<<<<<<< HEAD
+  useEffect(() => {
+    let isMounted = true;
+    let isFetching = false;
+
+    const fetchOrderData = async () => {
+      if (!orderId || isFetching) return;
+      isFetching = true;
+      try {
+        const fresh = await fetchCustomerOrderById(orderId, customer?.id);
+        if (isMounted && fresh) {
+          setOrder(fresh);
+        }
+      } catch (err) {
+        console.warn('Order direct sync warning:', err);
+      } finally {
+        isFetching = false;
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    if (customer?.id) {
+      const found = getOrderById(customer.id, orderId);
+      if (found && isMounted) {
+        setOrder(found);
+        setLoading(false);
+      }
+    }
+    fetchOrderData();
+
+    const handleUpdate = () => {
+      fetchOrderData();
+    };
+
+    window.addEventListener('grove_orders_updated', handleUpdate);
+    
+    // BroadcastChannel for instant cross-tab live sync
+    let channel = null;
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        channel = new BroadcastChannel('grove_orders_sync');
+        channel.onmessage = () => {
+          fetchOrderData();
+        };
+      }
+    } catch {}
+
+    const handleVisibility = () => {
+      if (!document.hidden) {
+        fetchOrderData();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    // Periodic live polling every 25 seconds for real-time delivery status progression
+    const interval = setInterval(() => {
+      if (!document.hidden) {
+        fetchOrderData();
+      }
+    }, 25000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+      window.removeEventListener('grove_orders_updated', handleUpdate);
+      document.removeEventListener('visibilitychange', handleVisibility);
+      if (channel) {
+        try {
+          channel.close();
+        } catch {}
+      }
+    };
+=======
   const loadOrder = () => {
     if (!customer?.id || !orderId) {
       setLoading(false);
@@ -51,6 +129,7 @@ export default function OrderDetailsPage() {
 
   useEffect(() => {
     loadOrder();
+>>>>>>> origin/boomika
   }, [customer?.id, orderId]);
 
   const handleBuyAgain = (item) => {
@@ -124,10 +203,26 @@ export default function OrderDetailsPage() {
   const canCancel = order.status !== 'Delivered' && order.status !== 'Cancelled';
 
   // Standard pipeline steps
+<<<<<<< HEAD
+  const standardSteps = ['Order Placed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered'];
+  const getStepIndex = (statusStr) => {
+    if (!statusStr || statusStr === 'Cancelled') return -1;
+    const s = String(statusStr).toLowerCase();
+    if (s === 'delivered') return 4;
+    if (s === 'out for delivery') return 3;
+    if (s === 'shipped' || s === 'dispatched' || s === 'in transit') return 2;
+    if (s === 'processing' || s === 'packed' || s === 'confirmed') return 1;
+    if (s === 'placed' || s === 'order placed') return 0;
+    return 0;
+  };
+
+  const currentStepIndex = getStepIndex(order.status);
+=======
   const standardSteps = ['Order Placed', 'Confirmed', 'Shipped', 'Out for Delivery', 'Delivered'];
   const currentStepIndex = order.status === 'Cancelled' 
     ? -1 
     : standardSteps.findIndex((s) => s.toLowerCase() === order.status.toLowerCase());
+>>>>>>> origin/boomika
 
   return (
     <div className="min-h-screen bg-[#F3FCF3]/40 flex flex-col">
@@ -233,6 +328,68 @@ export default function OrderDetailsPage() {
           {/* Stepper Pipeline (if not cancelled) */}
           {order.status !== 'Cancelled' ? (
             <div className="pt-6">
+<<<<<<< HEAD
+              <div className="relative">
+                {/* Horizontal Progress Track for sm and up screens */}
+                <div className="hidden sm:block absolute top-5 left-[10%] right-[10%] h-1 bg-gray-200 rounded-full" />
+                <div 
+                  className="hidden sm:block absolute top-5 left-[10%] h-1 bg-gradient-to-r from-[#012D1D] via-[#1B4332] to-[#52B788] rounded-full transition-all duration-700 ease-out shadow-xs" 
+                  style={{ width: `${Math.min(80, Math.max(0, (currentStepIndex / 4) * 80))}%` }} 
+                />
+
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-y-6 sm:gap-y-0 gap-x-2 relative z-10">
+                  {standardSteps.map((stepName, idx) => {
+                    const isDone = idx < currentStepIndex;
+                    const isCurrent = idx === currentStepIndex;
+
+                    return (
+                      <div key={stepName} className="flex flex-col items-center text-center">
+                        <div className="relative mb-2">
+                          {isCurrent && (
+                            <span className="absolute -inset-1 rounded-full bg-emerald-400 opacity-75 animate-ping" />
+                          )}
+                          <div className={`relative w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all ${
+                            isCurrent
+                              ? 'bg-[#012D1D] text-white ring-4 ring-emerald-200 shadow-md scale-105'
+                              : isDone
+                              ? 'bg-[#1B4332] text-white ring-2 ring-[#E9F3ED] shadow-xs'
+                              : 'bg-white text-gray-400 border border-gray-200 shadow-2xs'
+                          }`}>
+                            {isCurrent ? (
+                              idx === 4 ? (
+                                <CheckCircle2 className="w-5 h-5 text-emerald-300" />
+                              ) : idx === 2 || idx === 3 ? (
+                                <Truck className="w-4 h-4 text-emerald-300 animate-pulse" />
+                              ) : idx === 1 ? (
+                                <Clock className="w-4 h-4 text-emerald-300 animate-pulse" />
+                              ) : (
+                                <Package className="w-4 h-4 text-emerald-300" />
+                              )
+                            ) : isDone ? (
+                              <CheckCircle2 className="w-4 h-4 text-white" />
+                            ) : (
+                              <span className="text-gray-400 font-semibold">{idx + 1}</span>
+                            )}
+                          </div>
+                        </div>
+
+                        <span className={`text-xs font-bold ${
+                          isCurrent ? 'text-[#012D1D]' : isDone ? 'text-gray-800' : 'text-gray-400'
+                        }`}>
+                          {stepName}
+                        </span>
+
+                        {isCurrent && (
+                          <span className="mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase bg-[#E9F3ED] text-[#1B4332] border border-[#c4e3cf] flex items-center gap-1 shadow-2xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                            Active
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+=======
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 relative">
                 {standardSteps.map((stepName, idx) => {
                   const isDone = idx <= currentStepIndex;
@@ -255,6 +412,7 @@ export default function OrderDetailsPage() {
                     </div>
                   );
                 })}
+>>>>>>> origin/boomika
               </div>
             </div>
           ) : (
