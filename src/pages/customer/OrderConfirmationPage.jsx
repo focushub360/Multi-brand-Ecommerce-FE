@@ -92,16 +92,8 @@ export default function OrderConfirmationPage() {
         {/* Success Card Header */}
         <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden mb-8">
           <div className="bg-gradient-to-r from-[#012D1D] to-[#1B4332] p-8 text-center text-white">
-<<<<<<< HEAD
-            <div className="relative w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-              <span className="absolute inset-0 rounded-full bg-emerald-400/20 animate-ping opacity-60" />
-              <div className="relative w-16 h-16 rounded-full bg-emerald-500/25 border-2 border-emerald-300 flex items-center justify-center shadow-lg transition-transform hover:scale-105">
-                <CheckCircle2 className="w-10 h-10 text-emerald-300" />
-              </div>
-=======
             <div className="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center mx-auto mb-4 animate-bounce">
               <CheckCircle2 className="w-10 h-10 text-emerald-300" />
->>>>>>> origin/boomika
             </div>
             <span className="text-xs uppercase font-extrabold tracking-widest text-emerald-300 bg-white/10 px-3 py-1 rounded-full">
               Order Confirmed

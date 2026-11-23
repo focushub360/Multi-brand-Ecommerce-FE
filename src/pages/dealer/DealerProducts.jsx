@@ -24,10 +24,7 @@ export default function DealerProducts() {
 
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState(urlSearch);
-<<<<<<< HEAD
-=======
   const [selectedCategory, setSelectedCategory] = useState('All');
->>>>>>> origin/boomika
   const [selectedStatus, setSelectedStatus] = useState('All');
   const [toastMessage, setToastMessage] = useState('');
 
@@ -100,31 +97,19 @@ export default function DealerProducts() {
 
   // Filtered Products
   const filteredProducts = products.filter((p) => {
-<<<<<<< HEAD
-    if (!p) return false;
-    if (p.status === 'archived' || p.status === 'Archived') return false;
-=======
->>>>>>> origin/boomika
     const matchSearch = 
       p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
       p.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (p.description && p.description.toLowerCase().includes(searchTerm.toLowerCase()));
     
-<<<<<<< HEAD
-=======
     const matchCat = selectedCategory === 'All' || p.category.includes(selectedCategory);
     
->>>>>>> origin/boomika
     let matchStatus = true;
     if (selectedStatus === 'Active') matchStatus = p.status === 'active';
     if (selectedStatus === 'Draft') matchStatus = p.status === 'draft';
     if (selectedStatus === 'Out of Stock') matchStatus = p.stock === 0;
 
-<<<<<<< HEAD
-    return matchSearch && matchStatus;
-=======
     return matchSearch && matchCat && matchStatus;
->>>>>>> origin/boomika
   });
 
   return (
@@ -161,11 +146,7 @@ export default function DealerProducts() {
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1B4332] text-white text-xs font-bold hover:bg-[#012D1D] transition-all shadow-sm active:scale-95"
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-<<<<<<< HEAD
-              <span>Add Product</span>
-=======
               <span>+ Add Product</span>
->>>>>>> origin/boomika
             </Link>
           </div>
         </div>
@@ -179,20 +160,11 @@ export default function DealerProducts() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-<<<<<<< HEAD
-              placeholder="Search by product name or SKU..."
-=======
               placeholder="Search by product name, SKU, or category..."
->>>>>>> origin/boomika
               className="w-full h-10 pl-10 pr-4 rounded-xl bg-[#EDF6ED] text-[#151D18] text-xs sm:text-sm placeholder:text-[#717973] focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#2C694E] transition-all"
             />
           </div>
 
-<<<<<<< HEAD
-          {/* Filters - Status Only */}
-          <div className="flex flex-wrap items-center gap-2">
-            <select
-=======
           {/* Filters */}
           <div className="flex flex-wrap items-center gap-2">
             <select
@@ -207,7 +179,6 @@ export default function DealerProducts() {
             </select>
 
             <select
->>>>>>> origin/boomika
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
               className="h-10 px-3 rounded-xl bg-[#EDF6ED] text-[#151D18] text-xs font-semibold focus:outline-none cursor-pointer border-r-8 border-transparent"
@@ -218,19 +189,12 @@ export default function DealerProducts() {
               <option value="Out of Stock">Out of Stock</option>
             </select>
 
-<<<<<<< HEAD
-            {(searchTerm || selectedStatus !== 'All') && (
-=======
             {(searchTerm || selectedCategory !== 'All' || selectedStatus !== 'All') && (
->>>>>>> origin/boomika
               <button
                 type="button"
                 onClick={() => {
                   setSearchTerm('');
-<<<<<<< HEAD
-=======
                   setSelectedCategory('All');
->>>>>>> origin/boomika
                   setSelectedStatus('All');
                 }}
                 className="h-10 px-3 text-[#717973] hover:text-[#151D18] text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
@@ -337,11 +301,7 @@ export default function DealerProducts() {
                       <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5">
                           <Link
-<<<<<<< HEAD
-                            to={`/dealer/products/edit/${p._id || p.id}`}
-=======
                             to={`/dealer/products/edit/${p.id}`}
->>>>>>> origin/boomika
                             className="p-1.5 text-[#2C694E] hover:bg-[#EDF6ED] rounded-lg transition-colors inline-flex items-center gap-1 text-xs font-semibold"
                             title="Edit Product"
                           >
@@ -351,11 +311,7 @@ export default function DealerProducts() {
 
                           <button
                             type="button"
-<<<<<<< HEAD
-                            onClick={() => handleDelete(p._id || p.id, p.name)}
-=======
                             onClick={() => handleDelete(p.id, p.name)}
->>>>>>> origin/boomika
                             className="p-1.5 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                             title="Delete Product"
                           >

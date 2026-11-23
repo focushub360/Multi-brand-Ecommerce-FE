@@ -3,10 +3,6 @@ import AdminLayout from '../../components/admin/AdminLayout';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import {
   getAdminProducts,
-<<<<<<< HEAD
-=======
-  getAdminInventorySummary,
->>>>>>> origin/boomika
   getAdminInventoryMovementLogs,
   adjustAdminInventoryStock,
   syncAdminDataFromApi
@@ -35,10 +31,7 @@ export default function AdminInventoryPage() {
   const [newStockQty, setNewStockQty] = useState('');
   const [adjustReason, setAdjustReason] = useState('Physical audit reconciliation');
   const [toastMessage, setToastMessage] = useState(null);
-<<<<<<< HEAD
   const [isSavingStock, setIsSavingStock] = useState(false);
-=======
->>>>>>> origin/boomika
 
   const [movementLogs, setMovementLogs] = useState([]);
 
@@ -112,21 +105,15 @@ export default function AdminInventoryPage() {
     setIsAdjustModalOpen(true);
   };
 
-<<<<<<< HEAD
   const handleSaveStock = async (e) => {
     e.preventDefault();
     if (isSavingStock) return;
-=======
-  const handleSaveStock = (e) => {
-    e.preventDefault();
->>>>>>> origin/boomika
     const qty = parseInt(newStockQty, 10);
     if (isNaN(qty) || qty < 0) {
       showToast('Please enter a valid non-negative integer quantity.');
       return;
     }
 
-<<<<<<< HEAD
     setIsSavingStock(true);
     try {
       await adjustAdminInventoryStock(selectedProduct.id, qty, adjustReason);
@@ -138,12 +125,6 @@ export default function AdminInventoryPage() {
     } finally {
       setIsSavingStock(false);
     }
-=======
-    adjustAdminInventoryStock(selectedProduct.id, qty, adjustReason, 'GROVE Admin');
-    loadData();
-    setIsAdjustModalOpen(false);
-    showToast(`Stock adjusted for ${selectedProduct.name} to ${qty} units.`);
->>>>>>> origin/boomika
   };
 
   return (
@@ -465,16 +446,10 @@ export default function AdminInventoryPage() {
                 </button>
                 <button
                   type="submit"
-<<<<<<< HEAD
                   disabled={isSavingStock}
                   className="px-5 py-2 rounded-xl bg-[#012D1D] hover:bg-[#1B4332] disabled:opacity-60 text-white text-xs font-bold"
                 >
                   {isSavingStock ? 'Saving…' : 'Confirm Adjustment'}
-=======
-                  className="px-5 py-2 rounded-xl bg-[#012D1D] hover:bg-[#1B4332] text-white text-xs font-bold"
-                >
-                  Confirm Adjustment
->>>>>>> origin/boomika
                 </button>
               </div>
             </form>
@@ -498,15 +473,11 @@ export default function AdminInventoryPage() {
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-3">
-<<<<<<< HEAD
               {movementLogs.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-[#C1C8C2] p-6 text-center text-xs text-[#717973]">
                   No stock movements have been recorded yet.
                 </div>
               ) : movementLogs.map((log) => (
-=======
-              {movementLogs.map((log) => (
->>>>>>> origin/boomika
                 <div key={log.id} className="p-3.5 rounded-2xl bg-[#F8FAF8] border border-[#C1C8C2]/40 space-y-1.5 text-xs">
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-[10px] text-[#717973] font-bold">#{log.id} • {log.timestamp}</span>

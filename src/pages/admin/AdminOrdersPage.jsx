@@ -4,10 +4,6 @@ import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import {
   getAdminOrders,
   getAdminOrderKPIs,
-<<<<<<< HEAD
-=======
-  updateAdminOrderStatus,
->>>>>>> origin/boomika
   syncAdminDataFromApi
 } from '../../services/adminService';
 import {
@@ -24,16 +20,12 @@ export default function AdminOrdersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [dealerFilter, setDealerFilter] = useState('All');
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
   // Detail Modal & Action
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-<<<<<<< HEAD
-=======
-  const [newStatus, setNewStatus] = useState('');
-  const [trackingNumber, setTrackingNumber] = useState('');
-  const [carrier, setCarrier] = useState('Delhivery Cargo');
->>>>>>> origin/boomika
   const [toastMessage, setToastMessage] = useState(null);
 
   const loadData = () => {
@@ -44,9 +36,18 @@ export default function AdminOrdersPage() {
     document.title = 'Order Management | GROVE Admin';
     window.scrollTo(0, 0);
     loadData();
-    syncAdminDataFromApi().then(() => {
+    let isMounted = true;
+    syncAdminDataFromApi().then((result) => {
+      if (!isMounted) return;
       loadData();
-    }).catch(() => {});
+      setLoadError(result?.ordersError || '');
+    }).catch((error) => {
+      if (!isMounted) return;
+      setLoadError(error.message || 'Could not load orders. Please try again.');
+    }).finally(() => {
+      if (isMounted) setIsLoading(false);
+    });
+    return () => { isMounted = false; };
   }, []);
 
   const kpis = useMemo(() => {
@@ -79,12 +80,8 @@ export default function AdminOrdersPage() {
   const filteredOrders = useMemo(() => {
     return orders.filter((o) => {
       const q = searchQuery.toLowerCase().trim();
-      const matchSearch =
-        !q ||
-        o.id.toLowerCase().includes(q) ||
-        (o.customer?.name && o.customer.name.toLowerCase().includes(q)) ||
-        (o.customer?.city && o.customer.city.toLowerCase().includes(q)) ||
-        o.dealerName.toLowerCase().includes(q);
+      const searchableFields = [o.id, o.customer?.name, o.customer?.city, o.dealerName];
+      const matchSearch = !q || searchableFields.some((value) => String(value || '').toLowerCase().includes(q));
 
       const matchStatus = statusFilter === 'All' || o.orderStatus === statusFilter;
       const matchDealer = dealerFilter === 'All' || o.dealerName === dealerFilter;
@@ -95,27 +92,9 @@ export default function AdminOrdersPage() {
 
   const handleOpenDetail = (order) => {
     setSelectedOrder(order);
-<<<<<<< HEAD
     setIsDetailOpen(true);
   };
 
-=======
-    setNewStatus(order.orderStatus);
-    setTrackingNumber(order.trackingNumber || '');
-    setCarrier(order.carrier || 'Delhivery Cargo');
-    setIsDetailOpen(true);
-  };
-
-  const handleUpdateStatus = (e) => {
-    e.preventDefault();
-    if (!selectedOrder) return;
-    const updated = updateAdminOrderStatus(selectedOrder.id, newStatus, trackingNumber, carrier);
-    loadData();
-    setSelectedOrder(updated);
-    showToast(`Order #${selectedOrder.id} status updated to ${newStatus}.`);
-  };
-
->>>>>>> origin/boomika
   const getStatusBadge = (st) => {
     switch (st?.toLowerCase()) {
       case 'delivered':
@@ -150,6 +129,12 @@ export default function AdminOrdersPage() {
         badge={`${orders.length} Platform Orders`}
         breadcrumbs={[{ label: 'Orders' }]}
       />
+
+      {loadError && (
+        <div role="alert" className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Orders could not be refreshed: {loadError}
+        </div>
+      )}
 
       {/* 1. Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3.5">
@@ -261,7 +246,7 @@ export default function AdminOrdersPage() {
               {filteredOrders.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="py-10 text-center text-[#717973]">
-                    No orders found matching filter criteria.
+                    {isLoading ? 'Loading orders…' : loadError ? 'Orders are unavailable until the server/database connection is restored.' : 'No orders found matching filter criteria.'}
                   </td>
                 </tr>
               ) : (
@@ -383,66 +368,12 @@ export default function AdminOrdersPage() {
               </div>
             </div>
 
-<<<<<<< HEAD
             <div className="p-4 rounded-2xl bg-[#F8FAF8] border border-[#C1C8C2]/40 text-xs">
               <span className="font-bold uppercase tracking-wider text-[#717973] font-mono text-[11px] block">Order progress (read-only)</span>
               <span className="mt-2 inline-flex px-2.5 py-1 rounded-full border font-bold">{selectedOrder.orderStatus}</span>
               {selectedOrder.carrier && <p className="mt-2 text-[#3F4943]">Carrier: {selectedOrder.carrier}</p>}
               {selectedOrder.trackingNumber && <p className="text-[#3F4943]">Tracking: {selectedOrder.trackingNumber}</p>}
             </div>
-=======
-            {/* Lifecycle Status Modification Form */}
-            <form onSubmit={handleUpdateStatus} className="p-4 rounded-2xl bg-white border border-[#012D1D]/30 shadow-xs space-y-3 text-xs">
-              <span className="font-bold uppercase tracking-wider text-[#012D1D] font-mono text-[11px] block">
-                Admin Lifecycle State Transition
-              </span>
-
-              <div>
-                <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Order Status</label>
-                <select
-                  value={newStatus}
-                  onChange={(e) => setNewStatus(e.target.value)}
-                  className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-semibold"
-                >
-                  <option value="Placed">Placed</option>
-                  <option value="Processing">Processing</option>
-                  <option value="Packed">Packed</option>
-                  <option value="Shipped">Shipped</option>
-                  <option value="Delivered">Delivered (Clear Escrow)</option>
-                  <option value="Cancelled">Cancelled (Refund)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Carrier</label>
-                <input
-                  type="text"
-                  value={carrier}
-                  onChange={(e) => setCarrier(e.target.value)}
-                  placeholder="e.g. Delhivery Cargo Express"
-                  className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Tracking Consignment Number</label>
-                <input
-                  type="text"
-                  value={trackingNumber}
-                  onChange={(e) => setTrackingNumber(e.target.value)}
-                  placeholder="e.g. DLH-992011"
-                  className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-mono"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-2.5 rounded-xl bg-[#012D1D] hover:bg-[#1B4332] text-white font-bold text-xs"
-              >
-                Update Order Lifecycle State
-              </button>
-            </form>
->>>>>>> origin/boomika
           </div>
         </div>
       )}

@@ -24,8 +24,7 @@ export const mapDealerForUI = (d) => {
   const raw = String(d.status || '').toUpperCase();
   const status =
     raw === 'APPROVED' || raw === 'ACTIVE' ? 'Active'
-    : raw === 'PENDING_KYC' ? 'Pending KYC'
-    : raw === 'PENDING' ? 'Under Review'
+    : raw === 'PENDING' ? 'Pending KYC'
     : raw === 'UNDER_REVIEW' ? 'Under Review'
     : raw === 'SUSPENDED' ? 'Suspended'
     : raw === 'REJECTED' ? 'Rejected'
@@ -33,7 +32,6 @@ export const mapDealerForUI = (d) => {
 
   return {
     id: String(d._id || d.id || ''),
-    rawStatus: raw,
     dealerCode: d.dealerCode || '',
     businessName: d.businessName || '—',
     primaryCategory: d.primaryCategoryName || d.primaryCategory?.name || '',
@@ -50,8 +48,6 @@ export const mapDealerForUI = (d) => {
     commissionRate: d.commissionRate ?? 5.0,
     status,
     payoutHold: !!d.payoutHold,
-    bankVerificationStatus: d.bankVerificationStatus || 'PENDING',
-    bankVerifiedAt: d.bankVerifiedAt || null,
     fulfillmentSLA: `${parseFloat(d.storeSettings?.fulfillmentSLA ?? d.fulfillmentSLA ?? 98).toFixed(1)}%`,
     activeListings: d.activeListings ?? d.productCount ?? 0,
     totalOrders: d.totalOrders ?? 0,
@@ -62,7 +58,6 @@ export const mapDealerForUI = (d) => {
       accountName: d.bankAccountName || '—',
       accountNumber: d.bankAccountNumber || '—',
       ifsc: d.bankIfsc || '—',
-      upiId: d.bankUpiId || ''
     },
     kycDocuments: Array.isArray(d.kycDocuments)
       ? d.kycDocuments.map((doc) => ({
@@ -72,7 +67,6 @@ export const mapDealerForUI = (d) => {
         }))
       : [],
     approvalHistory: Array.isArray(d.approvalHistory) ? d.approvalHistory : [],
-    rejectionReason: d.rejectionReason || '',
   };
 };
 

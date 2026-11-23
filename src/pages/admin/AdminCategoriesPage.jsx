@@ -16,14 +16,10 @@ import {
   X,
   ChevronDown,
   ChevronRight,
-<<<<<<< HEAD
   Tag,
   Pencil,
   Trash2,
   Power
-=======
-  Tag
->>>>>>> origin/boomika
 } from 'lucide-react';
 
 export default function AdminCategoriesPage() {
@@ -49,11 +45,8 @@ export default function AdminCategoriesPage() {
     loadData();
     syncAdminDataFromApi().then(() => {
       loadData();
-<<<<<<< HEAD
       const firstCategory = getAdminCategories()[0];
       if (firstCategory) setExpandedCat(firstCategory.id);
-=======
->>>>>>> origin/boomika
     }).catch(() => {});
   }, []);
 
@@ -62,7 +55,6 @@ export default function AdminCategoriesPage() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-<<<<<<< HEAD
   const handleCreateCategory = async (e) => {
     e.preventDefault();
     if (!catForm.name.trim()) return;
@@ -118,37 +110,6 @@ export default function AdminCategoriesPage() {
     } catch (error) { showToast(error.message || 'Unable to update category status.'); }
   };
 
-=======
-  const handleCreateCategory = (e) => {
-    e.preventDefault();
-    if (!catForm.name.trim()) return;
-    createAdminCategory(catForm);
-    loadData();
-    setIsCatModalOpen(false);
-    setCatForm({ name: '', slug: '', description: '', commissionRate: 5.0 });
-    showToast('New platform category created.');
-  };
-
-  const handleCreateSubcategory = (e) => {
-    e.preventDefault();
-    if (!subForm.name.trim() || !targetCatId) return;
-    addSubcategory(targetCatId, subForm);
-    loadData();
-    setIsSubModalOpen(false);
-    setSubForm({ name: '', slug: '' });
-    showToast('Subcategory added.');
-  };
-
-  const handleDeleteCategory = (id, e) => {
-    if (e) e.stopPropagation();
-    if (window.confirm('Are you sure you want to remove this category?')) {
-      deleteAdminCategory(id);
-      loadData();
-      showToast('Category deleted.');
-    }
-  };
-
->>>>>>> origin/boomika
   return (
     <AdminLayout>
       {toastMessage && (
@@ -198,11 +159,7 @@ export default function AdminCategoriesPage() {
                     <div className="flex items-center gap-2">
                       <h3 className="font-extrabold text-base text-[#012D1D] font-heading">{cat.name}</h3>
                       <span className="px-2 py-0.5 rounded-full bg-[#AEEECB] text-[#0E5138] font-mono font-bold text-[10px]">
-<<<<<<< HEAD
                         {cat.productCount || 0} SKUs
-=======
-                        {cat.productCount} SKUs
->>>>>>> origin/boomika
                       </span>
                     </div>
                     <p className="text-xs text-[#717973] mt-0.5 line-clamp-1">{cat.description}</p>
@@ -230,13 +187,10 @@ export default function AdminCategoriesPage() {
                     <span>Add Subcategory</span>
                   </button>
 
-<<<<<<< HEAD
                   <button type="button" title="Edit category name" onClick={(e) => handleEditCategory(cat, e)} className="p-2 rounded-lg border border-[#C1C8C2]/60 hover:bg-[#F3FCF3]"><Pencil className="w-3.5 h-3.5" /></button>
                   <button type="button" title={cat.status === 'Inactive' ? 'Activate category' : 'Deactivate category'} onClick={(e) => handleToggleCategory(cat, e)} className="p-2 rounded-lg border border-[#C1C8C2]/60 hover:bg-[#F3FCF3]"><Power className="w-3.5 h-3.5" /></button>
                   <button type="button" title="Delete category" onClick={(e) => handleDeleteCategory(cat.id, e)} className="p-2 rounded-lg border border-rose-200 text-rose-700 hover:bg-rose-50"><Trash2 className="w-3.5 h-3.5" /></button>
 
-=======
->>>>>>> origin/boomika
                   <div className="p-1 text-[#717973]">
                     {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
                   </div>
@@ -265,11 +219,7 @@ export default function AdminCategoriesPage() {
                         </div>
 
                         <span className="font-mono text-[11px] font-bold text-[#012D1D] bg-[#F3FCF3] px-2 py-0.5 rounded border border-[#C1C8C2]/30">
-<<<<<<< HEAD
                           {sub.productCount || 0} items
-=======
-                          {sub.productCount} items
->>>>>>> origin/boomika
                         </span>
                       </div>
                     ))}
@@ -299,11 +249,8 @@ export default function AdminCategoriesPage() {
                 <input
                   type="text"
                   required
-<<<<<<< HEAD
                   minLength={2}
                   maxLength={100}
-=======
->>>>>>> origin/boomika
                   value={catForm.name}
                   onChange={(e) => setCatForm({ ...catForm, name: e.target.value })}
                   placeholder="e.g. Irrigation & Fluid Systems"
@@ -316,11 +263,8 @@ export default function AdminCategoriesPage() {
                 <input
                   type="number"
                   step="0.1"
-<<<<<<< HEAD
                   min="0"
                   max="100"
-=======
->>>>>>> origin/boomika
                   required
                   value={catForm.commissionRate}
                   onChange={(e) => setCatForm({ ...catForm, commissionRate: e.target.value })}
@@ -332,10 +276,7 @@ export default function AdminCategoriesPage() {
                 <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Description</label>
                 <textarea
                   rows="2"
-<<<<<<< HEAD
                   maxLength={1000}
-=======
->>>>>>> origin/boomika
                   value={catForm.description}
                   onChange={(e) => setCatForm({ ...catForm, description: e.target.value })}
                   placeholder="Scope of agricultural or industrial equipment..."
@@ -374,11 +315,8 @@ export default function AdminCategoriesPage() {
                 <input
                   type="text"
                   required
-<<<<<<< HEAD
                   minLength={2}
                   maxLength={100}
-=======
->>>>>>> origin/boomika
                   value={subForm.name}
                   onChange={(e) => setSubForm({ ...subForm, name: e.target.value })}
                   placeholder="e.g. Drip Emitters & Filters"

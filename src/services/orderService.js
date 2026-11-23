@@ -29,21 +29,13 @@ export async function syncCustomerOrders(customerId) {
   if (!customerId) return [];
   try {
     const res = await ordersApi.getMyOrders();
-<<<<<<< HEAD
-    const serverList = res?.orders || res?.data || (Array.isArray(res) ? res : []);
-=======
     const serverList = res?.orders || (Array.isArray(res) ? res : []);
->>>>>>> origin/boomika
     if (serverList.length > 0) {
       const normalized = serverList.map((o) => ({
         orderId: o.orderNumber || o.id,
         customerId: Number(customerId),
         createdAt: o.createdAt,
         status: o.orderStatus,
-<<<<<<< HEAD
-        deliveredAt: o.deliveredAt || o.timeline?.find((t) => t.status === 'Delivered')?.timestamp,
-=======
->>>>>>> origin/boomika
         trackingNumber: o.dealerOrders?.[0]?.trackingNumber || 'EXP-DLH-IND',
         estimatedDelivery: o.dealerOrders?.[0]?.estimatedDelivery || '3-5 Business Days',
         items: (o.items || []).map((i) => ({
@@ -68,11 +60,7 @@ export async function syncCustomerOrders(customerId) {
           note: t.note || ''
         }))
       }));
-<<<<<<< HEAD
-      saveCustomerOrders(customerId, normalized, false);
-=======
       saveCustomerOrders(customerId, normalized);
->>>>>>> origin/boomika
       return normalized;
     }
   } catch (err) {
@@ -82,81 +70,6 @@ export async function syncCustomerOrders(customerId) {
 }
 
 /**
-<<<<<<< HEAD
- * Fetch a single order by ID live from backend MongoDB API with fallback
- */
-export async function fetchCustomerOrderById(orderId, customerId) {
-  if (!orderId) return null;
-  const cleanId = String(orderId).trim().replace(/^#/, '');
-
-  try {
-    const res = await ordersApi.getMyOrderById(cleanId);
-    const o = res?.order || res?.data || res;
-    if (o && (o._id || o.orderNumber)) {
-      const normalized = {
-        orderId: o.orderNumber || o.id || o._id,
-        customerId: customerId ? Number(customerId) : undefined,
-        createdAt: o.createdAt,
-        status: o.orderStatus,
-        deliveredAt: o.deliveredAt || o.timeline?.find((t) => t.status === 'Delivered')?.timestamp,
-        trackingNumber: o.dealerOrders?.[0]?.trackingNumber || o.trackingNumber || 'EXP-DLH-IND',
-        estimatedDelivery: o.dealerOrders?.[0]?.estimatedDelivery || o.estimatedDelivery || '3-5 Business Days',
-        items: (o.items || []).map((i) => ({
-          id: i.product || i.id,
-          name: i.name,
-          price: i.price,
-          originalPrice: i.mrp || i.price,
-          quantity: i.quantity,
-          image: i.image || '/images/prod-tractor.png',
-          category: i.category || 'General',
-          dealerId: i.dealerCode || 'DEALER_001',
-          dealerName: i.dealerName || 'GROVE Dealer',
-          subtotal: i.subtotal || i.price * i.quantity
-        })),
-        shippingAddress: o.shippingAddress,
-        pricing: o.pricing,
-        payment: o.payment,
-        timeline: (o.timeline || []).map((t) => ({
-          status: t.status,
-          title: t.title,
-          timestamp: t.timestamp,
-          note: t.note || ''
-        }))
-      };
-
-      if (customerId) {
-        const localOrders = getCustomerOrders(customerId);
-        const idx = localOrders.findIndex(
-          (x) => String(x.orderId).trim().toUpperCase() === String(cleanId).toUpperCase()
-        );
-        let hasChanged = false;
-        if (idx !== -1) {
-          if (localOrders[idx].status !== normalized.status ||
-              (localOrders[idx].timeline || []).length !== (normalized.timeline || []).length) {
-            localOrders[idx] = { ...localOrders[idx], ...normalized };
-            hasChanged = true;
-          }
-        } else {
-          localOrders.unshift(normalized);
-          hasChanged = true;
-        }
-        if (hasChanged) {
-          saveCustomerOrders(customerId, localOrders, false);
-        }
-      }
-
-      return normalized;
-    }
-  } catch (err) {
-    console.warn(`Direct fetch for customer order ${orderId} failed:`, err.message);
-  }
-
-  return customerId ? getOrderById(customerId, orderId) : null;
-}
-
-/**
-=======
->>>>>>> origin/boomika
  * Retrieves a single order by its ID for a given customer.
  */
 export function getOrderById(customerId, orderId) {
@@ -169,22 +82,12 @@ export function getOrderById(customerId, orderId) {
 /**
  * Saves order list to localStorage and triggers storage/event notifications.
  */
-<<<<<<< HEAD
-export function saveCustomerOrders(customerId, orders, notify = true) {
-=======
 export function saveCustomerOrders(customerId, orders) {
->>>>>>> origin/boomika
   if (!customerId) return;
   const key = `grove_orders_${customerId}`;
   try {
     localStorage.setItem(key, JSON.stringify(orders));
-<<<<<<< HEAD
-    if (notify) {
-      window.dispatchEvent(new Event('grove_orders_updated'));
-    }
-=======
     window.dispatchEvent(new Event('grove_orders_updated'));
->>>>>>> origin/boomika
   } catch (err) {
     console.error('Failed to save orders to localStorage', err);
   }

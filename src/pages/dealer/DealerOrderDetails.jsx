@@ -32,60 +32,6 @@ export default function DealerOrderDetails() {
 
   useEffect(() => {
     let isMounted = true;
-<<<<<<< HEAD
-    let isFetching = false;
-    const activeId = getActiveDealerId();
-
-    const refreshOrder = async () => {
-      if (!id || isFetching) return;
-      isFetching = true;
-      try {
-        const live = await fetchDealerOrderById(id, activeId);
-        if (isMounted && live) {
-          setOrder((prev) => ({ ...(prev || {}), ...live }));
-          setNotFound(false);
-        }
-      } catch (err) {
-        console.warn('Polling error:', err);
-      } finally {
-        isFetching = false;
-      }
-    };
-
-    // 1. Initial load
-    const found = getDealerOrderById(activeId, id);
-    if (found && isMounted) {
-      setOrder(found);
-      setNotFound(false);
-    }
-    refreshOrder();
-
-    // 2. Window & storage event listeners
-    const handleStorageUpdate = () => refreshOrder();
-    window.addEventListener('grove_dealer_orders_updated', handleStorageUpdate);
-    window.addEventListener('grove_orders_updated', handleStorageUpdate);
-    window.addEventListener('storage', handleStorageUpdate);
-
-    // 3. Periodic polling every 25 seconds for live sync
-    const interval = setInterval(() => {
-      if (document.hidden) return;
-      setOrder((current) => {
-        if (current && (current.orderStatus === 'Delivered' || current.orderStatus === 'Cancelled')) {
-          return current;
-        }
-        refreshOrder();
-        return current;
-      });
-    }, 25000);
-
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-      window.removeEventListener('grove_dealer_orders_updated', handleStorageUpdate);
-      window.removeEventListener('grove_orders_updated', handleStorageUpdate);
-      window.removeEventListener('storage', handleStorageUpdate);
-    };
-=======
     const activeId = getActiveDealerId();
     const found = getDealerOrderById(activeId, id);
     if (found) {
@@ -107,7 +53,6 @@ export default function DealerOrderDetails() {
     });
 
     return () => { isMounted = false; };
->>>>>>> origin/boomika
   }, [id]);
 
   if (notFound) {
@@ -158,39 +103,12 @@ export default function DealerOrderDetails() {
     }
   };
 
-<<<<<<< HEAD
-  const handleStatusChange = async (newStatus) => {
-    if (!order) return;
-    const activeId = getActiveDealerId();
-
-    // 1. Immediate optimistic UI update
-    setOrder((prev) => ({
-      ...prev,
-      orderStatus: newStatus
-    }));
-    showToast(`Order status updated to ${newStatus}`);
-
-    // 2. Persist to backend MongoDB and local cache
-    try {
-      const updated = await updateDealerOrderStatus(order.id || id, newStatus, activeId);
-      if (updated) {
-        setOrder((prev) => ({
-          ...prev,
-          ...updated,
-          orderStatus: newStatus
-        }));
-      }
-    } catch (err) {
-      console.error('Failed to update status:', err);
-      showToast('Warning: Could not sync status with server');
-=======
   const handleStatusChange = (newStatus) => {
     const activeId = getActiveDealerId();
     const updated = updateDealerOrderStatus(order.id, newStatus, activeId);
     if (updated) {
       setOrder({ ...updated });
       showToast(`Order status updated to ${newStatus}`);
->>>>>>> origin/boomika
     }
   };
 
@@ -214,21 +132,13 @@ export default function DealerOrderDetails() {
       return 'completed';
     }
     if (stepName === 'Shipped') {
-<<<<<<< HEAD
-      if (['Shipped', 'Out for Delivery', 'Delivered'].includes(status)) return 'completed';
-=======
       if (['Shipped', 'Delivered'].includes(status)) return 'completed';
->>>>>>> origin/boomika
       if (['Processing', 'Packed', 'Placed'].includes(status)) return 'current';
       return 'upcoming';
     }
     if (stepName === 'Out for Delivery') {
       if (status === 'Delivered') return 'completed';
-<<<<<<< HEAD
-      if (status === 'Out for Delivery') return 'current';
-=======
       if (status === 'Shipped') return 'current';
->>>>>>> origin/boomika
       return 'upcoming';
     }
     if (stepName === 'Delivered') {
@@ -296,10 +206,6 @@ export default function DealerOrderDetails() {
                 <option value="Processing">Status: Processing</option>
                 <option value="Packed">Status: Packed</option>
                 <option value="Shipped">Status: Shipped</option>
-<<<<<<< HEAD
-                <option value="Out for Delivery">Status: Out for Delivery</option>
-=======
->>>>>>> origin/boomika
                 <option value="Delivered">Status: Delivered</option>
                 <option value="Cancelled">Status: Cancelled</option>
               </select>
@@ -336,15 +242,8 @@ export default function DealerOrderDetails() {
                     style={{
                       width: 
                         order.orderStatus === 'Delivered' ? '100%' :
-<<<<<<< HEAD
-                        order.orderStatus === 'Out for Delivery' ? '66%' :
-                        order.orderStatus === 'Shipped' ? '33%' :
-                        order.orderStatus === 'Packed' ? '22%' :
-                        order.orderStatus === 'Processing' ? '12%' : '0%'
-=======
                         order.orderStatus === 'Shipped' ? '66%' :
                         order.orderStatus === 'Packed' || order.orderStatus === 'Processing' ? '33%' : '15%'
->>>>>>> origin/boomika
                     }}
                   />
                 </div>
@@ -417,17 +316,7 @@ export default function DealerOrderDetails() {
                       Out for Delivery
                     </span>
                     <span className="text-[11px] font-mono text-[#717973]">
-<<<<<<< HEAD
-                      {order.orderStatus === 'Delivered'
-                        ? 'Completed'
-                        : order.orderStatus === 'Out for Delivery'
-                        ? 'On the Way'
-                        : order.orderStatus === 'Shipped'
-                        ? 'In Transit'
-                        : 'Upcoming'}
-=======
                       {order.orderStatus === 'Delivered' ? 'Completed' : order.orderStatus === 'Shipped' ? 'In Transit' : 'Upcoming'}
->>>>>>> origin/boomika
                     </span>
                   </div>
                 </div>
@@ -488,13 +377,7 @@ export default function DealerOrderDetails() {
               </div>
 
               <div className="divide-y divide-[#C1C8C2]/30">
-<<<<<<< HEAD
-                {((order.items && order.items.length > 0) ? order.items : (order.product ? [order.product] : [])).map((item, idx) => {
-                  if (!item) return null;
-                  return (
-=======
                 {(order.items && order.items.length > 0 ? order.items : [order.product]).map((item, idx) => (
->>>>>>> origin/boomika
                   <div key={item.sku || idx} className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-start gap-4 min-w-0">
                       <img
@@ -532,11 +415,7 @@ export default function DealerOrderDetails() {
                       </span>
                     </div>
                   </div>
-<<<<<<< HEAD
-                ); })}
-=======
                 ))}
->>>>>>> origin/boomika
               </div>
             </div>
 

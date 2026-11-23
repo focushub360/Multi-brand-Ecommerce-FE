@@ -3,11 +3,7 @@ import AdminLayout from '../../components/admin/AdminLayout';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import {
   getAdminSettings,
-<<<<<<< HEAD
   updateAdminSettings,
-=======
-  saveAdminSettings,
->>>>>>> origin/boomika
   syncAdminDataFromApi
 } from '../../services/adminService';
 import {
@@ -39,7 +35,6 @@ export default function AdminSettingsPage() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-<<<<<<< HEAD
   const handleSaveAll = async (e) => {
     e.preventDefault();
     if (!settings) return;
@@ -49,13 +44,6 @@ export default function AdminSettingsPage() {
     } catch (error) {
       showToast(error.message || 'Could not save platform settings. Please try again.');
     }
-=======
-  const handleSaveAll = (e) => {
-    e.preventDefault();
-    if (!settings) return;
-    saveAdminSettings(settings);
-    showToast('Platform settings saved successfully.');
->>>>>>> origin/boomika
   };
 
   if (!settings) return null;

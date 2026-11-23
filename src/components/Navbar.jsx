@@ -234,21 +234,6 @@ export default function Navbar({ darkText = false }) {
                         </span>
                       )}
                     </Link>
-<<<<<<< HEAD
-
-                    <Link
-                      to="/account/support"
-                      onClick={() => setAccountDropdownOpen(false)}
-                      className="flex items-center justify-between px-4 py-2 text-xs text-neutral-800 hover:bg-[#F8FAF8] hover:text-[#1B4332] transition-colors font-semibold"
-                    >
-                      <div className="flex items-center gap-2">
-                        <HelpCircle className="w-4 h-4 text-[#1B4332]" />
-                        <span>Help &amp; Support</span>
-                      </div>
-                      <ChevronDown className="w-3.5 h-3.5 -rotate-90 text-neutral-400" />
-                    </Link>
-=======
->>>>>>> origin/boomika
                   </div>
 
                   {/* Marketplace Categories */}
@@ -324,24 +309,15 @@ export default function Navbar({ darkText = false }) {
             <ArrowRight className="w-3.5 h-3.5 stroke-[2.2] ml-0.5" />
           </Link>
 
-<<<<<<< HEAD
-          <Link
-            to={customer ? "/account/support" : "/login?redirect=/account/support"}
-=======
           <a
             href="#help"
->>>>>>> origin/boomika
             className={`inline-flex items-center gap-1.5 text-sm font-semibold tracking-tight transition-colors duration-200 ${
               darkText ? 'text-neutral-700 hover:text-[#1B4332]' : 'text-white/95 hover:text-white'
             }`}
           >
             <HelpCircle className="w-4 h-4 stroke-[2]" />
             <span>Help</span>
-<<<<<<< HEAD
-          </Link>
-=======
           </a>
->>>>>>> origin/boomika
         </div>
 
         {/* Mobile Navigation Controls (< md / 768px) */}
@@ -619,13 +595,8 @@ export default function Navbar({ darkText = false }) {
                 </Link>
               )}
 
-<<<<<<< HEAD
-              <Link
-                to={customer ? "/account/support" : "/login?redirect=/account/support"}
-=======
               <a
                 href="#help"
->>>>>>> origin/boomika
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center justify-between p-3 rounded-[12px] text-xs sm:text-sm font-bold transition-colors ${
                   darkText
@@ -638,11 +609,7 @@ export default function Navbar({ darkText = false }) {
                   <span>Help &amp; Customer Support</span>
                 </div>
                 <ArrowRight className="w-3.5 h-3.5 opacity-60" />
-<<<<<<< HEAD
-              </Link>
-=======
               </a>
->>>>>>> origin/boomika
             </div>
           </div>
         </div>

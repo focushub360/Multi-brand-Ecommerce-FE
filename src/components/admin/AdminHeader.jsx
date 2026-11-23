@@ -15,10 +15,7 @@ import {
   Store
 } from 'lucide-react';
 import { getStoredAdmin, logoutAdmin } from '../../utils/adminAuth';
-<<<<<<< HEAD
 import { adminApi } from '../../services/apiClient';
-=======
->>>>>>> origin/boomika
 
 export default function AdminHeader({ onToggleMobile }) {
   const navigate = useNavigate();
@@ -62,7 +59,6 @@ export default function AdminHeader({ onToggleMobile }) {
     }
   };
 
-<<<<<<< HEAD
   // State: Starts empty with 0 count (no hardcoded dummy items)
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -136,22 +132,11 @@ export default function AdminHeader({ onToggleMobile }) {
       setUnreadCount(0);
     }
   };
-=======
-  const notifications = [
-    { id: 1, title: 'Urgent Transit Claim (#TCK-8812)', desc: 'Solapur freight dock pickup delay reported by Kisan Agro Hub.', time: '10m ago', urgent: true },
-    { id: 2, title: 'New Dealer KYC Submission', desc: 'Vidarbha Tractor Works submitted GSTIN & warehouse deed.', time: '45m ago', urgent: false },
-    { id: 3, title: 'Bulk Order (#GRV-7701) Placed', desc: '₹3,50,000 RTGS escrow payment pending clearance.', time: '2h ago', urgent: false },
-  ];
->>>>>>> origin/boomika
 
   return (
     <header className="fixed top-0 left-0 md:left-64 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-[#C1C8C2]/60 z-30 px-4 sm:px-6 md:px-8 flex items-center justify-between gap-4">
       {/* Left: Mobile Toggle & Global Search Bar */}
       <div className="flex items-center gap-3 flex-1 max-w-xl">
-<<<<<<< HEAD
-=======
-        {/* Mobile menu trigger */}
->>>>>>> origin/boomika
         <button
           type="button"
           onClick={onToggleMobile}
@@ -161,10 +146,6 @@ export default function AdminHeader({ onToggleMobile }) {
           <Menu className="w-5 h-5" />
         </button>
 
-<<<<<<< HEAD
-=======
-        {/* Global Admin Search Form */}
->>>>>>> origin/boomika
         <form onSubmit={handleSearchSubmit} className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#717973] pointer-events-none" />
           <input
@@ -182,11 +163,7 @@ export default function AdminHeader({ onToggleMobile }) {
 
       {/* Right Controls */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-<<<<<<< HEAD
         {/* Core APIs Status Badge */}
-=======
-        {/* System Health Badge */}
->>>>>>> origin/boomika
         <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[11px] font-mono text-[#0E5138]">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span className="font-semibold">Core APIs: 99.98%</span>
@@ -216,11 +193,7 @@ export default function AdminHeader({ onToggleMobile }) {
           <span>Dealer Portal</span>
         </Link>
 
-<<<<<<< HEAD
         {/* Notification Bell with Dynamic Unread Counter */}
-=======
-        {/* Notification Bell */}
->>>>>>> origin/boomika
         <div className="relative" ref={notifRef}>
           <button
             type="button"
@@ -229,7 +202,6 @@ export default function AdminHeader({ onToggleMobile }) {
             className="relative p-2 text-[#414844] hover:text-[#151D18] hover:bg-[#F3FCF3] rounded-xl transition-colors border border-[#C1C8C2]/40 cursor-pointer shadow-2xs"
           >
             <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
-<<<<<<< HEAD
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#BA1A1A] text-white text-[10px] flex items-center justify-center font-bold ring-2 ring-white">
                 {unreadCount > 9 ? '9+' : unreadCount}
@@ -238,14 +210,6 @@ export default function AdminHeader({ onToggleMobile }) {
           </button>
 
           {/* Notifications Dropdown Drawer */}
-=======
-            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#BA1A1A] text-white text-[10px] flex items-center justify-center font-bold ring-2 ring-white">
-              {notifications.length}
-            </span>
-          </button>
-
-          {/* Notifications Dropdown */}
->>>>>>> origin/boomika
           {notificationsOpen && (
             <div className="absolute right-0 mt-2 w-80 sm:w-88 bg-white rounded-2xl shadow-xl border border-[#C1C8C2]/60 p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
               <div className="flex items-center justify-between pb-2.5 border-b border-neutral-100">
@@ -253,7 +217,6 @@ export default function AdminHeader({ onToggleMobile }) {
                   <Activity className="w-4 h-4 text-[#012D1D]" />
                   <span className="font-bold text-xs text-[#012D1D]">System Alerts &amp; Events</span>
                 </div>
-<<<<<<< HEAD
                 <div className="flex items-center gap-2">
                   {unreadCount > 0 && (
                     <button
@@ -304,30 +267,6 @@ export default function AdminHeader({ onToggleMobile }) {
                 )}
               </div>
 
-=======
-                <span className="text-[10px] font-mono font-bold text-[#0E5138] bg-[#AEEECB] px-2 py-0.5 rounded-full">
-                  {notifications.length} Unresolved
-                </span>
-              </div>
-              <div className="divide-y divide-neutral-100 text-xs max-h-80 overflow-y-auto">
-                {notifications.map((n) => (
-                  <div key={n.id} className="py-2.5 hover:bg-[#F3FCF3]/60 rounded-lg px-1.5 transition-colors">
-                    <div className="flex items-start justify-between gap-1">
-                      <p className={`font-semibold text-xs leading-snug ${n.urgent ? 'text-red-700' : 'text-[#151D18]'}`}>
-                        {n.title}
-                      </p>
-                      {n.urgent && (
-                        <span className="shrink-0 px-1.5 py-0.5 bg-red-100 text-red-700 text-[9px] font-bold rounded">
-                          Urgent
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[#717973] text-[11px] mt-1 leading-relaxed">{n.desc}</p>
-                    <span className="text-[10px] font-mono text-neutral-400 mt-1 block">{n.time}</span>
-                  </div>
-                ))}
-              </div>
->>>>>>> origin/boomika
               <div className="pt-2.5 border-t border-neutral-100 text-center">
                 <Link
                   to="/admin/support"
@@ -341,11 +280,7 @@ export default function AdminHeader({ onToggleMobile }) {
           )}
         </div>
 
-<<<<<<< HEAD
         {/* Super Admin Profile Dropdown */}
-=======
-        {/* Admin Profile Dropdown */}
->>>>>>> origin/boomika
         <div className="relative" ref={dropdownRef}>
           <button
             type="button"
@@ -421,9 +356,4 @@ export default function AdminHeader({ onToggleMobile }) {
       </div>
     </header>
   );
-<<<<<<< HEAD
 }
-=======
-}
-
->>>>>>> origin/boomika

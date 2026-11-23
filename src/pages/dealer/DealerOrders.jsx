@@ -39,29 +39,6 @@ export default function DealerOrders() {
     syncDealerDataFromApi(activeId).then(() => {
       loadOrders();
     }).catch(() => {});
-<<<<<<< HEAD
-
-    const handleUpdate = () => {
-      loadOrders();
-    };
-
-    window.addEventListener('grove_dealer_orders_updated', handleUpdate);
-    window.addEventListener('grove_orders_updated', handleUpdate);
-    window.addEventListener('storage', handleUpdate);
-
-    const interval = setInterval(() => {
-      if (document.hidden) return;
-      syncDealerDataFromApi(activeId).then(() => loadOrders()).catch(() => {});
-    }, 25000);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('grove_dealer_orders_updated', handleUpdate);
-      window.removeEventListener('grove_orders_updated', handleUpdate);
-      window.removeEventListener('storage', handleUpdate);
-    };
-=======
->>>>>>> origin/boomika
   }, []);
 
   const handleRefresh = () => {
@@ -73,78 +50,18 @@ export default function DealerOrders() {
     });
   };
 
-<<<<<<< HEAD
-  // Reset to page 1 whenever filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, activeTab]);
-
-=======
->>>>>>> origin/boomika
   const tabs = useMemo(() => [
     { name: 'All Orders', count: orders.length },
     { name: 'Placed', count: orders.filter(o => o.orderStatus === 'Placed').length, urgent: true },
     { name: 'Processing', count: orders.filter(o => o.orderStatus === 'Processing').length },
     { name: 'Packed', count: orders.filter(o => o.orderStatus === 'Packed').length },
     { name: 'Shipped', count: orders.filter(o => o.orderStatus === 'Shipped').length },
-<<<<<<< HEAD
-    { name: 'Out for Delivery', count: orders.filter(o => o.orderStatus === 'Out for Delivery').length },
-=======
->>>>>>> origin/boomika
     { name: 'Delivered', count: orders.filter(o => o.orderStatus === 'Delivered').length },
     { name: 'Cancelled', count: orders.filter(o => o.orderStatus === 'Cancelled').length },
     { name: 'Returns', count: orders.filter(o => o.orderStatus === 'Returns').length },
   ], [orders]);
 
   const filteredOrders = useMemo(() => {
-<<<<<<< HEAD
-    const rawQuery = searchQuery.trim().toLowerCase();
-    const cleanQuery = rawQuery.replace(/^#/, '');
-
-    return orders.filter((order) => {
-      let matchesSearch = true;
-      let matchesId = false;
-
-      if (rawQuery) {
-        const idFields = [
-          order.id,
-          order.orderNumber,
-          order.parentOrderNumber,
-          order._id,
-          order.trackingNumber
-        ].map((f) => String(f || '').toLowerCase());
-
-        matchesId = idFields.some(
-          (f) =>
-            f.includes(rawQuery) ||
-            f.includes(cleanQuery) ||
-            f.replace(/^#/, '').includes(cleanQuery)
-        );
-
-        const matchesProduct =
-          (order.product?.name || '').toLowerCase().includes(cleanQuery) ||
-          (order.items || []).some(
-            (i) =>
-              (i.name || '').toLowerCase().includes(cleanQuery) ||
-              (i.sku || '').toLowerCase().includes(cleanQuery)
-          );
-
-        const matchesCustomer =
-          (order.customer?.name || '').toLowerCase().includes(cleanQuery) ||
-          (order.customer?.city || '').toLowerCase().includes(cleanQuery) ||
-          (order.customer?.phone || '').toLowerCase().includes(cleanQuery) ||
-          (order.customer?.email || '').toLowerCase().includes(cleanQuery);
-
-        matchesSearch = matchesId || matchesProduct || matchesCustomer;
-        if (!matchesSearch) return false;
-      }
-
-      // Tab filter: if specifically searching an order ID, show it even if on a different tab
-      if (!matchesId && activeTab !== 'All Orders' && order.orderStatus !== activeTab) {
-        return false;
-      }
-
-=======
     return orders.filter(order => {
       // Tab filter
       if (activeTab !== 'All Orders' && order.orderStatus !== activeTab) {
@@ -160,7 +77,6 @@ export default function DealerOrders() {
           return false;
         }
       }
->>>>>>> origin/boomika
       return true;
     });
   }, [orders, activeTab, searchQuery]);

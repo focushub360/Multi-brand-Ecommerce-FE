@@ -1,10 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-<<<<<<< HEAD
-import { ArrowLeft, Heart, ShoppingBag, Trash2, ArrowRight, CheckCircle2, ShieldCheck, Truck } from 'lucide-react';
-=======
 import { Heart, ShoppingBag, Trash2, ArrowRight, CheckCircle2, ShieldCheck, Truck } from 'lucide-react';
->>>>>>> origin/boomika
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import { useWishlist } from '../../hooks/useWishlist';
@@ -97,32 +93,6 @@ export default function WishlistPage() {
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-gray-200 gap-4">
-<<<<<<< HEAD
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                if (window.history.length > 1) navigate(-1);
-                else navigate('/');
-              }}
-              className="p-2 sm:p-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 hover:text-gray-950 hover:bg-gray-50 active:scale-95 shadow-2xs transition-all cursor-pointer flex items-center justify-center shrink-0"
-              title="Go Back"
-              aria-label="Go Back"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2.5">
-                <span>My Wishlist</span>
-                <span className="text-sm font-semibold px-2.5 py-0.5 rounded-full bg-[#E9F3ED] text-[#1B4332] border border-[#c4e3cf]">
-                  {resolvedProducts.length} {resolvedProducts.length === 1 ? 'item' : 'items'}
-                </span>
-              </h1>
-              <p className="text-sm text-gray-500 mt-1">
-                Items saved to purchase later or monitor price updates
-              </p>
-            </div>
-=======
           <div>
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2.5">
               <span>My Wishlist</span>
@@ -133,7 +103,6 @@ export default function WishlistPage() {
             <p className="text-sm text-gray-500 mt-1">
               Items saved to purchase later or monitor price updates
             </p>
->>>>>>> origin/boomika
           </div>
 
           {resolvedProducts.length > 0 && (

@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import React, { useState, useEffect, useRef } from 'react';
-=======
 import React, { useState, useEffect } from 'react';
->>>>>>> origin/boomika
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -63,14 +59,7 @@ export default function AddProduct() {
 
   // Determine authorized category
   const authorizedCategory = 
-<<<<<<< HEAD
-    storedDealer?.primaryCategoryName ||
-    storedDealer?.primaryCategory ||
     dealerSettings?.businessCategory || 
-    dealerSettings?.primaryCategory ||
-=======
-    dealerSettings?.businessCategory || 
->>>>>>> origin/boomika
     (storedDealer?.email?.includes('hub') ? 'Electronics & Gadgets' : 'Agriculture & Farming');
 
   const availableSubcategories = SUBCATEGORIES_BY_CATEGORY[authorizedCategory] || SUBCATEGORIES_BY_CATEGORY['Agriculture & Farming'];
@@ -97,11 +86,6 @@ export default function AddProduct() {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quickFillSuccess, setQuickFillSuccess] = useState(false);
-<<<<<<< HEAD
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef(null);
-=======
->>>>>>> origin/boomika
 
   const handleQuickFill = () => {
     const isAgri = authorizedCategory.includes('Agri');
@@ -196,96 +180,12 @@ export default function AddProduct() {
     }));
   };
 
-<<<<<<< HEAD
-  const compressImage = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          const maxDim = 1200;
-
-          if (width > maxDim || height > maxDim) {
-            if (width > height) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
-            } else {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-
-          // Export compressed JPEG base64 Data URL
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-          resolve(dataUrl);
-        };
-        img.onerror = () => reject(new Error('Failed to load image for compression'));
-        img.src = event.target.result;
-      };
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const handleImageFiles = async (files) => {
-    if (!files || !files.length) return;
-    const validFiles = Array.from(files).filter((f) => f.type.startsWith('image/'));
-    if (!validFiles.length) {
-      alert('Please select valid image files (PNG, JPG, JPEG, WEBP).');
-      return;
-    }
-
-    try {
-      const compressedUrls = await Promise.all(validFiles.map(compressImage));
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, ...compressedUrls]
-      }));
-    } catch (err) {
-      console.error('Error reading/compressing local images:', err);
-    }
-  };
-
-  const handleFileChange = (e) => {
-    handleImageFiles(e.target.files);
-    e.target.value = '';
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-    if (e.dataTransfer?.files) {
-      handleImageFiles(e.dataTransfer.files);
-    }
-=======
   const handleAddSampleImage = () => {
     const defaultImg = '/images/card-agri-clean.png';
     setFormData((prev) => ({
       ...prev,
       images: [...prev.images, defaultImg]
     }));
->>>>>>> origin/boomika
   };
 
   const validate = () => {
@@ -478,43 +378,17 @@ export default function AddProduct() {
                 </span>
               </div>
 
-<<<<<<< HEAD
-              {/* Upload Dropzone with Local PC File Input */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/png, image/jpeg, image/webp"
-                multiple
-                onChange={handleFileChange}
-                className="hidden"
-              />
-              <div 
-                onClick={() => fileInputRef.current?.click()}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                className={`p-6 rounded-2xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center text-center group ${
-                  isDragging
-                    ? 'border-[#2C694E] bg-[#EDF6ED] scale-[1.01]'
-                    : 'border-[#C1C8C2]/80 bg-[#EDF6ED]/60 hover:bg-[#EDF6ED] hover:border-[#2C694E]'
-                }`}
-=======
               {/* Upload Dropzone */}
               <div 
                 onClick={handleAddSampleImage}
                 className="p-6 rounded-2xl border-2 border-dashed border-[#C1C8C2]/80 bg-[#EDF6ED]/60 hover:bg-[#EDF6ED] hover:border-[#2C694E] transition-all cursor-pointer flex flex-col items-center justify-center text-center group"
->>>>>>> origin/boomika
               >
                 <div className="w-10 h-10 rounded-xl bg-white shadow-2xs flex items-center justify-center text-[#2C694E] group-hover:scale-110 transition-transform">
                   <Upload className="w-5 h-5" />
                 </div>
                 <div className="mt-2.5 flex flex-col gap-0.5">
                   <span className="text-xs font-bold text-[#151D18]">
-<<<<<<< HEAD
-                    Click or drag images to upload from your PC
-=======
                     Click or drag images to upload
->>>>>>> origin/boomika
                   </span>
                   <span className="text-[11px] text-[#717973]">
                     PNG, JPG, WEBP formats up to 10MB
