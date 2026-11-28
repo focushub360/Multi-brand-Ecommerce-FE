@@ -22,10 +22,6 @@ import { getActiveDealerId } from '../../utils/auth';
 export default function DealerInventory() {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-<<<<<<< HEAD
-=======
-  const [selectedCategory, setSelectedCategory] = useState('All');
->>>>>>> origin/boomika
   const [selectedStatus, setSelectedStatus] = useState('All');
 
   // Inline stock edits tracking
@@ -135,11 +131,6 @@ export default function DealerInventory() {
     const matchSearch = 
       p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
       p.sku.toLowerCase().includes(searchTerm.toLowerCase());
-<<<<<<< HEAD
-=======
-    
-    const matchCat = selectedCategory === 'All' || p.category.includes(selectedCategory);
->>>>>>> origin/boomika
 
     const isOutOfStock = p.stock === 0;
     const isLowStock = p.stock > 0 && p.stock <= (p.threshold || 10);
@@ -150,11 +141,7 @@ export default function DealerInventory() {
     if (selectedStatus === 'Low Stock') matchStatus = isLowStock;
     if (selectedStatus === 'Out of Stock') matchStatus = isOutOfStock;
 
-<<<<<<< HEAD
     return matchSearch && matchStatus;
-=======
-    return matchSearch && matchCat && matchStatus;
->>>>>>> origin/boomika
   });
 
   const totalStockCount = products.reduce((acc, p) => acc + (p.stock || 0), 0);
@@ -189,18 +176,6 @@ export default function DealerInventory() {
               <Download className="w-3.5 h-3.5 text-[#717973]" />
               <span>Export CSV</span>
             </button>
-<<<<<<< HEAD
-=======
-
-            <button
-              type="button"
-              onClick={() => products[0] && openAdjustDrawer(products[0])}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#012D1D] text-white text-xs font-bold hover:bg-[#1B4332] transition-all shadow-sm active:scale-95 cursor-pointer"
-            >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>Update Stock</span>
-            </button>
->>>>>>> origin/boomika
           </div>
         </div>
 
@@ -279,20 +254,6 @@ export default function DealerInventory() {
 
           <div className="flex flex-wrap items-center gap-2">
             <select
-<<<<<<< HEAD
-=======
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="h-10 px-3 rounded-xl bg-[#EDF6ED] text-[#151D18] text-xs font-semibold focus:outline-none cursor-pointer"
-            >
-              <option value="All">All Categories</option>
-              <option value="Agriculture">Agriculture &amp; Farming</option>
-              <option value="Automotive">Automotive &amp; Spares</option>
-              <option value="Electronics">Electronics &amp; IoT</option>
-            </select>
-
-            <select
->>>>>>> origin/boomika
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
               className="h-10 px-3 rounded-xl bg-[#EDF6ED] text-[#151D18] text-xs font-semibold focus:outline-none cursor-pointer"
@@ -303,19 +264,11 @@ export default function DealerInventory() {
               <option value="Out of Stock">Out of Stock</option>
             </select>
 
-<<<<<<< HEAD
             {(searchTerm || selectedStatus !== 'All') && (
-=======
-            {(searchTerm || selectedCategory !== 'All' || selectedStatus !== 'All') && (
->>>>>>> origin/boomika
               <button
                 type="button"
                 onClick={() => {
                   setSearchTerm('');
-<<<<<<< HEAD
-=======
-                  setSelectedCategory('All');
->>>>>>> origin/boomika
                   setSelectedStatus('All');
                 }}
                 className="h-10 px-3 text-[#717973] hover:text-[#151D18] text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"

@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import React, { useState, useEffect, useRef } from 'react';
-=======
-import React, { useState, useEffect } from 'react';
->>>>>>> origin/boomika
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -63,14 +59,10 @@ export default function AddProduct() {
 
   // Determine authorized category
   const authorizedCategory = 
-<<<<<<< HEAD
     storedDealer?.primaryCategoryName ||
     storedDealer?.primaryCategory ||
     dealerSettings?.businessCategory || 
     dealerSettings?.primaryCategory ||
-=======
-    dealerSettings?.businessCategory || 
->>>>>>> origin/boomika
     (storedDealer?.email?.includes('hub') ? 'Electronics & Gadgets' : 'Agriculture & Farming');
 
   const availableSubcategories = SUBCATEGORIES_BY_CATEGORY[authorizedCategory] || SUBCATEGORIES_BY_CATEGORY['Agriculture & Farming'];
@@ -97,11 +89,8 @@ export default function AddProduct() {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quickFillSuccess, setQuickFillSuccess] = useState(false);
-<<<<<<< HEAD
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
-=======
->>>>>>> origin/boomika
 
   const handleQuickFill = () => {
     const isAgri = authorizedCategory.includes('Agri');
@@ -196,7 +185,6 @@ export default function AddProduct() {
     }));
   };
 
-<<<<<<< HEAD
   const compressImage = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -278,14 +266,6 @@ export default function AddProduct() {
     if (e.dataTransfer?.files) {
       handleImageFiles(e.dataTransfer.files);
     }
-=======
-  const handleAddSampleImage = () => {
-    const defaultImg = '/images/card-agri-clean.png';
-    setFormData((prev) => ({
-      ...prev,
-      images: [...prev.images, defaultImg]
-    }));
->>>>>>> origin/boomika
   };
 
   const validate = () => {
@@ -478,7 +458,6 @@ export default function AddProduct() {
                 </span>
               </div>
 
-<<<<<<< HEAD
               {/* Upload Dropzone with Local PC File Input */}
               <input
                 ref={fileInputRef}
@@ -498,23 +477,13 @@ export default function AddProduct() {
                     ? 'border-[#2C694E] bg-[#EDF6ED] scale-[1.01]'
                     : 'border-[#C1C8C2]/80 bg-[#EDF6ED]/60 hover:bg-[#EDF6ED] hover:border-[#2C694E]'
                 }`}
-=======
-              {/* Upload Dropzone */}
-              <div 
-                onClick={handleAddSampleImage}
-                className="p-6 rounded-2xl border-2 border-dashed border-[#C1C8C2]/80 bg-[#EDF6ED]/60 hover:bg-[#EDF6ED] hover:border-[#2C694E] transition-all cursor-pointer flex flex-col items-center justify-center text-center group"
->>>>>>> origin/boomika
               >
                 <div className="w-10 h-10 rounded-xl bg-white shadow-2xs flex items-center justify-center text-[#2C694E] group-hover:scale-110 transition-transform">
                   <Upload className="w-5 h-5" />
                 </div>
                 <div className="mt-2.5 flex flex-col gap-0.5">
                   <span className="text-xs font-bold text-[#151D18]">
-<<<<<<< HEAD
                     Click or drag images to upload from your PC
-=======
-                    Click or drag images to upload
->>>>>>> origin/boomika
                   </span>
                   <span className="text-[11px] text-[#717973]">
                     PNG, JPG, WEBP formats up to 10MB

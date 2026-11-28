@@ -18,22 +18,74 @@ import {
   Heart,
   Package,
   MapPin,
-  ShoppingBasket
+  ShoppingBasket,
+  LayoutGrid,
+  Layers
 } from 'lucide-react';
 import { getStoredCustomer, clearStoredCustomer } from '../utils/auth';
 import { useWishlist } from '../hooks/useWishlist';
 import { useCart } from '../hooks/useCart';
+import { categoriesApi } from '../services/apiClient';
+
+const DEFAULT_NAV_CATEGORIES = [
+  { id: 'agriculture', slug: 'agriculture', name: 'Agriculture & Farming', icon: 'sprout' },
+  { id: 'electronics', slug: 'electronics', name: 'Electronics & Gadgets', icon: 'smartphone' },
+  { id: 'automotive', slug: 'automotive', name: 'Automotive & Spares', icon: 'cog' },
+  { id: 'groceries', slug: 'groceries', name: 'Groceries & Essentials', icon: 'shoppingbasket' }
+];
 
 export default function Navbar({ darkText = false }) {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [customer, setCustomer] = useState(getStoredCustomer);
+  const [categories, setCategories] = useState(DEFAULT_NAV_CATEGORIES);
 
   const { wishlistCount } = useWishlist();
   const { totalCartCount } = useCart();
 
   const dropdownRef = useRef(null);
+  const categoryDropdownRef = useRef(null);
+
+  // Fetch live categories from backend database
+  useEffect(() => {
+    let isMounted = true;
+    categoriesApi.getAll()
+      .then((res) => {
+        if (!isMounted) return;
+        const raw = res?.data || res?.categories || (Array.isArray(res) ? res : []);
+        if (Array.isArray(raw) && raw.length > 0) {
+          const activeOnly = raw.filter((c) => (c.status || 'Active').toLowerCase() === 'active');
+          if (activeOnly.length > 0) {
+            setCategories(activeOnly);
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn('Navbar categories load fallback:', err.message);
+      });
+    return () => { isMounted = false; };
+  }, []);
+
+  const getCategoryUrl = (slug) => {
+    const s = (slug || '').toLowerCase();
+    if (['agriculture', 'electronics', 'automotive', 'groceries'].includes(s)) {
+      return `/${s}`;
+    }
+    return `/category/${s}`;
+  };
+
+  const getCategoryIcon = (slug, iconName) => {
+    const s = (slug || '').toLowerCase();
+    const iconKey = (iconName || s).toLowerCase();
+    if (iconKey === 'sprout' || s === 'agriculture') return Sprout;
+    if (iconKey === 'smartphone' || s === 'electronics') return Smartphone;
+    if (iconKey === 'cog' || s === 'automotive') return Cog;
+    if (iconKey === 'shoppingbasket' || s === 'groceries') return ShoppingBasket;
+    if (iconKey === 'heart' || s === 'health') return Heart;
+    return Layers;
+  };
 
   // Sync customer state with auth events and storage
   useEffect(() => {
@@ -55,6 +107,9 @@ export default function Navbar({ darkText = false }) {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setAccountDropdownOpen(false);
+      }
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target)) {
+        setCategoryDropdownOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -94,8 +149,8 @@ export default function Navbar({ darkText = false }) {
         aria-label="Main Navigation" 
         className="w-full bg-transparent pt-4 sm:pt-6 pb-3 sm:pb-4 px-4 sm:px-6 md:px-10 lg:px-16 max-w-[1440px] mx-auto flex items-center justify-between"
       >
-        {/* Brand Logo */}
-        <div className="flex items-center">
+        {/* Brand Logo & Desktop Categories Dropdown */}
+        <div className="flex items-center gap-4 sm:gap-6">
           <Link 
             to="/" 
             className={`font-extrabold text-[24px] sm:text-[28px] md:text-[32px] tracking-[-0.03em] font-sans select-none hover:opacity-95 transition-opacity focus:outline-none ${
@@ -105,6 +160,56 @@ export default function Navbar({ darkText = false }) {
           >
             GROVE
           </Link>
+
+          {/* Desktop Categories Dropdown */}
+          <div className="hidden md:block relative" ref={categoryDropdownRef}>
+            <button
+              type="button"
+              onClick={() => setCategoryDropdownOpen((prev) => !prev)}
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border ${
+                darkText
+                  ? 'bg-[#EBF4EE] text-[#1B4332] border-[#1B4332]/20 hover:bg-[#dbeee1]'
+                  : 'bg-white/15 text-white border-white/20 hover:bg-white/25 backdrop-blur-xs'
+              }`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5 text-[#8BCB45]" />
+              <span>Categories</span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${categoryDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {categoryDropdownOpen && (
+              <div className="absolute left-0 mt-2 w-64 bg-white rounded-[20px] shadow-2xl border border-neutral-200/90 py-2.5 z-[9999] animate-in fade-in slide-in-from-top-2 duration-150 text-neutral-900">
+                <div className="px-4 py-1.5 border-b border-neutral-100 flex items-center justify-between">
+                  <span className="text-[10.5px] font-mono font-bold uppercase text-neutral-400">Marketplace Catalog</span>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-200">
+                    {categories.length} Categories
+                  </span>
+                </div>
+                <div className="py-1 max-h-[320px] overflow-y-auto">
+                  {categories.map((cat) => {
+                    const Icon = getCategoryIcon(cat.slug, cat.icon);
+                    const url = getCategoryUrl(cat.slug);
+                    return (
+                      <Link
+                        key={cat.id || cat._id || cat.slug}
+                        to={url}
+                        onClick={() => setCategoryDropdownOpen(false)}
+                        className="flex items-center justify-between px-4 py-2 text-xs text-neutral-700 hover:bg-[#F3FCF3] hover:text-[#012D1D] transition-colors font-medium group"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-7 h-7 rounded-lg bg-[#EBF4EE] group-hover:bg-[#012D1D] group-hover:text-[#AEEECB] text-[#1B4332] flex items-center justify-center transition-colors shrink-0">
+                            <Icon className="w-3.5 h-3.5" />
+                          </div>
+                          <span className="truncate font-bold text-xs">{cat.name}</span>
+                        </div>
+                        <ArrowRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-[#012D1D] transition-transform group-hover:translate-x-0.5 shrink-0" />
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Desktop Navigation Controls (>= md / 768px) */}
@@ -234,7 +339,6 @@ export default function Navbar({ darkText = false }) {
                         </span>
                       )}
                     </Link>
-<<<<<<< HEAD
 
                     <Link
                       to="/account/support"
@@ -247,44 +351,28 @@ export default function Navbar({ darkText = false }) {
                       </div>
                       <ChevronDown className="w-3.5 h-3.5 -rotate-90 text-neutral-400" />
                     </Link>
-=======
->>>>>>> origin/boomika
                   </div>
 
                   {/* Marketplace Categories */}
-                  <div className="py-1">
-                    <Link
-                      to="/agriculture"
-                      onClick={() => setAccountDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-xs text-neutral-700 hover:bg-[#F8FAF8] hover:text-[#1B4332] transition-colors font-medium"
-                    >
-                      <Sprout className="w-3.5 h-3.5 text-[#52B788]" />
-                      <span>Agriculture Marketplace</span>
-                    </Link>
-                    <Link
-                      to="/electronics"
-                      onClick={() => setAccountDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-xs text-neutral-700 hover:bg-[#F8FAF8] hover:text-[#1B4332] transition-colors font-medium"
-                    >
-                      <Smartphone className="w-3.5 h-3.5 text-neutral-500" />
-                      <span>Electronics &amp; Gadgets</span>
-                    </Link>
-                    <Link
-                      to="/automotive"
-                      onClick={() => setAccountDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-xs text-neutral-700 hover:bg-[#F8FAF8] hover:text-[#1B4332] transition-colors font-medium"
-                    >
-                      <Cog className="w-3.5 h-3.5 text-neutral-500" />
-                      <span>Automotive &amp; Spares</span>
-                    </Link>
-                    <Link
-                      to="/groceries"
-                      onClick={() => setAccountDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-xs text-neutral-700 hover:bg-[#F8FAF8] hover:text-[#1B4332] transition-colors font-medium"
-                    >
-                      <ShoppingBasket className="w-3.5 h-3.5 text-[#B45309]" />
-                      <span>Groceries &amp; Essentials</span>
-                    </Link>
+                  <div className="py-1 border-t border-neutral-100 max-h-[220px] overflow-y-auto">
+                    <div className="px-4 py-1 text-[10px] font-mono font-bold uppercase text-neutral-400">
+                      Explore Categories
+                    </div>
+                    {categories.map((cat) => {
+                      const Icon = getCategoryIcon(cat.slug, cat.icon);
+                      const url = getCategoryUrl(cat.slug);
+                      return (
+                        <Link
+                          key={cat.id || cat._id || cat.slug}
+                          to={url}
+                          onClick={() => setAccountDropdownOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-xs text-neutral-700 hover:bg-[#F8FAF8] hover:text-[#1B4332] transition-colors font-medium"
+                        >
+                          <Icon className="w-3.5 h-3.5 text-[#52B788] shrink-0" />
+                          <span className="truncate">{cat.name}</span>
+                        </Link>
+                      );
+                    })}
                   </div>
 
                   {/* Sign Out Action */}
@@ -324,24 +412,15 @@ export default function Navbar({ darkText = false }) {
             <ArrowRight className="w-3.5 h-3.5 stroke-[2.2] ml-0.5" />
           </Link>
 
-<<<<<<< HEAD
           <Link
             to={customer ? "/account/support" : "/login?redirect=/account/support"}
-=======
-          <a
-            href="#help"
->>>>>>> origin/boomika
             className={`inline-flex items-center gap-1.5 text-sm font-semibold tracking-tight transition-colors duration-200 ${
               darkText ? 'text-neutral-700 hover:text-[#1B4332]' : 'text-white/95 hover:text-white'
             }`}
           >
             <HelpCircle className="w-4 h-4 stroke-[2]" />
             <span>Help</span>
-<<<<<<< HEAD
           </Link>
-=======
-          </a>
->>>>>>> origin/boomika
         </div>
 
         {/* Mobile Navigation Controls (< md / 768px) */}
@@ -520,70 +599,32 @@ export default function Navbar({ darkText = false }) {
               </div>
             )}
 
-            <div className="flex flex-col gap-2.5">
-              <Link
-                to="/agriculture"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between p-3 rounded-[12px] text-xs sm:text-sm font-bold transition-colors ${
-                  darkText
-                    ? 'hover:bg-neutral-100 text-[#1B4332]'
-                    : 'hover:bg-white/10 text-white'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Sprout className="w-4 h-4 text-[#8BCB45]" />
-                  <span>Agriculture Marketplace</span>
-                </div>
-                <ArrowRight className="w-3.5 h-3.5 opacity-60" />
-              </Link>
-
-              <Link
-                to="/electronics"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between p-3 rounded-[12px] text-xs sm:text-sm font-bold transition-colors ${
-                  darkText
-                    ? 'hover:bg-neutral-100 text-neutral-900'
-                    : 'hover:bg-white/10 text-white'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Smartphone className="w-4 h-4 text-neutral-400" />
-                  <span>Electronics &amp; Gadgets</span>
-                </div>
-                <ArrowRight className="w-3.5 h-3.5 opacity-60" />
-              </Link>
-
-              <Link
-                to="/automotive"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between p-3 rounded-[12px] text-xs sm:text-sm font-bold transition-colors ${
-                  darkText
-                    ? 'hover:bg-neutral-100 text-[#1B4332]'
-                    : 'hover:bg-white/10 text-white'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Cog className="w-4 h-4 text-neutral-400" />
-                  <span>Automotive &amp; Spares</span>
-                </div>
-                <ArrowRight className="w-3.5 h-3.5 opacity-60" />
-              </Link>
-
-              <Link
-                to="/groceries"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between p-3 rounded-[12px] text-xs sm:text-sm font-bold transition-colors ${
-                  darkText
-                    ? 'hover:bg-neutral-100 text-[#B45309]'
-                    : 'hover:bg-white/10 text-white'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <ShoppingBasket className="w-4 h-4 text-amber-500" />
-                  <span>Groceries &amp; Essentials</span>
-                </div>
-                <ArrowRight className="w-3.5 h-3.5 opacity-60" />
-              </Link>
+            <div className="flex flex-col gap-2">
+              <div className="px-2 pt-1 pb-0.5 text-[10px] font-mono font-bold uppercase opacity-60">
+                Marketplace Categories ({categories.length})
+              </div>
+              {categories.map((cat) => {
+                const Icon = getCategoryIcon(cat.slug, cat.icon);
+                const url = getCategoryUrl(cat.slug);
+                return (
+                  <Link
+                    key={cat.id || cat._id || cat.slug}
+                    to={url}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center justify-between p-2.5 rounded-[12px] text-xs sm:text-sm font-bold transition-colors ${
+                      darkText
+                        ? 'hover:bg-neutral-100 text-[#1B4332]'
+                        : 'hover:bg-white/10 text-white'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <Icon className="w-4 h-4 text-[#8BCB45] shrink-0" />
+                      <span className="truncate">{cat.name}</span>
+                    </div>
+                    <ArrowRight className="w-3.5 h-3.5 opacity-60 shrink-0" />
+                  </Link>
+                );
+              })}
 
               <Link
                 to="/become-a-dealer"
@@ -619,13 +660,8 @@ export default function Navbar({ darkText = false }) {
                 </Link>
               )}
 
-<<<<<<< HEAD
               <Link
                 to={customer ? "/account/support" : "/login?redirect=/account/support"}
-=======
-              <a
-                href="#help"
->>>>>>> origin/boomika
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center justify-between p-3 rounded-[12px] text-xs sm:text-sm font-bold transition-colors ${
                   darkText
@@ -638,11 +674,7 @@ export default function Navbar({ darkText = false }) {
                   <span>Help &amp; Customer Support</span>
                 </div>
                 <ArrowRight className="w-3.5 h-3.5 opacity-60" />
-<<<<<<< HEAD
               </Link>
-=======
-              </a>
->>>>>>> origin/boomika
             </div>
           </div>
         </div>

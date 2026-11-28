@@ -8,12 +8,8 @@
  * ==============================================================================
  */
 
-<<<<<<< HEAD
-const rawBaseUrl = import.meta.env.VITE_API_URL || '/api/v1';
+const rawBaseUrl = import.meta.env.VITE_API_URL || 'https://multi-brand-ecommerce-be.onrender.com/api/v1';
 const API_BASE_URL = rawBaseUrl.replace(/\/+$/, '');
-=======
-const API_BASE_URL = import.meta.env.API_URL || '/api/v1';
->>>>>>> origin/boomika
 
 // Unified token storage keys
 export const TOKEN_STORAGE_KEY = 'grove_auth_token';
@@ -23,7 +19,6 @@ export const REFRESH_TOKEN_STORAGE_KEY = 'grove_refresh_token';
  * Retrieves the currently active authorization token.
  * Checks primary token key, with fallbacks to role-specific storage keys.
  */
-<<<<<<< HEAD
 export function getAuthToken(targetEndpoint = '') {
   try {
     const ep = String(targetEndpoint || '').toLowerCase();
@@ -62,10 +57,6 @@ export function getAuthToken(targetEndpoint = '') {
       }
     }
 
-=======
-export function getAuthToken() {
-  try {
->>>>>>> origin/boomika
     const directToken = localStorage.getItem(TOKEN_STORAGE_KEY);
     if (directToken) return directToken;
 
@@ -97,20 +88,28 @@ export function getAuthToken() {
 /**
  * Sets the active authentication token.
  */
-export function setAuthToken(token) {
-  if (token) {
-    localStorage.setItem(TOKEN_STORAGE_KEY, token);
-  } else {
-    localStorage.removeItem(TOKEN_STORAGE_KEY);
+export function setAuthToken(token, role = null) {
+  if (!token) return;
+
+  localStorage.setItem(TOKEN_STORAGE_KEY, token);
+
+  if (role === 'admin') {
+    localStorage.setItem('grove_admin_token', token);
+  } else if (role === 'dealer') {
+    localStorage.setItem('grove_dealer_token', token);
+  } else if (role === 'user' || role === 'customer') {
+    localStorage.setItem('grove_customer_token', token);
   }
 }
 
-/**
- * Removes all active authentication tokens.
- */
 export function clearAuthToken() {
-  localStorage.removeItem(TOKEN_STORAGE_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+  [
+    TOKEN_STORAGE_KEY,
+    REFRESH_TOKEN_STORAGE_KEY,
+    'grove_admin_token',
+    'grove_dealer_token',
+    'grove_customer_token'
+  ].forEach(key => localStorage.removeItem(key));
 }
 
 /**
@@ -132,146 +131,255 @@ let refreshPromise = null;
 /**
  * Core HTTP Request Dispatcher
  */
+
+
+/**
+ * Core HTTP Request Dispatcher
+ */
 async function request(endpoint, options = {}) {
+  const {
+    skipAuth = false,
+    _retry = false,
+    ...fetchOptions
+  } = options;
+
   const url = endpoint.startsWith('http')
     ? endpoint
     : `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
-<<<<<<< HEAD
-  const token = getAuthToken(endpoint);
-=======
-  const token = getAuthToken();
->>>>>>> origin/boomika
+  const token = skipAuth ? null : getAuthToken(endpoint);
+
   const headers = {
     Accept: 'application/json',
-    ...(options.body && !(options.body instanceof FormData)
+    ...(fetchOptions.body && !(fetchOptions.body instanceof FormData)
       ? { 'Content-Type': 'application/json' }
       : {}),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(options.headers || {})
+    ...(fetchOptions.headers || {})
   };
 
   const config = {
-    ...options,
+    ...fetchOptions,
     headers,
-    credentials: 'include' // allows refresh token cookies
+    credentials: 'include'
   };
 
-  if (options.body && typeof options.body === 'object' && !(options.body instanceof FormData)) {
-    config.body = JSON.stringify(options.body);
+  if (
+    fetchOptions.body &&
+    typeof fetchOptions.body === 'object' &&
+    !(fetchOptions.body instanceof FormData)
+  ) {
+    config.body = JSON.stringify(fetchOptions.body);
   }
 
   try {
     const res = await fetch(url, config);
 
-    // Handle 204 No Content
+    console.log('GROVE API REQUEST:', {
+      url,
+      method: config.method,
+      status: res.status
+    });
+
+    // Handle empty response
     if (res.status === 204) {
       return { success: true };
     }
 
-    // Auto-refresh on 401 Unauthorized (TokenExpiredError)
-    if (res.status === 401 && !options._retry && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/refresh-token')) {
-      options._retry = true;
+    // Handle expired access token
+    if (
+      res.status === 401 &&
+      !skipAuth &&
+      !_retry &&
+      !endpoint.includes('/auth/login') &&
+      !endpoint.includes('/auth/refresh-token')
+    ) {
       try {
         if (!refreshPromise) {
           refreshPromise = (async () => {
-            const storedRefreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
-            const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-              credentials: 'include',
-              body: JSON.stringify({ refreshToken: storedRefreshToken || undefined })
-            });
+            const storedRefreshToken = localStorage.getItem(
+              REFRESH_TOKEN_STORAGE_KEY
+            );
+
+            const refreshRes = await fetch(
+              `${API_BASE_URL}/auth/refresh-token`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Accept: 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                  refreshToken: storedRefreshToken || undefined
+                })
+              }
+            );
+
+            const refreshJson = await refreshRes.json().catch(() => null);
 
             if (!refreshRes.ok) {
-              throw new Error('Refresh failed');
+              throw new Error(
+                refreshJson?.message || 'Token refresh failed'
+              );
             }
 
-            const refreshJson = await refreshRes.json();
             const newAccessToken = refreshJson?.data?.accessToken;
-            if (newAccessToken) {
-              setAuthToken(newAccessToken);
-              if (refreshJson?.data?.refreshToken) {
-                localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, refreshJson.data.refreshToken);
-              }
 
-              // Update token inside customer session storage
-              const rawCust = localStorage.getItem('grove_current_user');
-              if (rawCust) {
-                try {
-                  const cust = JSON.parse(rawCust);
-                  cust.token = newAccessToken;
-                  localStorage.setItem('grove_current_user', JSON.stringify(cust));
-                } catch {}
-              }
-              return newAccessToken;
+            if (!newAccessToken) {
+              throw new Error('No access token returned');
             }
-            throw new Error('No access token returned');
+
+            setAuthToken(newAccessToken);
+
+            if (refreshJson?.data?.refreshToken) {
+              localStorage.setItem(
+                REFRESH_TOKEN_STORAGE_KEY,
+                refreshJson.data.refreshToken
+              );
+            }
+
+            // Update stored customer session if present
+            const rawCustomer = localStorage.getItem('grove_current_user');
+
+            if (rawCustomer) {
+              try {
+                const customer = JSON.parse(rawCustomer);
+                customer.token = newAccessToken;
+
+                localStorage.setItem(
+                  'grove_current_user',
+                  JSON.stringify(customer)
+                );
+              } catch (error) {
+                console.warn('Could not update customer session:', error);
+              }
+            }
+
+            return newAccessToken;
           })();
         }
 
         const freshToken = await refreshPromise;
-        refreshPromise = null;
 
-        // Replay original request with fresh token
-        return request(endpoint, {
-          ...options,
+        return await request(endpoint, {
+          ...fetchOptions,
+          _retry: true,
           headers: {
-            ...options.headers,
+            ...fetchOptions.headers,
             Authorization: `Bearer ${freshToken}`
           }
         });
-      } catch (refreshErr) {
-        refreshPromise = null;
-        // Session cannot be refreshed: clear invalid stale tokens
+      } catch (refreshError) {
+        console.error('GROVE TOKEN REFRESH ERROR:', refreshError);
+
         clearAuthToken();
         localStorage.removeItem('grove_current_user');
-        window.dispatchEvent(new Event('grove_auth_changed'));
+
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('grove_auth_changed'));
+        }
+
+        throw refreshError;
+      } finally {
+        refreshPromise = null;
       }
     }
 
+    // Parse response
     const data = await res.json().catch(() => null);
 
+    // Handle API errors
     if (!res.ok) {
+      console.error('GROVE API ERROR:', {
+        url,
+        method: config.method,
+        status: res.status,
+        response: data
+      });
+
       const message =
         data?.message ||
         data?.error ||
-        (Array.isArray(data?.errors) ? data.errors.map((e) => e.message).join(', ') : null) ||
+        (Array.isArray(data?.errors)
+          ? data.errors.map((e) => e.message || String(e)).join(', ')
+          : null) ||
         `HTTP Error ${res.status}: ${res.statusText}`;
 
       const error = new Error(message);
+
       error.status = res.status;
       error.code = data?.code;
       error.data = data;
+      error.url = url;
+      error.method = config.method;
+
       throw error;
     }
 
-    // Unwrap standardized ApiResponse format { success: true, data: ..., pagination: ... }
     return data;
-  } catch (err) {
-<<<<<<< HEAD
-=======
-    // Re-throw with descriptive context
->>>>>>> origin/boomika
-    throw err;
+  } catch (error) {
+    console.error('GROVE REQUEST FAILED:', {
+      url,
+      method: config.method,
+      status: error.status,
+      message: error.message
+    });
+
+    throw error;
   }
 }
 
+
+
 export const apiClient = {
+  // Authenticated GET
   get: (endpoint, params, headers) =>
-    request(`${endpoint}${buildQueryString(params)}`, { method: 'GET', headers }),
+    request(
+      `${endpoint}${buildQueryString(params)}`,
+      {
+        method: 'GET',
+        headers
+      }
+    ),
+
+  // Public GET - no Bearer token
+  getPublic: (endpoint, params, headers) =>
+    request(
+      `${endpoint}${buildQueryString(params)}`,
+      {
+        method: 'GET',
+        headers,
+        skipAuth: true
+      }
+    ),
 
   post: (endpoint, body, headers) =>
-    request(endpoint, { method: 'POST', body, headers }),
+    request(endpoint, {
+      method: 'POST',
+      body,
+      headers
+    }),
 
   put: (endpoint, body, headers) =>
-    request(endpoint, { method: 'PUT', body, headers }),
+    request(endpoint, {
+      method: 'PUT',
+      body,
+      headers
+    }),
 
   patch: (endpoint, body, headers) =>
-    request(endpoint, { method: 'PATCH', body, headers }),
+    request(endpoint, {
+      method: 'PATCH',
+      body,
+      headers
+    }),
 
   delete: (endpoint, headers) =>
-    request(endpoint, { method: 'DELETE', headers })
+    request(endpoint, {
+      method: 'DELETE',
+      headers
+    })
 };
 
 /* ==========================================================================
@@ -317,7 +425,6 @@ export const authApi = {
     }
   },
 
-<<<<<<< HEAD
   firstTimePassword: async (newPassword, confirmPassword) => {
     const res = await apiClient.post('/auth/first-time-password', {
       newPassword,
@@ -335,8 +442,6 @@ export const authApi = {
     return res.data;
   },
 
-=======
->>>>>>> origin/boomika
   registerDealer: async (applicationData) => {
     const res = await apiClient.post('/dealers/apply', applicationData);
     return res.data;
@@ -349,10 +454,6 @@ export const authApi = {
 export const productsApi = {
   getAll: async (params = {}) => {
     const res = await apiClient.get('/products', params);
-<<<<<<< HEAD
-=======
-    // Returns { products: [...], pagination: { page, limit, total, pages } }
->>>>>>> origin/boomika
     return res.data;
   },
 
@@ -385,48 +486,56 @@ export const productsApi = {
 /**
  * 3. Categories APIs
  */
+
 export const categoriesApi = {
+  // Customer - public categories
   getAll: async () => {
-    const res = await apiClient.get('/categories');
+    const res = await apiClient.getPublic('/categories');
     return res.data;
   },
 
-<<<<<<< HEAD
+  // Admin - all categories including inactive
   getAllAdmin: async () => {
     const res = await apiClient.get('/categories/admin/all');
     return res.data;
   },
 
-=======
->>>>>>> origin/boomika
+  // Public category details
   getBySlug: async (slug) => {
-    const res = await apiClient.get(`/categories/${slug}`);
+    const res = await apiClient.getPublic(
+      `/categories/${encodeURIComponent(slug)}`
+    );
     return res.data;
   },
 
+  // Admin category management
   create: async (categoryData) => {
     const res = await apiClient.post('/categories', categoryData);
     return res.data;
   },
 
   update: async (id, updateData) => {
-    const res = await apiClient.put(`/categories/${id}`, updateData);
+    const res = await apiClient.put(
+      `/categories/${id}`,
+      updateData
+    );
     return res.data;
   },
 
   delete: async (id) => {
     const res = await apiClient.delete(`/categories/${id}`);
     return res.data;
-<<<<<<< HEAD
   },
 
   addSubcategory: async (id, subcategory) => {
-    const res = await apiClient.post(`/categories/${id}/subcategories`, subcategory);
+    const res = await apiClient.post(
+      `/categories/${id}/subcategories`,
+      subcategory
+    );
     return res.data;
-=======
->>>>>>> origin/boomika
   }
 };
+
 
 /**
  * 4. Orders APIs
@@ -559,7 +668,6 @@ export const wishlistApi = {
 };
 
 /**
-<<<<<<< HEAD
  * 7b. Customer Support Ticket APIs
  */
 export const customerSupportApi = {
@@ -590,8 +698,6 @@ export const customerSupportApi = {
 };
 
 /**
-=======
->>>>>>> origin/boomika
  * 8. Dealer Operations APIs
  */
 export const dealerApi = {
@@ -605,7 +711,6 @@ export const dealerApi = {
     return res.data;
   },
 
-<<<<<<< HEAD
   verifyBankDetails: async (bankData) => {
     const res = await apiClient.put('/dealers/bank-details/verify', bankData);
     return res.data;
@@ -616,8 +721,6 @@ export const dealerApi = {
     return res.data;
   },
 
-=======
->>>>>>> origin/boomika
   getInventory: async () => {
     const res = await apiClient.get('/inventory/my-inventory');
     return res.data;
@@ -633,7 +736,6 @@ export const dealerApi = {
     return res.data;
   },
 
-<<<<<<< HEAD
   getAnalytics: async (range = '30D') => {
     const res = await apiClient.get(`/analytics/dealer?range=${range}`);
     return res.data;
@@ -666,10 +768,6 @@ export const dealerApi = {
 
   markDealerNotificationRead: async (id) => {
     const res = await apiClient.patch(`/complaints/dealer/notifications/${id}/read`);
-=======
-  getAnalytics: async () => {
-    const res = await apiClient.get('/analytics/dealer');
->>>>>>> origin/boomika
     return res.data;
   }
 };
@@ -683,7 +781,6 @@ export const adminApi = {
     return res.data;
   },
 
-<<<<<<< HEAD
   getProducts: async (params = {}) => {
     const res = await apiClient.get('/products/admin', params);
     return res.data;
@@ -707,15 +804,10 @@ export const adminApi = {
 
   getDealers: async () => {
     const res = await apiClient.get('/admin/dealers');
-=======
-  getDealers: async () => {
-    const res = await apiClient.get('/dealers');
->>>>>>> origin/boomika
     return res.data;
   },
 
   getDealerById: async (id) => {
-<<<<<<< HEAD
     const res = await apiClient.get(`/admin/dealers/${id}`);
     return res.data;
   },
@@ -726,9 +818,6 @@ export const adminApi = {
   },
   resetDealerCredentials: async (id) => {
     const res = await apiClient.post(`/admin/dealers/${id}/reset-credentials`);
-=======
-    const res = await apiClient.get(`/dealers/${id}`);
->>>>>>> origin/boomika
     return res.data;
   },
 
@@ -737,14 +826,11 @@ export const adminApi = {
     return res.data;
   },
 
-<<<<<<< HEAD
   verifyDealerKyc: async (id, payload = {}) => {
     const res = await apiClient.patch(`/admin/dealers/${id}/verify-kyc`, payload);
     return res.data;
   },
 
-=======
->>>>>>> origin/boomika
   rejectDealer: async (id, reason) => {
     const res = await apiClient.post(`/admin/dealers/${id}/reject`, { reason });
     return res.data;
@@ -764,7 +850,6 @@ export const adminApi = {
     const res = await apiClient.get('/dealer-locations');
     return res.data;
   },
-<<<<<<< HEAD
   createLocation: async (payload) => {
     const res = await apiClient.post('/dealer-locations', payload);
     return res.data;
@@ -777,8 +862,6 @@ export const adminApi = {
     const res = await apiClient.delete(`/dealer-locations/${id}`);
     return res.data;
   },
-=======
->>>>>>> origin/boomika
 
   getPayments: async () => {
     const res = await apiClient.get('/payments');
@@ -790,7 +873,6 @@ export const adminApi = {
     return res.data;
   },
 
-<<<<<<< HEAD
   getComplaints: async (params = {}) => {
     const res = await apiClient.get('/complaints/admin/all', params);
     return res.data;
@@ -807,20 +889,6 @@ export const adminApi = {
       ...(status ? { status } : {}),
       attachments: attachments || []
     });
-=======
-  releaseSettlement: async (id) => {
-    const res = await apiClient.post(`/settlements/${id}/release`);
-    return res.data;
-  },
-
-  getComplaints: async () => {
-    const res = await apiClient.get('/complaints/admin/all');
-    return res.data;
-  },
-
-  updateComplaintStatus: async (ticketId, status) => {
-    const res = await apiClient.patch(`/complaints/admin/${ticketId}/status`, { status });
->>>>>>> origin/boomika
     return res.data;
   },
 
@@ -839,7 +907,6 @@ export const adminApi = {
     return res.data;
   },
 
-<<<<<<< HEAD
  
 
   getNotifications: async () => {
@@ -863,18 +930,19 @@ export const adminApi = {
   },
 
   // ADMIN BUYER MANAGEMENT
-  // ADMIN BUYER MANAGEMENT
   getUsers: async (params = {}) => {
-    return await apiClient.get('/admin/users', params);
+    const res = await apiClient.get('/admin/users', params);
+    return res;
   },
-
   getUserStats: async () => {
-    return await apiClient.get('/admin/users/stats');
-  },
+  const res = await apiClient.get('/admin/users/stats');
+  return res.data;
+},
 
-  getUserById: async (id) => {
-    return await apiClient.get(`/admin/users/${id}`);
-  },
+getUserById: async (id) => {
+  const res = await apiClient.get(`/admin/users/${id}`);
+  return res.data;
+},
 
   updateUserStatus: async (id, status) => {
     return await apiClient.patch(`/admin/users/${id}/status`, { status });
@@ -888,13 +956,3 @@ export const adminApi = {
 
 
 export default apiClient;
-=======
-  getUsers: async () => {
-    const res = await apiClient.get('/users');
-    return res.data;
-  }
-};
-
-export default apiClient;
-
->>>>>>> origin/boomika

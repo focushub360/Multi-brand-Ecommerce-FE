@@ -1,8 +1,8 @@
 import { adminApi, productsApi, ordersApi, categoriesApi } from './apiClient.js';
+import { getStoredAdmin, setStoredAdmin } from '../utils/adminAuth.js';
 
 const defaultDashboardData = {
   kpis: {
-<<<<<<< HEAD
     totalDealers: { value: 0, growth: '—', subtext: 'Approved dealers' },
     totalCustomers: { value: 0, growth: '—', subtext: 'Registered users' },
     totalProducts: { value: 0, growth: '—', subtext: 'Catalog products' },
@@ -18,41 +18,6 @@ const defaultDashboardData = {
   },
   revenueTrend: [],
   orderStatusSummary: [],
-=======
-    grossMerchandiseValue: '₹4,82,50,000',
-    grossMerchandiseValueRaw: 48250000,
-    gmvTrendPercentage: '+14.2%',
-    activeDealers: 12,
-    activeDealersTrend: '+2 this month',
-    totalOrders: 1420,
-    totalOrdersTrend: '+8.5%',
-    slaFulfillmentRate: '98.6%',
-    slaTrend: '+0.4%',
-    pendingKYCApprovals: 3,
-    openDisputes: 5
-  },
-  salesOverview: {
-    '30D': { totalSales: 48250000, orders: 1420, averageOrderValue: 33978 },
-    '90D': { totalSales: 138500000, orders: 4120, averageOrderValue: 33616 },
-    '1Y': { totalSales: 542000000, orders: 16800, averageOrderValue: 32261 }
-  },
-  revenueTrend: [
-    { month: 'Jan', revenue: 3200000, orders: 95 },
-    { month: 'Feb', revenue: 3800000, orders: 110 },
-    { month: 'Mar', revenue: 4500000, orders: 130 },
-    { month: 'Apr', revenue: 4200000, orders: 120 },
-    { month: 'May', revenue: 5100000, orders: 150 },
-    { month: 'Jun', revenue: 5800000, orders: 170 }
-  ],
-  orderStatusSummary: {
-    placed: 12,
-    confirmed: 18,
-    processing: 25,
-    shipped: 32,
-    delivered: 1320,
-    cancelled: 13
-  },
->>>>>>> origin/boomika
   topSellingProducts: [],
   dealerPerformance: [],
   recentOrders: [],
@@ -61,12 +26,21 @@ const defaultDashboardData = {
 
 const defaultAdminSettings = {
   general: {
-    platformName: 'GROVE Multi-Brand Marketplace',
-    supportEmail: 'support@grove.com',
-    helplineNumber: '+91 1800 200 4567',
+    marketplaceName: 'GROVE Agritech & Commercial Marketplace',
+    platformName: 'GROVE Agritech & Commercial Marketplace',
+    supportEmail: 'operations@grove.com',
+    supportPhone: '+91 80000 12345',
+    helplineNumber: '+91 80000 12345',
     defaultCurrency: 'INR (₹)',
     timezone: 'Asia/Kolkata (IST)',
-    maintenanceMode: false
+    maintenanceMode: false,
+    systemVersion: '2.4.0'
+  },
+  commission: {
+    defaultCommissionRate: 5.0,
+    minPayoutThreshold: 10000,
+    escrowHoldPeriodDays: 3,
+    taxTcsRate: 1.0
   },
   commissions: {
     defaultCommissionRate: 5.0,
@@ -75,6 +49,12 @@ const defaultAdminSettings = {
     automotiveCommissionRate: 6.0,
     payoutCycleDays: 7,
     autoApproveKYC: false
+  },
+  notifications: {
+    emailOnNewKyc: true,
+    emailOnLowStock: true,
+    emailDailySummary: true,
+    emailOnEscalatedDispute: true
   },
   security: {
     twoFactorAdmin: true,
@@ -100,7 +80,6 @@ const STORAGE_KEYS = {
   INVENTORY_LOGS: 'grove_admin_inventory_logs'
 };
 
-<<<<<<< HEAD
 // Module-level deduplication to prevent slamming backend with 13 parallel calls on every render
 let inFlightAdminSyncPromise = null;
 let lastAdminSyncTime = 0;
@@ -184,32 +163,17 @@ async function doSyncAdminDataFromApi() {
       await Promise.allSettled([
         adminApi.getDealers(),
         adminApi.getProducts({ limit: 100 }),
-=======
-/**
- * Asynchronously synchronizes all admin collections from the live backend MongoDB API.
- */
-export async function syncAdminDataFromApi() {
-  try {
-    const [dealersRes, prodsRes, ordersRes, catsRes, locsRes, setsRes, complsRes, logsRes, settingsRes, usersRes] =
-      await Promise.allSettled([
-        adminApi.getDealers(),
-        productsApi.getAll({ limit: 100 }),
->>>>>>> origin/boomika
         ordersApi.getAdminOrders(),
-        categoriesApi.getAll(),
+        categoriesApi.getAllAdmin ? categoriesApi.getAllAdmin().catch(() => categoriesApi.getAll()) : categoriesApi.getAll(),
         adminApi.getLocations(),
         adminApi.getSettlements(),
         adminApi.getComplaints(),
         adminApi.getAuditLogs(),
         adminApi.getSettings(),
-<<<<<<< HEAD
         adminApi.getUsers(),
         adminApi.getPayments(),
         adminApi.getInventoryTransactions({ limit: 100 }),
         adminApi.getOverview()
-=======
-        adminApi.getUsers()
->>>>>>> origin/boomika
       ]);
 
     if (dealersRes.status === 'fulfilled') {
@@ -254,12 +218,9 @@ export async function syncAdminDataFromApi() {
     }
 
     if (catsRes.status === 'fulfilled') {
-      const categories = catsRes.value?.categories || (Array.isArray(catsRes.value) ? catsRes.value : []);
-      if (categories.length > 0) {
-        saveAdminCategories(categories.map((c) => ({
-          ...c,
-          id: c.slug || c.id || c._id
-        })));
+      const rawCategories = catsRes.value?.categories || catsRes.value?.data || (Array.isArray(catsRes.value) ? catsRes.value : []);
+      if (Array.isArray(rawCategories) && rawCategories.length > 0) {
+        saveAdminCategories(rawCategories.map(normalizeCategory).filter(Boolean));
       }
     }
 
@@ -284,21 +245,16 @@ export async function syncAdminDataFromApi() {
     }
 
     if (logsRes.status === 'fulfilled') {
-      const logs = logsRes.value?.auditLogs || (Array.isArray(logsRes.value) ? logsRes.value : []);
-      if (logs.length > 0) {
+      const logs = logsRes.value?.data || logsRes.value?.auditLogs || logsRes.value?.logs || (Array.isArray(logsRes.value) ? logsRes.value : []);
+      if (Array.isArray(logs) && logs.length > 0) {
         const current = getAdminReportsData();
         saveAdminReportsData({
           ...current,
-          auditLogs: logs.map((l) => ({
-            ...l,
-            id: l.logId || l.id || l._id,
-            timestamp: l.createdAt || 'Today'
-          }))
+          auditLogs: logs.map(normalizeAuditLog).filter(Boolean)
         });
       }
     }
 
-<<<<<<< HEAD
     if (inventoryRes.status === 'fulfilled') {
       const movements = inventoryRes.value?.data || inventoryRes.value || [];
       if (Array.isArray(movements)) {
@@ -313,39 +269,27 @@ export async function syncAdminDataFromApi() {
     }
 
     if (settingsRes.status === 'fulfilled') {
-      const settings = settingsRes.value?.settings || settingsRes.value?.data || settingsRes.value;
-      if (settings && typeof settings === 'object') saveAdminSettings(settings);
+      const rawSettings = settingsRes.value?.data || settingsRes.value?.settings || settingsRes.value;
+      if (rawSettings && typeof rawSettings === 'object') {
+        saveAdminSettings(normalizeAdminSettings(rawSettings));
+      }
     }
 
     if (usersRes.status === 'fulfilled') {
       const users = usersRes.value?.users || usersRes.value?.data || (Array.isArray(usersRes.value) ? usersRes.value : []);
       if (Array.isArray(users)) {
-=======
-    if (settingsRes.status === 'fulfilled' && settingsRes.value?.settings) {
-      saveAdminSettings(settingsRes.value.settings);
-    }
-
-    if (usersRes.status === 'fulfilled') {
-      const users = usersRes.value?.users || (Array.isArray(usersRes.value) ? usersRes.value : []);
-      if (users.length > 0) {
->>>>>>> origin/boomika
         saveAdminCustomers(users.map((u) => ({
           ...u,
           id: u.id || u._id,
           name: u.name,
           email: u.email,
           phone: u.phone || '—',
-<<<<<<< HEAD
           status: u.status === 'ACTIVE' ? 'Active' : 'Suspended',
-=======
-          status: u.isActive !== false ? 'Active' : 'Suspended',
->>>>>>> origin/boomika
           ordersCount: u.ordersCount || 0,
           totalSpent: u.totalSpent || 0
         })));
       }
     }
-<<<<<<< HEAD
 
     if (paymentsRes.status === 'fulfilled') {
       const result = paymentsRes.value?.data || paymentsRes.value || {};
@@ -453,19 +397,59 @@ export async function syncAdminDataFromApi() {
         recentOrders: getAdminOrders().slice(0, 5).map((o) => ({ ...o, customer: o.customer?.name || 'Customer', dealer: o.dealerName || '—' })),
         recentTickets: openTickets.slice(0, 5).map((t) => ({ id: t.ticketId || t._id, priority: t.priority || 'Normal', subject: t.subject || t.title || 'Dealer complaint', requester: t.requesterName || t.createdBy?.name || '—', category: t.category || 'Support', date: t.createdAt || '' }))
       });
+      // Category Breakdown derivation
+      const totalGmvNum = Number(k.grossGMV || 0);
+      const catPalette = ['bg-[#012D1D]', 'bg-[#2C694E]', 'bg-[#AEEECB]', 'bg-emerald-600', 'bg-teal-700', 'bg-amber-600'];
+      const rawCategoryList = overview.categoryBreakdown || overview.categoryDistribution || [];
+      const categoryBreakdown = rawCategoryList.map((cat, i) => {
+        const catRev = Number(cat.rawRevenue ?? cat.revenue ?? 0);
+        const sharePercent = cat.sharePercent !== undefined 
+          ? Number(cat.sharePercent) 
+          : (totalGmvNum > 0 ? Math.round((catRev / totalGmvNum) * 100) : 0);
+        return {
+          category: cat.category || 'General',
+          rawRevenue: catRev,
+          revenue: typeof cat.revenue === 'string' && cat.revenue.startsWith('₹') ? cat.revenue : money(catRev),
+          sharePercent,
+          orders: Number(cat.orders || 0),
+          color: cat.color || catPalette[i % catPalette.length]
+        };
+      });
+
+      // Dealer Sales Ranking derivation
+      const rawDealerRanking = overview.dealerSalesRanking || overview.dealerPerformance || [];
+      const dealerSalesRanking = rawDealerRanking.map((d) => {
+        const dRev = Number(d.rawRevenue ?? d.grossRevenue ?? d.revenue ?? 0);
+        const sharePercent = d.sharePercent !== undefined
+          ? Number(d.sharePercent)
+          : (totalGmvNum > 0 ? Math.round((dRev / totalGmvNum) * 100) : 0);
+        return {
+          dealerId: d.dealerId || d.id || '',
+          dealerName: d.dealerName || d.name || '—',
+          orders: Number(d.orders ?? d.totalOrders ?? 0),
+          rawRevenue: dRev,
+          revenue: typeof d.revenue === 'string' && d.revenue.startsWith('₹') ? d.revenue : money(dRev),
+          sharePercent
+        };
+      }).sort((a, b) => b.rawRevenue - a.rawRevenue);
+
       localStorage.setItem(STORAGE_KEYS.ANALYTICS_DATA, JSON.stringify({
         kpis: {
-          totalGmv: money(k.grossGMV), growthPercent: '—', totalOrders: k.totalOrders || 0,
-          avgOrderValue: money(k.avgOrderValue), commissionEarned: money(k.commissionEarned)
+          totalGmv: money(k.grossGMV),
+          growthPercent: k.growthPercent || '+0%',
+          totalOrders: k.totalOrders || 0,
+          avgOrderValue: money(k.avgOrderValue),
+          commissionEarned: money(k.commissionEarned)
         },
-        dailyTrend: daily.map((row) => ({ ...row, displayRev: money(row.revenue) })),
-        weeklyTrend: (overview.weeklyTrend || []).map((row) => ({ ...row, displayRev: money(row.revenue) })),
-        monthlyTrend: monthly.map((row) => ({ ...row, displayRev: money(row.revenue) })),
-        topProducts: overview.topProducts || []
+        periods: overview.periods || null,
+        dailyTrend: (overview.dailyTrend || daily).map((row) => ({ ...row, displayRev: row.displayRev || money(row.revenue) })),
+        weeklyTrend: (overview.weeklyTrend || []).map((row) => ({ ...row, displayRev: row.displayRev || money(row.revenue) })),
+        monthlyTrend: (overview.monthlyTrend || monthly).map((row) => ({ ...row, displayRev: row.displayRev || money(row.revenue) })),
+        topProducts: overview.topProducts || [],
+        categoryBreakdown,
+        dealerSalesRanking
       }));
     }
-=======
->>>>>>> origin/boomika
   } catch (err) {
     console.warn('Backend admin sync warning:', err.message);
   }
@@ -480,11 +464,7 @@ export function getAdminDashboardData() {
     const stored = localStorage.getItem(STORAGE_KEYS.DASHBOARD_DATA);
     if (stored) {
       const parsed = JSON.parse(stored);
-<<<<<<< HEAD
       if (parsed && typeof parsed === 'object' && parsed.kpis?.totalDealers) {
-=======
-      if (parsed && typeof parsed === 'object' && parsed.kpis) {
->>>>>>> origin/boomika
         return parsed;
       }
     }
@@ -502,7 +482,6 @@ export function saveAdminDashboardData(data) {
   }
 }
 
-<<<<<<< HEAD
 const inr = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 const lakh = (n) => `₹${(Number(n || 0) / 100000).toFixed(2)}L`;
 const orderDate = (o) => new Date(o.createdAt || o.date || 0);
@@ -641,49 +620,6 @@ export function getAdminRecentTickets() {
 }
 
 
-=======
-export function getAdminKPIs() {
-  const data = getAdminDashboardData();
-  return data.kpis;
-}
-
-export function getAdminSalesOverview(range = '30D') {
-  const data = getAdminDashboardData();
-  const salesByRange = data.salesOverview || {};
-  return salesByRange[range] || salesByRange['30D'];
-}
-
-export function getAdminRevenueTrend() {
-  const data = getAdminDashboardData();
-  return data.revenueTrend || [];
-}
-
-export function getAdminOrderStatusSummary() {
-  const data = getAdminDashboardData();
-  return data.orderStatusSummary || [];
-}
-
-export function getAdminTopSellingProducts() {
-  const data = getAdminDashboardData();
-  return data.topSellingProducts || [];
-}
-
-export function getAdminDealerPerformance() {
-  const data = getAdminDashboardData();
-  return data.dealerPerformance || [];
-}
-
-export function getAdminRecentOrders() {
-  const data = getAdminDashboardData();
-  return data.recentOrders || [];
-}
-
-export function getAdminRecentTickets() {
-  const data = getAdminDashboardData();
-  return data.recentTickets || [];
-}
-
->>>>>>> origin/boomika
 // ==========================================
 // 2. DEALER MANAGEMENT SERVICE
 // ==========================================
@@ -839,7 +775,6 @@ export function getAdminProductById(id) {
   return products.find((p) => p.id === id) || null;
 }
 
-<<<<<<< HEAD
 export async function updateAdminProduct(id, updatedFields) {
   const result = await adminApi.updateProduct(id, updatedFields);
   const actual = result?.data || result;
@@ -851,56 +786,11 @@ export async function updateAdminProduct(id, updatedFields) {
 
 export async function deleteAdminProduct(id) {
   await adminApi.deleteProduct(id);
-=======
-export function createAdminProduct(productData) {
-  const products = getAdminProducts();
-  const nextNum = products.length + 1;
-  const newProduct = {
-    id: `PROD_${String(nextNum).padStart(3, '0')}`,
-    sku: productData.sku || `SKU-AGR-${nextNum}`,
-    name: productData.name || 'New Catalog Product',
-    description: productData.description || 'Commercial agriculture specification listing.',
-    category: productData.category || 'Agriculture & Farming',
-    subcategory: productData.subcategory || 'General Equipment',
-    dealerId: productData.dealerId || 'DEALER_001',
-    dealerName: productData.dealerName || 'Apex Agri-Tech & Machinery',
-    price: Number(productData.price) || 1000,
-    mrp: Number(productData.mrp) || Math.round((Number(productData.price) || 1000) * 1.2),
-    stock: Number(productData.stock) || 50,
-    threshold: Number(productData.threshold) || 10,
-    status: productData.status || 'Active',
-    image: productData.image || '/images/prod-drip.png',
-    rating: 4.8,
-    totalSales: 0,
-    location: productData.location || 'Depot A • Bay 01',
-    createdAt: new Date().toISOString().split('T')[0]
-  };
-
-  const updated = [newProduct, ...products];
-  saveAdminProducts(updated);
-  recordAdminAuditLog('Product Created', 'Products', `Created listing: ${newProduct.name} (#${newProduct.sku})`);
-  return newProduct;
-}
-
-export function updateAdminProduct(id, updatedFields) {
-  const products = getAdminProducts();
-  const updated = products.map((p) => (p.id === id ? { ...p, ...updatedFields } : p));
-  saveAdminProducts(updated);
-  recordAdminAuditLog('Product Updated', 'Products', `Updated product #${id}`);
-  return updated.find((p) => p.id === id);
-}
-
-export function deleteAdminProduct(id) {
->>>>>>> origin/boomika
   const products = getAdminProducts();
   const target = products.find((p) => p.id === id);
   const updated = products.filter((p) => p.id !== id);
   saveAdminProducts(updated);
   if (target) {
-<<<<<<< HEAD
-=======
-    recordAdminAuditLog('Product Deleted', 'Products', `Deleted listing: ${target.name} (#${id})`);
->>>>>>> origin/boomika
   }
   return true;
 }
@@ -939,7 +829,6 @@ export function getAdminInventoryMovementLogs() {
     if (raw) return JSON.parse(raw);
   } catch {}
 
-<<<<<<< HEAD
   return [];
 }
 
@@ -947,31 +836,11 @@ export async function adjustAdminInventoryStock(productId, newQuantity, reason) 
   const products = getAdminProducts();
   const product = products.find((p) => p.id === productId);
   if (!product) throw new Error('Product not found. Refresh inventory and try again.');
-=======
-  const defaultLogs = [
-    { id: 'LOG-101', sku: 'AG-DRP-801', productName: 'HydroHarvest Drip Kit', dealer: 'Apex Agri-Tech', delta: '+20', newStock: 340, reason: 'Physical stock reconciliation', timestamp: 'Today, 10:15 AM', admin: 'Operations Lead' },
-    { id: 'LOG-102', sku: 'AU-ALT-404', productName: 'Duramax Tractor Alternator', dealer: 'Apex Agri-Tech', delta: '-8', newStock: 0, reason: 'Bulk warranty replacement write-off', timestamp: 'Yesterday, 04:30 PM', admin: 'GROVE Admin' },
-    { id: 'LOG-103', sku: 'AG-TRC-025', productName: 'Mini Tractor 25 HP', dealer: 'Kisan Agro Hub', delta: '+4', newStock: 8, reason: 'Inbound manufacturer shipment', timestamp: 'Oct 22, 11:00 AM', admin: 'GROVE Admin' },
-    { id: 'LOG-104', sku: 'AU-BRK-FRT', productName: 'Heavy-Duty Front Brake Pad Set', dealer: 'Kisan Agro Hub', delta: '-12', newStock: 3, reason: 'Wholesale order dispatch (#GRV-7704)', timestamp: 'Oct 21, 02:15 PM', admin: 'Operations Lead' }
-  ];
-
-  try {
-    localStorage.setItem(STORAGE_KEYS.INVENTORY_LOGS, JSON.stringify(defaultLogs));
-  } catch {}
-  return defaultLogs;
-}
-
-export function adjustAdminInventoryStock(productId, newQuantity, reason, adminName = 'GROVE Admin') {
-  const products = getAdminProducts();
-  const product = products.find((p) => p.id === productId);
-  if (!product) return null;
->>>>>>> origin/boomika
 
   const oldStock = product.stock;
   const delta = newQuantity - oldStock;
   const deltaStr = delta >= 0 ? `+${delta}` : `${delta}`;
 
-<<<<<<< HEAD
   const response = await adminApi.adjustInventoryStock(productId, {
     quantityChange: delta,
     reason: reason || 'Admin stock correction',
@@ -980,32 +849,6 @@ export function adjustAdminInventoryStock(productId, newQuantity, reason, adminN
   if (response?.success === false) throw new Error(response.message || 'Inventory adjustment failed.');
   await syncAdminDataFromApi();
   return { sku: product.sku, productName: product.name, dealer: product.dealerName, delta: deltaStr, newStock: newQuantity, reason };
-=======
-  // Update product
-  updateAdminProduct(productId, { stock: newQuantity });
-
-  // Record inventory log
-  const currentLogs = getAdminInventoryMovementLogs();
-  const newLog = {
-    id: `LOG-${Date.now().toString().slice(-4)}`,
-    sku: product.sku,
-    productName: product.name,
-    dealer: product.dealerName,
-    delta: deltaStr,
-    newStock: newQuantity,
-    reason: reason || 'Manual Admin stock adjustment',
-    timestamp: 'Just now',
-    admin: adminName
-  };
-
-  const updatedLogs = [newLog, ...currentLogs];
-  try {
-    localStorage.setItem(STORAGE_KEYS.INVENTORY_LOGS, JSON.stringify(updatedLogs));
-  } catch {}
-
-  recordAdminAuditLog('Stock Adjusted', 'Inventory', `${product.name} (${product.sku}): ${oldStock} → ${newQuantity} (${deltaStr})`);
-  return newLog;
->>>>>>> origin/boomika
 }
 
 // ==========================================
@@ -1191,90 +1034,159 @@ export function deleteAdminLocation(id) {
 // 8. CATEGORY MANAGEMENT SERVICE
 // ==========================================
 
+// ==========================================
+// 8. CATEGORY MANAGEMENT SERVICE
+// ==========================================
+
+export function normalizeCategory(category) {
+  if (!category) return null;
+  return {
+    ...category,
+    id: String(category._id || category.id),
+    name: category.name || '',
+    slug: category.slug || '',
+    description: category.description || '',
+    image: category.image || (Array.isArray(category.images) && category.images[0]) || '',
+    images: Array.isArray(category.images) ? category.images : (category.image ? [category.image] : []),
+    icon: category.icon || 'Layers',
+    commissionRate: Number(category.commissionRate ?? 5),
+    status: category.status || 'Active',
+    subcategories: (category.subcategories || []).map((sub) => ({
+      ...sub,
+      id: String(sub._id || sub.id || sub.slug || Math.random()),
+      name: typeof sub === 'string' ? sub : (sub.name || ''),
+      slug: typeof sub === 'string' ? sub.toLowerCase().replace(/[^a-z0-9]+/g, '-') : (sub.slug || '')
+    }))
+  };
+}
+
+export async function fetchAdminCategoriesFromApi() {
+  try {
+    const res = await (categoriesApi.getAllAdmin ? categoriesApi.getAllAdmin() : categoriesApi.getAll());
+    const raw = res?.data || res?.categories || (Array.isArray(res) ? res : []);
+    if (Array.isArray(raw)) {
+      const normalized = raw.map(normalizeCategory).filter(Boolean);
+      saveAdminCategories(normalized);
+      return normalized;
+    }
+  } catch (error) {
+    console.warn('Error fetching admin categories from API:', error.message);
+  }
+  return getAdminCategories();
+}
+
 export function getAdminCategories() {
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.CATEGORIES_LIST);
-    if (stored) {
+
+    if (stored !== null) {
       const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
-      }
+      return Array.isArray(parsed) ? parsed : [];
     }
-  } catch (e) {
-    console.error('Error reading admin categories:', e);
+  } catch (error) {
+    console.error('Error reading admin categories:', error);
   }
+
   return [];
 }
 
 export function saveAdminCategories(categories) {
   try {
-    localStorage.setItem(STORAGE_KEYS.CATEGORIES_LIST, JSON.stringify(categories));
-  } catch (e) {
-    console.error('Error saving admin categories:', e);
+    localStorage.setItem(
+      STORAGE_KEYS.CATEGORIES_LIST,
+      JSON.stringify(categories)
+    );
+  } catch (error) {
+    console.error('Error saving admin categories:', error);
   }
 }
 
-export function createAdminCategory(catData) {
-  const categories = getAdminCategories();
-  const nextId = `cat-${catData.name.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 8)}`;
-  const newCat = {
-    id: nextId,
-    name: catData.name,
-    slug: catData.slug || nextId,
-    description: catData.description || 'Specialized catalog classification.',
-    icon: catData.icon || 'Layers',
-    commissionRate: parseFloat(catData.commissionRate) || 5.0,
-    productCount: 0,
-    status: 'Active',
-    subcategories: []
-  };
+// CREATE CATEGORY
+export async function createAdminCategory(catData) {
+  const response = await categoriesApi.create(catData);
 
-  const updated = [...categories, newCat];
-  saveAdminCategories(updated);
-  recordAdminAuditLog('Category Created', 'Categories', `Created category: ${newCat.name}`);
-  return newCat;
+  const createdCategory =
+    response?.category ||
+    response?.data?.category ||
+    response?.data ||
+    response;
+
+  const newCategory = normalizeCategory(createdCategory);
+
+  const categories = getAdminCategories();
+
+  saveAdminCategories([
+    ...categories.filter((c) => c.id !== newCategory.id),
+    newCategory
+  ]);
+
+  return newCategory;
 }
 
-export function updateAdminCategory(id, fields) {
+// UPDATE CATEGORY
+export async function updateAdminCategory(id, fields) {
+  const response = await categoriesApi.update(id, fields);
+
+  const updatedCategory =
+    response?.category ||
+    response?.data?.category ||
+    response?.data ||
+    response;
+
+  const normalized = normalizeCategory(updatedCategory);
+
   const categories = getAdminCategories();
-  const updated = categories.map((c) => (c.id === id ? { ...c, ...fields } : c));
+
+  const updated = categories.map((category) =>
+    String(category.id) === String(id)
+      ? normalized
+      : category
+  );
+
   saveAdminCategories(updated);
-  recordAdminAuditLog('Category Updated', 'Categories', `Updated category: ${id}`);
-  return updated.find((c) => c.id === id);
+
+  return normalized;
 }
 
-export function addSubcategory(catId, subcat) {
+// ADD SUBCATEGORY
+export async function addSubcategory(catId, subcat) {
+  const response = await categoriesApi.addSubcategory(catId, subcat);
+
+  const updatedCategory =
+    response?.category ||
+    response?.data?.category ||
+    response?.data ||
+    response;
+
+  const normalized = normalizeCategory(updatedCategory);
+
   const categories = getAdminCategories();
-  const updated = categories.map((c) => {
-    if (c.id === catId) {
-      const subId = `sub-${catId}-${Date.now().toString().slice(-3)}`;
-      const newSub = {
-        id: subId,
-        name: subcat.name,
-        slug: subcat.slug || subcat.name.toLowerCase().replace(/[^a-z0-9]/g, '-'),
-        productCount: 0,
-        status: 'Active'
-      };
-      return { ...c, subcategories: [...c.subcategories, newSub] };
-    }
-    return c;
-  });
+
+  const updated = categories.map((category) =>
+    String(category.id) === String(catId)
+      ? normalized
+      : category
+  );
+
   saveAdminCategories(updated);
-  recordAdminAuditLog('Subcategory Added', 'Categories', `Added subcategory ${subcat.name} to ${catId}`);
-  return updated.find((c) => c.id === catId);
+
+  return normalized;
 }
 
-export function deleteAdminCategory(id) {
+// DELETE CATEGORY
+export async function deleteAdminCategory(id) {
+  await categoriesApi.delete(id);
+
   const categories = getAdminCategories();
-  const target = categories.find((c) => c.id === id);
-  const updated = categories.filter((c) => c.id !== id);
-  saveAdminCategories(updated);
-  if (target) {
-    recordAdminAuditLog('Category Deleted', 'Categories', `Deleted category: ${target.name} (#${id})`);
-  }
+
+  saveAdminCategories(
+    categories.filter(
+      (category) => String(category.id) !== String(id)
+    )
+  );
+
   return true;
 }
-
 // ==========================================
 // 9. SALES & ANALYTICS SERVICE
 // ==========================================
@@ -1284,14 +1196,97 @@ export function getAdminAnalytics(period = 'monthly') {
     const stored = localStorage.getItem(STORAGE_KEYS.ANALYTICS_DATA);
     if (stored) {
       const parsed = JSON.parse(stored);
-      if (parsed && parsed.kpis) return parsed;
+      if (parsed && parsed.kpis) {
+        return {
+          ...parsed,
+          categoryBreakdown: Array.isArray(parsed.categoryBreakdown) ? parsed.categoryBreakdown : [],
+          dealerSalesRanking: Array.isArray(parsed.dealerSalesRanking) ? parsed.dealerSalesRanking : [],
+          dailyTrend: Array.isArray(parsed.dailyTrend) ? parsed.dailyTrend : [],
+          weeklyTrend: Array.isArray(parsed.weeklyTrend) ? parsed.weeklyTrend : [],
+          monthlyTrend: Array.isArray(parsed.monthlyTrend) ? parsed.monthlyTrend : [],
+          topProducts: Array.isArray(parsed.topProducts) ? parsed.topProducts : []
+        };
+      }
     }
   } catch {}
-<<<<<<< HEAD
-  return { kpis: { totalGmv: '₹0', growthPercent: '—', totalOrders: 0, avgOrderValue: '₹0', commissionEarned: '₹0' }, dailyTrend: [], weeklyTrend: [], monthlyTrend: [], topProducts: [] };
-=======
-  return { overview: { totalRevenue: 48250000, totalOrders: 1420 } };
->>>>>>> origin/boomika
+  return {
+    kpis: { totalGmv: '₹0', growthPercent: '0%', totalOrders: 0, avgOrderValue: '₹0', commissionEarned: '₹0' },
+    dailyTrend: [],
+    weeklyTrend: [],
+    monthlyTrend: [],
+    topProducts: [],
+    categoryBreakdown: [],
+    dealerSalesRanking: []
+  };
+}
+
+/**
+ * Directly fetches live platform sales and revenue analytics from the live backend API.
+ */
+export async function fetchAdminAnalyticsFromApi() {
+  try {
+    const res = await adminApi.getOverview();
+    const overview = res?.data || res || {};
+    const k = overview.kpis || {};
+    const money = (value) => `₹${Number(value || 0).toLocaleString('en-IN')}`;
+    const totalGmvNum = Number(k.grossGMV || 0);
+    const catPalette = ['bg-[#012D1D]', 'bg-[#2C694E]', 'bg-[#AEEECB]', 'bg-emerald-600', 'bg-teal-700', 'bg-amber-600'];
+
+    const rawCategoryList = overview.categoryBreakdown || overview.categoryDistribution || [];
+    const categoryBreakdown = rawCategoryList.map((cat, i) => {
+      const catRev = Number(cat.rawRevenue ?? cat.revenue ?? 0);
+      const sharePercent = cat.sharePercent !== undefined 
+        ? Number(cat.sharePercent) 
+        : (totalGmvNum > 0 ? Math.round((catRev / totalGmvNum) * 100) : 0);
+      return {
+        category: cat.category || 'General',
+        rawRevenue: catRev,
+        revenue: typeof cat.revenue === 'string' && cat.revenue.startsWith('₹') ? cat.revenue : money(catRev),
+        sharePercent,
+        orders: Number(cat.orders || 0),
+        color: cat.color || catPalette[i % catPalette.length]
+      };
+    });
+
+    const rawDealerRanking = overview.dealerSalesRanking || overview.dealerPerformance || [];
+    const dealerSalesRanking = rawDealerRanking.map((d) => {
+      const dRev = Number(d.rawRevenue ?? d.grossRevenue ?? d.revenue ?? 0);
+      const sharePercent = d.sharePercent !== undefined
+        ? Number(d.sharePercent)
+        : (totalGmvNum > 0 ? Math.round((dRev / totalGmvNum) * 100) : 0);
+      return {
+        dealerId: d.dealerId || d.id || '',
+        dealerName: d.dealerName || d.name || '—',
+        orders: Number(d.orders ?? d.totalOrders ?? 0),
+        rawRevenue: dRev,
+        revenue: typeof d.revenue === 'string' && d.revenue.startsWith('₹') ? d.revenue : money(dRev),
+        sharePercent
+      };
+    }).sort((a, b) => b.rawRevenue - a.rawRevenue);
+
+    const formatted = {
+      kpis: {
+        totalGmv: money(k.grossGMV),
+        growthPercent: k.growthPercent || '+0%',
+        totalOrders: Number(k.totalOrders || 0),
+        avgOrderValue: money(k.avgOrderValue),
+        commissionEarned: money(k.commissionEarned)
+      },
+      periods: overview.periods || null,
+      dailyTrend: (overview.dailyTrend || []).map((row) => ({ ...row, displayRev: row.displayRev || money(row.revenue) })),
+      weeklyTrend: (overview.weeklyTrend || []).map((row) => ({ ...row, displayRev: row.displayRev || money(row.revenue) })),
+      monthlyTrend: (overview.monthlyTrend || []).map((row) => ({ ...row, displayRev: row.displayRev || money(row.revenue) })),
+      topProducts: overview.topProducts || [],
+      categoryBreakdown,
+      dealerSalesRanking
+    };
+
+    localStorage.setItem(STORAGE_KEYS.ANALYTICS_DATA, JSON.stringify(formatted));
+    return formatted;
+  } catch (err) {
+    console.warn('Direct admin analytics fetch failed, falling back to cache:', err.message);
+    return getAdminAnalytics();
+  }
 }
 
 // ==========================================
@@ -1303,34 +1298,13 @@ export function getAdminPaymentSummary() {
     const raw = localStorage.getItem(STORAGE_KEYS.PAYMENTS_DATA);
     if (raw) return JSON.parse(raw);
   } catch {}
-<<<<<<< HEAD
   return {
     summary: { totalVolume: '₹0', escrowHeld: '₹0', settledToDealers: '₹0', commissionRetained: '₹0' },
     transactions: [], dealerSettlements: []
   };
-=======
-  return { totalEscrow: '₹18,50,000', pendingPayouts: 3, settlements: [] };
 }
 
-export function releaseDealerPayout(batchId) {
-  const data = getAdminPaymentSummary();
-  const settlements = data.dealerSettlements || [];
-  const updatedSettlements = settlements.map((s) => {
-    if (s.id === batchId) {
-      return { ...s, status: 'Settled', payoutDate: 'Today' };
-    }
-    return s;
-  });
-
-  const updatedData = { ...data, dealerSettlements: updatedSettlements };
-  try {
-    localStorage.setItem(STORAGE_KEYS.PAYMENTS_DATA, JSON.stringify(updatedData));
-  } catch {}
-
-  recordAdminAuditLog('Payout Released', 'Payments', `Released payout batch #${batchId}`);
-  return updatedSettlements.find((s) => s.id === batchId);
->>>>>>> origin/boomika
-}
+export const getAdminPaymentsData = getAdminPaymentSummary;
 
 // ==========================================
 // 11. SUPPORT & COMPLAINTS SERVICE
@@ -1355,7 +1329,6 @@ export function saveAdminSupportTickets(tickets) {
   }
 }
 
-<<<<<<< HEAD
 export async function updateTicketStatus(id, newStatus, note = '', reason = '') {
   try {
     await adminApi.updateComplaintStatus(id, newStatus, note, reason);
@@ -1369,16 +1342,6 @@ export async function updateTicketStatus(id, newStatus, note = '', reason = '') 
       return {
         ...t,
         status: newStatus || t.status,
-=======
-export function updateTicketStatus(id, newStatus, newPriority = null) {
-  const tickets = getAdminSupportTickets();
-  const updated = tickets.map((t) => {
-    if (t.id === id) {
-      return {
-        ...t,
-        status: newStatus || t.status,
-        priority: newPriority || t.priority,
->>>>>>> origin/boomika
         lastUpdated: 'Just now'
       };
     }
@@ -1386,7 +1349,6 @@ export function updateTicketStatus(id, newStatus, newPriority = null) {
   });
   saveAdminSupportTickets(updated);
   recordAdminAuditLog('Ticket Status Updated', 'Support', `Ticket #${id} marked as ${newStatus}`);
-<<<<<<< HEAD
   return updated.find((t) => t.id === id || t._id === id);
 }
 
@@ -1400,15 +1362,6 @@ export async function addAdminReplyToTicket(id, message, isInternalNote = false,
   const tickets = getAdminSupportTickets();
   const updated = tickets.map((t) => {
     if (t.id === id || t._id === id) {
-=======
-  return updated.find((t) => t.id === id);
-}
-
-export function addAdminReplyToTicket(id, message, isInternalNote = false) {
-  const tickets = getAdminSupportTickets();
-  const updated = tickets.map((t) => {
-    if (t.id === id) {
->>>>>>> origin/boomika
       if (isInternalNote) {
         return {
           ...t,
@@ -1418,7 +1371,6 @@ export function addAdminReplyToTicket(id, message, isInternalNote = false) {
       } else {
         const newMsg = {
           id: `m_${Date.now()}`,
-<<<<<<< HEAD
           sender: 'GROVE Platform Operations',
           senderRole: 'admin',
           timestamp: 'Just now',
@@ -1428,15 +1380,6 @@ export function addAdminReplyToTicket(id, message, isInternalNote = false) {
         return {
           ...t,
           status: status || (t.status === 'Open' ? 'In Progress' : t.status),
-=======
-          sender: 'GROVE Admin Operations',
-          senderRole: 'admin',
-          timestamp: 'Just now',
-          text: message
-        };
-        return {
-          ...t,
->>>>>>> origin/boomika
           messages: [...(t.messages || []), newMsg],
           lastUpdated: 'Just now'
         };
@@ -1445,33 +1388,181 @@ export function addAdminReplyToTicket(id, message, isInternalNote = false) {
     return t;
   });
   saveAdminSupportTickets(updated);
-<<<<<<< HEAD
   return updated.find((t) => t.id === id || t._id === id);
-=======
-  return updated.find((t) => t.id === id);
->>>>>>> origin/boomika
 }
 
 // ==========================================
 // 12. REPORTS & AUDIT LOGS SERVICE
 // ==========================================
 
-<<<<<<< HEAD
+export const DEFAULT_ADMIN_REPORTS = [
+  {
+    id: 'rep_sales_gmv',
+    name: 'Gross Marketplace Volume & Financial Ledger',
+    category: 'Financial',
+    period: 'Current Month (Nov 2026)',
+    description: 'Comprehensive breakdown of customer orders, gross transaction volume, dealer payouts, and net platform commissions.',
+    lastGenerated: 'Today, Real-time',
+    type: 'orders'
+  },
+  {
+    id: 'rep_dealer_settlements',
+    name: 'Dealer Payout & Escrow Settlement Statement',
+    category: 'Merchant Operations',
+    period: 'Active Cycle (7-Day)',
+    description: 'Cleared settlements, pending escrow holds, UTR transfer references, and 1% TDS/TCS tax withholding compliance ledger.',
+    lastGenerated: 'Nov 27, 2026',
+    type: 'settlements'
+  },
+  {
+    id: 'rep_inventory_valuation',
+    name: 'Catalog Inventory & Depot Stock Valuation',
+    category: 'Inventory & Logistics',
+    period: 'Real-time Snapshot',
+    description: 'SKU quantities on hand, safety stock breach alerts, unit pricing, and aggregate warehouse inventory valuation.',
+    lastGenerated: 'Today',
+    type: 'inventory'
+  },
+  {
+    id: 'rep_merchant_compliance',
+    name: 'Merchant Enterprise KYC & Compliance Audit',
+    category: 'Governance & Risk',
+    period: 'Quarterly Audit (Q3)',
+    description: 'Onboarded dealers, GSTIN tax validation status, commercial store classifications, and verification approval audit.',
+    lastGenerated: 'Yesterday',
+    type: 'dealers'
+  },
+  {
+    id: 'rep_support_sla',
+    name: 'Cargo Disputes & Customer Support SLA Log',
+    category: 'Customer Success',
+    period: 'Past 30 Days',
+    description: 'Transit damage complaints, resolution time tracking, dealer escalations, and customer satisfaction ratings.',
+    lastGenerated: 'Nov 26, 2026',
+    type: 'tickets'
+  },
+  {
+    id: 'rep_audit_trail',
+    name: 'Cryptographic Security & System Action Ledger',
+    category: 'Security & Compliance',
+    period: 'All-time Immutable',
+    description: 'Full chronological administrative action log, operator IP addresses, and taxonomy configuration revisions.',
+    lastGenerated: 'Real-time',
+    type: 'audit'
+  }
+];
+
+export function normalizeAuditLog(l) {
+  if (!l) return null;
+
+  let formattedTime = 'Recently';
+  if (l.createdAt || l.timestamp) {
+    const dateObj = new Date(l.createdAt || l.timestamp);
+    if (!isNaN(dateObj.getTime())) {
+      formattedTime = dateObj.toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      }) + ', ' + dateObj.toLocaleTimeString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    } else {
+      formattedTime = String(l.timestamp || l.createdAt);
+    }
+  }
+
+  let adminName = 'GROVE Admin';
+  let adminRole = 'Super Admin';
+
+  if (l.actor && typeof l.actor === 'object') {
+    adminName = l.actor.name || l.actor.email || adminName;
+    adminRole = l.actor.role || l.actorRole || adminRole;
+  } else if (l.admin) {
+    adminName = l.admin;
+    adminRole = l.role || adminRole;
+  } else if (l.actorRole) {
+    adminRole = l.actorRole;
+  }
+
+  if (adminRole === 'SUPER_ADMIN') adminRole = 'Super Admin';
+  if (adminRole === 'ADMIN') adminRole = 'Administrator';
+  if (adminRole === 'DEALER') adminRole = 'Merchant Partner';
+
+  const actionRaw = l.action || 'Administrative Action';
+  let formattedAction = actionRaw;
+  const actionMap = {
+    'PLATFORM_SETTINGS_UPDATED': 'Settings Updated',
+    'CATEGORY_CREATED': 'Category Created',
+    'CATEGORY_UPDATED': 'Category Updated',
+    'CATEGORY_DELETED': 'Category Deleted',
+    'DEALER_APPROVED': 'Dealer Approved',
+    'DEALER_SUSPENDED': 'Dealer Suspended',
+    'SETTLEMENT_PROCESSED': 'Settlement Processed',
+    'INVENTORY_ADJUSTED': 'Stock Adjusted',
+    'PRODUCT_CREATED': 'Product Added',
+    'PRODUCT_UPDATED': 'Product Updated',
+    'ORDER_CANCELLED': 'Order Cancelled',
+    'REFUND_ISSUED': 'Refund Processed'
+  };
+
+  if (actionMap[actionRaw]) {
+    formattedAction = actionMap[actionRaw];
+  } else if (actionRaw.includes('_')) {
+    formattedAction = actionRaw
+      .toLowerCase()
+      .split('_')
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+  }
+
+  let targetModule = l.targetEntity || l.module || 'Platform';
+  if (targetModule === 'AdminSettings') targetModule = 'Settings';
+  if (targetModule === 'Category') targetModule = 'Catalog';
+  if (targetModule === 'Dealer') targetModule = 'Dealers';
+  if (targetModule === 'Product') targetModule = 'Products';
+
+  let cleanDetails = l.details || 'Administrative action recorded';
+  if (cleanDetails.includes('Sensitive platform settings updated: {')) {
+    cleanDetails = 'Modified platform configuration (General & Commission policies)';
+  } else if (cleanDetails.startsWith('{') && cleanDetails.endsWith('}')) {
+    try {
+      const parsed = JSON.parse(cleanDetails);
+      cleanDetails = Object.keys(parsed).map((k) => `${k} updated`).join(', ');
+    } catch {}
+  }
+
+  return {
+    id: l.logId || l._id || l.id || `AUD_${Date.now()}`,
+    timestamp: formattedTime,
+    admin: adminName,
+    role: adminRole,
+    action: formattedAction,
+    module: targetModule,
+    details: cleanDetails,
+    status: l.status || 'Success'
+  };
+}
+
 export function getAdminReportsData() {
-=======
-export function getAdminReportsList() {
->>>>>>> origin/boomika
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.REPORTS_DATA);
     if (raw) {
       const parsed = JSON.parse(raw);
-<<<<<<< HEAD
-      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return {
+          availableReports: (Array.isArray(parsed.availableReports) && parsed.availableReports.length > 0)
+            ? parsed.availableReports
+            : DEFAULT_ADMIN_REPORTS,
+          auditLogs: Array.isArray(parsed.auditLogs) ? parsed.auditLogs.map(normalizeAuditLog).filter(Boolean) : []
+        };
+      }
     }
   } catch (error) {
     console.warn('Could not read admin reports cache:', error);
   }
-  return { availableReports: [], auditLogs: [] };
+  return { availableReports: DEFAULT_ADMIN_REPORTS, auditLogs: [] };
 }
 
 export function saveAdminReportsData(data) {
@@ -1484,58 +1575,48 @@ export function saveAdminReportsData(data) {
 }
 
 export function getAdminReportsList() {
-  return getAdminReportsData().availableReports || [];
+  const data = getAdminReportsData();
+  return (data.availableReports && data.availableReports.length > 0)
+    ? data.availableReports
+    : DEFAULT_ADMIN_REPORTS;
 }
 
 export function getAdminAuditLogs() {
   return getAdminReportsData().auditLogs || [];
-=======
-      if (parsed.availableReports) return parsed.availableReports;
-    }
-  } catch {}
-  return [];
 }
 
-export function getAdminAuditLogs() {
+export async function fetchAdminAuditLogsFromApi() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.REPORTS_DATA);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed.auditLogs) return parsed.auditLogs;
+    const res = await adminApi.getAuditLogs();
+    const rawLogs = res?.data || res?.logs || (Array.isArray(res) ? res : []);
+    if (Array.isArray(rawLogs) && rawLogs.length > 0) {
+      const normalized = rawLogs.map(normalizeAuditLog).filter(Boolean);
+      const current = getAdminReportsData();
+      saveAdminReportsData({ ...current, auditLogs: normalized });
+      return normalized;
     }
-  } catch {}
-  return [];
->>>>>>> origin/boomika
+  } catch (err) {
+    console.warn('Direct fetchAdminAuditLogsFromApi warning:', err.message);
+  }
+  return getAdminAuditLogs();
 }
 
 export function recordAdminAuditLog(action, module, details) {
   try {
-<<<<<<< HEAD
     const data = getAdminReportsData();
     const logs = data.auditLogs || [];
-    const newEntry = {
-      id: `AUD_${Date.now()}_${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
-=======
-    const raw = localStorage.getItem(STORAGE_KEYS.REPORTS_DATA);
-    const data = raw ? JSON.parse(raw) : { auditLogs: [] };
-    const logs = data.auditLogs || [];
-    const newEntry = {
-      id: `AUD_${Math.floor(1000 + Math.random() * 9000)}`,
->>>>>>> origin/boomika
+    const newEntry = normalizeAuditLog({
+      logId: `AUD_${Date.now()}_${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
       admin: 'GROVE Admin',
-      role: 'Super Admin',
+      actorRole: 'Super Admin',
       action,
-      module,
+      targetEntity: module,
       details,
-      timestamp: 'Just now',
+      createdAt: new Date().toISOString(),
       status: 'Success'
-    };
+    });
     const updated = [newEntry, ...logs.slice(0, 49)];
-<<<<<<< HEAD
     saveAdminReportsData({ auditLogs: updated });
-=======
-    localStorage.setItem(STORAGE_KEYS.REPORTS_DATA, JSON.stringify({ ...data, auditLogs: updated }));
->>>>>>> origin/boomika
   } catch {}
 }
 
@@ -1543,65 +1624,151 @@ export function recordAdminAuditLog(action, module, details) {
 // 13. PLATFORM SETTINGS SERVICE
 // ==========================================
 
+export function normalizeAdminSettings(settings) {
+  const currentAdmin = getStoredAdmin() || {};
+  const general = settings?.general || {};
+  const commission = settings?.commission || settings?.commissions || {};
+  const notifications = settings?.notifications || {};
+
+  return {
+    ...settings,
+    general: {
+      marketplaceName: general.marketplaceName || general.platformName || 'GROVE Agritech & Commercial Marketplace',
+      supportEmail: general.supportEmail || 'operations@grove.com',
+      supportPhone: general.supportPhone || general.helplineNumber || '+91 80000 12345',
+      defaultCurrency: general.defaultCurrency || 'INR (₹)',
+      maintenanceMode: Boolean(general.maintenanceMode),
+      systemVersion: general.systemVersion || '2.4.0'
+    },
+    commission: {
+      defaultCommissionRate: Number(commission.defaultCommissionRate ?? 5.0),
+      minPayoutThreshold: Number(commission.minPayoutThreshold ?? 10000),
+      escrowHoldPeriodDays: Number(commission.escrowHoldPeriodDays ?? 3),
+      taxTcsRate: Number(commission.taxTcsRate ?? 1.0)
+    },
+    notifications: {
+      emailOnNewKyc: notifications.emailOnNewKyc !== false,
+      emailOnLowStock: notifications.emailOnLowStock !== false,
+      emailDailySummary: notifications.emailDailySummary !== false,
+      emailOnEscalatedDispute: notifications.emailOnEscalatedDispute !== false
+    },
+    profile: {
+      name: settings?.profile?.name || currentAdmin.name || 'Super Admin',
+      email: settings?.profile?.email || currentAdmin.email || 'admin@grove.com',
+      department: settings?.profile?.department || currentAdmin.department || 'Platform Operations',
+      role: settings?.profile?.role || currentAdmin.role || 'Super Admin'
+    },
+    roles: (Array.isArray(settings?.roles) && settings.roles.length > 0) ? settings.roles : [
+      {
+        id: 'super_admin',
+        name: 'Super Administrator',
+        description: 'Complete unrestricted access across all platform modules, taxonomy, settlements, and admin controls.',
+        isSystem: true,
+        usersCount: 1
+      },
+      {
+        id: 'ops_specialist',
+        name: 'Platform Operations Specialist',
+        description: 'Manages dealer approvals, catalog taxonomy, ticket resolution, and dispatch tracking.',
+        isSystem: false,
+        usersCount: 3
+      },
+      {
+        id: 'finance_auditor',
+        name: 'Finance & Settlements Auditor',
+        description: 'Controls escrow releases, merchant payouts, bank reconciliation, and tax filings.',
+        isSystem: false,
+        usersCount: 2
+      },
+      {
+        id: 'compliance_officer',
+        name: 'Catalog & Compliance Officer',
+        description: 'Audits product specifications, dealer certifications, and counterfeit protection.',
+        isSystem: false,
+        usersCount: 2
+      }
+    ]
+  };
+}
+
 export function getAdminSettings() {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS_DATA);
-    if (raw) return JSON.parse(raw);
+    if (raw) return normalizeAdminSettings(JSON.parse(raw));
   } catch {}
-  return defaultAdminSettings;
+  return normalizeAdminSettings(defaultAdminSettings);
 }
 
 export function saveAdminSettings(updated) {
   try {
-    localStorage.setItem(STORAGE_KEYS.SETTINGS_DATA, JSON.stringify(updated));
-    recordAdminAuditLog('Settings Updated', 'Settings', 'Modified platform configuration');
+    const normalized = normalizeAdminSettings(updated);
+    localStorage.setItem(STORAGE_KEYS.SETTINGS_DATA, JSON.stringify(normalized));
   } catch (e) {
-    console.error('Error saving settings:', e);
+    console.error('Error saving settings cache:', e);
   }
 }
-<<<<<<< HEAD
+
+export async function fetchAdminSettingsFromApi() {
+  try {
+    const res = await adminApi.getSettings();
+    const raw = res?.data || res?.settings || res;
+    if (raw && typeof raw === 'object') {
+      const normalized = normalizeAdminSettings(raw);
+      localStorage.setItem(STORAGE_KEYS.SETTINGS_DATA, JSON.stringify(normalized));
+      return normalized;
+    }
+  } catch (err) {
+    console.warn('Direct fetchAdminSettingsFromApi warning:', err.message);
+  }
+  return getAdminSettings();
+}
 
 /** Persist supported platform settings through the authenticated admin API. */
 export async function updateAdminSettings(updated) {
-  const general = updated.general || {};
-  const commission = updated.commission || updated.commissions || {};
-  const notifications = updated.notifications || {};
+  const normalized = normalizeAdminSettings(updated);
+  const general = normalized.general || {};
+  const commission = normalized.commission || {};
+  const notifications = normalized.notifications || {};
 
-  const definedValues = (values) => Object.fromEntries(
-    Object.entries(values).filter(([, value]) => value !== undefined && value !== null && value !== '')
-  );
   const payload = {
-    general: definedValues({
-      marketplaceName: general.marketplaceName ?? general.platformName,
+    general: {
+      marketplaceName: general.marketplaceName,
       supportEmail: general.supportEmail,
-      supportPhone: general.supportPhone ?? general.helplineNumber,
+      supportPhone: general.supportPhone,
       defaultCurrency: general.defaultCurrency,
-      maintenanceMode: general.maintenanceMode
-    }),
-    commission: definedValues({
-      defaultCommissionRate: commission.defaultCommissionRate,
-      minPayoutThreshold: commission.minPayoutThreshold,
-      escrowHoldPeriodDays: commission.escrowHoldPeriodDays,
-      taxTcsRate: commission.taxTcsRate
-    }),
-    notifications: definedValues({
-      emailOnNewKyc: notifications.emailOnNewKyc,
-      emailOnLowStock: notifications.emailOnLowStock,
-      emailDailySummary: notifications.emailDailySummary,
-      emailOnEscalatedDispute: notifications.emailOnEscalatedDispute
-    })
+      maintenanceMode: Boolean(general.maintenanceMode)
+    },
+    commission: {
+      defaultCommissionRate: Number(commission.defaultCommissionRate),
+      minPayoutThreshold: Number(commission.minPayoutThreshold),
+      escrowHoldPeriodDays: Number(commission.escrowHoldPeriodDays),
+      taxTcsRate: Number(commission.taxTcsRate)
+    },
+    notifications: {
+      emailOnNewKyc: Boolean(notifications.emailOnNewKyc),
+      emailOnLowStock: Boolean(notifications.emailOnLowStock),
+      emailDailySummary: Boolean(notifications.emailDailySummary),
+      emailOnEscalatedDispute: Boolean(notifications.emailOnEscalatedDispute)
+    }
   };
-  Object.keys(payload).forEach((group) => {
-    if (Object.keys(payload[group]).length === 0) delete payload[group];
-  });
-  if (Object.keys(payload).length === 0) {
-    throw new Error('There are no platform settings supported by the server to save.');
-  }
 
   const response = await adminApi.updateSettings(payload);
-  const saved = response?.data || response?.settings || response;
-  saveAdminSettings({ ...updated, ...saved });
-  return saved;
+  const savedBackend = response?.data || response?.settings || response;
+
+  // If profile was updated, update stored admin session
+  if (normalized.profile) {
+    const currentAdmin = getStoredAdmin();
+    if (currentAdmin) {
+      setStoredAdmin({
+        ...currentAdmin,
+        name: normalized.profile.name || currentAdmin.name,
+        email: normalized.profile.email || currentAdmin.email,
+        department: normalized.profile.department || currentAdmin.department
+      });
+    }
+  }
+
+  const finalSettings = normalizeAdminSettings({ ...normalized, ...savedBackend });
+  saveAdminSettings(finalSettings);
+  return finalSettings;
 }
-=======
->>>>>>> origin/boomika

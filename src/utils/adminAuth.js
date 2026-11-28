@@ -24,7 +24,7 @@ export function getStoredAdmin() {
 export function setStoredAdmin(admin) {
   try {
     if (!admin) return;
-    const { id, name, email, role, department, avatar, lastLogin } = admin;
+    const { id, name, email, role, department, avatar, lastLogin, token } = admin;
     const sanitized = { 
       id, 
       name, 
@@ -33,9 +33,13 @@ export function setStoredAdmin(admin) {
       department: department || 'Platform Operations',
       avatar: avatar || 'GA',
       lastLogin: lastLogin || 'Just now',
-      loginTime: new Date().toISOString()
+      loginTime: new Date().toISOString(),
+      token: token || undefined
     };
     localStorage.setItem(ADMIN_AUTH_STORAGE_KEY, JSON.stringify(sanitized));
+    if (token) {
+      localStorage.setItem('grove_admin_token', token);
+    }
   } catch (e) {
     console.error('Error storing admin session:', e);
   }
@@ -48,6 +52,7 @@ export function setStoredAdmin(admin) {
 export function clearStoredAdmin() {
   try {
     localStorage.removeItem(ADMIN_AUTH_STORAGE_KEY);
+    localStorage.removeItem('grove_admin_token');
     window.dispatchEvent(new Event('grove_admin_auth_changed'));
   } catch (e) {
     console.error('Error clearing admin session:', e);

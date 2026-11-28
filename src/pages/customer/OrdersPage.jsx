@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
-<<<<<<< HEAD
   ArrowLeft,
-=======
->>>>>>> origin/boomika
   Package, 
   Search, 
   ExternalLink, 
@@ -43,7 +40,6 @@ export default function OrdersPage() {
 
   useEffect(() => {
     loadOrders();
-<<<<<<< HEAD
     const refreshLive = () => {
       if (customer?.id) {
         syncCustomerOrders(customer.id).then((synced) => {
@@ -87,16 +83,6 @@ export default function OrdersPage() {
         try { channel.close(); } catch {}
       }
     };
-=======
-    if (customer?.id) {
-      syncCustomerOrders(customer.id).then((synced) => {
-        if (synced && synced.length > 0) setOrders(synced);
-      });
-    }
-    const handleUpdate = () => loadOrders();
-    window.addEventListener('grove_orders_updated', handleUpdate);
-    return () => window.removeEventListener('grove_orders_updated', handleUpdate);
->>>>>>> origin/boomika
   }, [customer?.id]);
 
   const tabs = ['All', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
@@ -189,7 +175,6 @@ export default function OrdersPage() {
         
         {/* Header & Search */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-6 border-b border-gray-200 gap-4">
-<<<<<<< HEAD
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -214,18 +199,6 @@ export default function OrdersPage() {
                 Track live deliveries, review past shipments, and initiate reorders
               </p>
             </div>
-=======
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2.5">
-              <span>My Orders</span>
-              <span className="text-sm font-semibold px-2.5 py-0.5 rounded-full bg-[#E9F3ED] text-[#1B4332] border border-[#c4e3cf]">
-                {orders.length} Total
-              </span>
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Track live deliveries, review past shipments, and initiate reorders
-            </p>
->>>>>>> origin/boomika
           </div>
 
           {/* Search Box */}

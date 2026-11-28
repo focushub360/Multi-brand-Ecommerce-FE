@@ -3,11 +3,7 @@ import AdminLayout from '../../components/admin/AdminLayout';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import {
   getAdminProducts,
-<<<<<<< HEAD
   getAdminCategories,
-=======
-  createAdminProduct,
->>>>>>> origin/boomika
   updateAdminProduct,
   deleteAdminProduct,
   approveProductListing,
@@ -16,10 +12,6 @@ import {
 } from '../../services/adminService';
 import {
   Search,
-<<<<<<< HEAD
-=======
-  Plus,
->>>>>>> origin/boomika
   CheckCircle2,
   X,
   Edit2,
@@ -31,10 +23,7 @@ import {
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
-<<<<<<< HEAD
   const [categories, setCategories] = useState([]);
-=======
->>>>>>> origin/boomika
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -69,10 +58,7 @@ export default function AdminProductsPage() {
 
   const loadData = () => {
     setProducts(getAdminProducts());
-<<<<<<< HEAD
     setCategories(getAdminCategories());
-=======
->>>>>>> origin/boomika
   };
 
   useEffect(() => {
@@ -113,16 +99,6 @@ export default function AdminProductsPage() {
   }, [products, searchQuery, categoryFilter, statusFilter, dealerFilter]);
 
   // Handlers
-<<<<<<< HEAD
-=======
-  const handleOpenAdd = () => {
-    setFormData(initialForm);
-    setIsEditing(false);
-    setFormError('');
-    setIsAddEditOpen(true);
-  };
-
->>>>>>> origin/boomika
   const handleOpenEdit = (prod, e) => {
     if (e) e.stopPropagation();
     setFormData({
@@ -137,11 +113,7 @@ export default function AdminProductsPage() {
     setIsAddEditOpen(true);
   };
 
-<<<<<<< HEAD
   const handleSaveProduct = async (e) => {
-=======
-  const handleSaveProduct = (e) => {
->>>>>>> origin/boomika
     e.preventDefault();
     setFormError('');
 
@@ -154,7 +126,6 @@ export default function AdminProductsPage() {
       return;
     }
 
-<<<<<<< HEAD
     if (!isEditing || !formData.id) {
       setFormError('Products can only be created by approved dealers.');
       return;
@@ -208,49 +179,6 @@ export default function AdminProductsPage() {
         loadData();
         showToast('Product listing rejected.');
       } catch (err) { showToast(err.message || 'Unable to reject listing.'); }
-=======
-    if (isEditing && formData.id) {
-      updateAdminProduct(formData.id, {
-        ...formData,
-        price: Number(formData.price),
-        mrp: Number(formData.mrp) || Number(formData.price),
-        stock: Number(formData.stock) || 0,
-        threshold: Number(formData.threshold) || 10
-      });
-      showToast(`Updated product: ${formData.name}`);
-    } else {
-      createAdminProduct(formData);
-      showToast(`Created new catalog listing: ${formData.name}`);
-    }
-
-    loadData();
-    setIsAddEditOpen(false);
-  };
-
-  const handleDelete = (id, e) => {
-    if (e) e.stopPropagation();
-    if (window.confirm('Are you sure you want to remove this product from the platform catalog?')) {
-      deleteAdminProduct(id);
-      loadData();
-      showToast('Product removed successfully.');
-    }
-  };
-
-  const handleApprove = (id, e) => {
-    if (e) e.stopPropagation();
-    approveProductListing(id);
-    loadData();
-    showToast('Product listing approved and published to Marketplace.');
-  };
-
-  const handleReject = (id, e) => {
-    if (e) e.stopPropagation();
-    const reason = window.prompt('Enter rejection reason (e.g. Incomplete specifications, Non-compliant pricing):', 'Specification non-compliance');
-    if (reason) {
-      rejectProductListing(id, reason);
-      loadData();
-      showToast('Product listing rejected.');
->>>>>>> origin/boomika
     }
   };
 
@@ -281,19 +209,6 @@ export default function AdminProductsPage() {
         subtitle="Review, catalogue, moderate, price-audit, and publish agricultural equipment, electronics, and automotive parts across dealers."
         badge={`${products.length} Products`}
         breadcrumbs={[{ label: 'Products' }]}
-<<<<<<< HEAD
-=======
-        actions={
-          <button
-            type="button"
-            onClick={handleOpenAdd}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#012D1D] hover:bg-[#1B4332] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
-          >
-            <Plus className="w-3.5 h-3.5 text-[#AEEECB]" />
-            <span>Add Catalog Product</span>
-          </button>
-        }
->>>>>>> origin/boomika
       />
 
       {/* Summary KPI Strip */}
@@ -612,11 +527,7 @@ export default function AdminProductsPage() {
           <div className="relative w-full max-w-xl bg-white rounded-3xl border border-[#C1C8C2]/70 shadow-2xl p-6 z-10 max-h-[90vh] overflow-y-auto space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-[#C1C8C2]/40">
               <h3 className="font-extrabold text-base text-[#012D1D]">
-<<<<<<< HEAD
                 Edit Catalog Product
-=======
-                {isEditing ? 'Edit Catalog Product' : 'Add New Catalog Product'}
->>>>>>> origin/boomika
               </h3>
               <button type="button" onClick={() => setIsAddEditOpen(false)} className="p-1 rounded-xl text-[#717973]">
                 <X className="w-5 h-5" />
@@ -635,11 +546,8 @@ export default function AdminProductsPage() {
                 <input
                   type="text"
                   required
-<<<<<<< HEAD
                   minLength={2}
                   maxLength={160}
-=======
->>>>>>> origin/boomika
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g. 50HP Rotavator Blade Assembly"
@@ -653,12 +561,9 @@ export default function AdminProductsPage() {
                   <input
                     type="text"
                     required
-<<<<<<< HEAD
                     minLength={2}
                     maxLength={50}
                     pattern="[A-Za-z0-9_-]+"
-=======
->>>>>>> origin/boomika
                     value={formData.sku}
                     onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
                     placeholder="e.g. AG-ROT-500"
@@ -668,22 +573,13 @@ export default function AdminProductsPage() {
                 <div>
                   <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Category</label>
                   <select
-<<<<<<< HEAD
                     required
-=======
->>>>>>> origin/boomika
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-semibold"
                   >
-<<<<<<< HEAD
                     {!categories.some((category) => category.name === formData.category) && <option value={formData.category}>{formData.category}</option>}
                     {categories.filter((category) => category.status !== 'Inactive').map((category) => <option key={category.id} value={category.name}>{category.name}</option>)}
-=======
-                    <option value="Agriculture & Farming">Agriculture & Farming</option>
-                    <option value="Electronics & Gadgets">Electronics & Gadgets</option>
-                    <option value="Automotive & Spare Parts">Automotive & Spare Parts</option>
->>>>>>> origin/boomika
                   </select>
                 </div>
               </div>
@@ -694,11 +590,8 @@ export default function AdminProductsPage() {
                   <input
                     type="number"
                     required
-<<<<<<< HEAD
                     min="0.01"
                     step="0.01"
-=======
->>>>>>> origin/boomika
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                     placeholder="8500"
@@ -709,11 +602,8 @@ export default function AdminProductsPage() {
                   <label className="block text-[11px] font-bold text-[#3F4943] mb-1">MRP (₹)</label>
                   <input
                     type="number"
-<<<<<<< HEAD
                     min="0.01"
                     step="0.01"
-=======
->>>>>>> origin/boomika
                     value={formData.mrp}
                     onChange={(e) => setFormData({ ...formData, mrp: e.target.value })}
                     placeholder="9999"
@@ -721,20 +611,11 @@ export default function AdminProductsPage() {
                   />
                 </div>
                 <div>
-<<<<<<< HEAD
                   <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Stock (adjust in Inventory)</label>
                   <input
                     type="number"
                     value={formData.stock ?? 0}
                     readOnly
-=======
-                  <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Initial Stock</label>
-                  <input
-                    type="number"
-                    value={formData.stock}
-                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                    placeholder="50"
->>>>>>> origin/boomika
                     className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-mono focus:outline-none focus:border-[#012D1D]"
                   />
                 </div>
@@ -742,32 +623,14 @@ export default function AdminProductsPage() {
 
               <div>
                 <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Assigned Dealer</label>
-<<<<<<< HEAD
                 <div className="w-full min-h-9 px-3 py-2 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/60 text-xs font-semibold">{formData.dealerName || 'Dealer information unavailable'}</div>
-=======
-                <select
-                  value={formData.dealerName}
-                  onChange={(e) => setFormData({ ...formData, dealerName: e.target.value })}
-                  className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs"
-                >
-                  <option value="Apex Agri-Tech & Machinery">Apex Agri-Tech & Machinery</option>
-                  <option value="Kisan Agro Hub & Spares">Kisan Agro Hub & Spares</option>
-                  <option value="Sahyadri Agro Implement Works">Sahyadri Agro Implement Works</option>
-                  <option value="Punjab Agri Tractors & Combines">Punjab Agri Tractors & Combines</option>
-                  <option value="Malwa Farm Equipment Co.">Malwa Farm Equipment Co.</option>
-                  <option value="Baramati Bio-Nutrients & Feed">Baramati Bio-Nutrients & Feed</option>
-                </select>
->>>>>>> origin/boomika
               </div>
 
               <div>
                 <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Description</label>
                 <textarea
                   rows="2"
-<<<<<<< HEAD
                   maxLength={5000}
-=======
->>>>>>> origin/boomika
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Technical specifications and warranty..."
@@ -787,11 +650,7 @@ export default function AdminProductsPage() {
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-[#012D1D] hover:bg-[#1B4332] text-white text-xs font-bold"
                 >
-<<<<<<< HEAD
                   Save Changes
-=======
-                  {isEditing ? 'Save Changes' : 'Create Product Listing'}
->>>>>>> origin/boomika
                 </button>
               </div>
             </form>

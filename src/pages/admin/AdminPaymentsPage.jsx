@@ -3,10 +3,6 @@ import AdminLayout from '../../components/admin/AdminLayout';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import {
   getAdminPaymentSummary,
-<<<<<<< HEAD
-=======
-  releaseDealerPayout,
->>>>>>> origin/boomika
   syncAdminDataFromApi
 } from '../../services/adminService';
 import {
@@ -39,15 +35,6 @@ export default function AdminPaymentsPage() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-<<<<<<< HEAD
-=======
-  const handleReleasePayout = (batchId) => {
-    releaseDealerPayout(batchId);
-    loadData();
-    showToast(`Released payout batch #${batchId} to dealer bank account.`);
-  };
-
->>>>>>> origin/boomika
   const filteredTransactions = useMemo(() => {
     if (!paymentsData?.transactions) return [];
     return paymentsData.transactions.filter((t) => {
@@ -217,10 +204,6 @@ export default function AdminPaymentsPage() {
                     <th className="py-3 px-4 font-bold text-right">Commission</th>
                     <th className="py-3 px-4 font-bold text-right">Net Payout</th>
                     <th className="py-3 px-4 font-bold text-center">Settlement Status</th>
-<<<<<<< HEAD
-=======
-                    <th className="py-3 px-4 font-bold text-right">Action</th>
->>>>>>> origin/boomika
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#C1C8C2]/30">
@@ -263,26 +246,6 @@ export default function AdminPaymentsPage() {
                         </span>
                       </td>
 
-<<<<<<< HEAD
-=======
-                      <td className="py-3.5 px-4 text-right">
-                        {batch.status === 'Pending Clearance' ? (
-                          <button
-                            type="button"
-                            onClick={() => handleReleasePayout(batch.id)}
-                            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs"
-                          >
-                            Release Payout
-                          </button>
-                        ) : batch.status === 'On Hold' ? (
-                          <span className="text-[10px] font-mono font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
-                            Hold Active
-                          </span>
-                        ) : (
-                          <span className="text-[10px] font-mono text-[#717973]">Settled</span>
-                        )}
-                      </td>
->>>>>>> origin/boomika
                     </tr>
                   ))}
                 </tbody>

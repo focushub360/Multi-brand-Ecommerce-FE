@@ -10,10 +10,7 @@ import GroceriesPage from './pages/GroceriesPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import BecomeDealerPage from './pages/BecomeDealerPage';
-<<<<<<< HEAD
 import ResetPasswordPage from './pages/ResetPasswordPage';
-=======
->>>>>>> origin/boomika
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import ScrollToTop from './components/ScrollToTop';
 
@@ -30,10 +27,7 @@ import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
 import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
 import AdminPaymentsPage from './pages/admin/AdminPaymentsPage';
 import AdminSupportPage from './pages/admin/AdminSupportPage';
-<<<<<<< HEAD
 import AdminCustomerSupportPage from './pages/admin/AdminCustomerSupportPage';
-=======
->>>>>>> origin/boomika
 import AdminReportsPage from './pages/admin/AdminReportsPage';
 import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
@@ -58,10 +52,8 @@ import OrderConfirmationPage from './pages/customer/OrderConfirmationPage';
 import OrdersPage from './pages/customer/OrdersPage';
 import OrderDetailsPage from './pages/customer/OrderDetailsPage';
 import AddressesPage from './pages/customer/AddressesPage';
-<<<<<<< HEAD
 import CustomerSupportPage from './pages/customer/CustomerSupportPage';
-=======
->>>>>>> origin/boomika
+import CategoryComingSoonPage from './pages/CategoryComingSoonPage';
 
 export default function App() {
   return (
@@ -77,13 +69,11 @@ export default function App() {
         <Route path="/automotive" element={<AutomotivePage />} />
         <Route path="/automotive/product/:productId" element={<ProductDetailPage />} />
         <Route path="/groceries" element={<GroceriesPage />} />
+        <Route path="/category/:slug" element={<CategoryComingSoonPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/become-a-dealer" element={<BecomeDealerPage />} />
-<<<<<<< HEAD
         <Route path="/reset-password" element={<ResetPasswordPage />} />
-=======
->>>>>>> origin/boomika
 
         {/* Fallback Product Detail Route Aliases */}
         <Route path="/product/:productId" element={<AgricultureProductDetailPage />} />
@@ -150,7 +140,6 @@ export default function App() {
             </ProtectedRoute>
           } 
         />
-<<<<<<< HEAD
         <Route 
           path="/account/support" 
           element={
@@ -167,8 +156,6 @@ export default function App() {
             </ProtectedRoute>
           } 
         />
-=======
->>>>>>> origin/boomika
 
         {/* Dedicated Admin Portal Authentication */}
         <Route path="/admin/login" element={<AdminLoginPage />} />
@@ -264,7 +251,6 @@ export default function App() {
           } 
         />
         <Route 
-<<<<<<< HEAD
           path="/admin/customer-support" 
           element={
             <AdminProtectedRoute>
@@ -273,8 +259,6 @@ export default function App() {
           } 
         />
         <Route 
-=======
->>>>>>> origin/boomika
           path="/admin/reports" 
           element={
             <AdminProtectedRoute>

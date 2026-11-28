@@ -24,12 +24,9 @@ export default function ProtectedRoute({ allowedRole, children }) {
         />
       );
     }
-<<<<<<< HEAD
     if (dealer.mustChangePassword) {
       return <Navigate to="/reset-password" replace />;
     }
-=======
->>>>>>> origin/boomika
     return children;
   }
 

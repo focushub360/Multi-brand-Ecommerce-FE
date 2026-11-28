@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { getStoredCustomer, setPendingAction, clearStoredCustomer } from '../utils/auth';
 import { cartApi } from '../services/apiClient.js';
 
-<<<<<<< HEAD
 // Module-level deduplication cache to avoid parallel/rapid cart requests
 let inFlightCartPromise = null;
 let lastCartFetchTime = 0;
@@ -55,8 +54,6 @@ async function fetchCustomerCartDeduplicated(customerId, force = false) {
   return inFlightCartPromise;
 }
 
-=======
->>>>>>> origin/boomika
 export function useCart() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -75,7 +72,6 @@ export function useCart() {
   const [cart, setCart] = useState(getCustomerCart);
   const [lastAddedItem, setLastAddedItem] = useState(null);
 
-<<<<<<< HEAD
   // Synchronize cart with live MongoDB database using request deduplication
   useEffect(() => {
     const customer = getStoredCustomer();
@@ -87,27 +83,6 @@ export function useCart() {
           }
         })
         .catch(() => {});
-=======
-  // Synchronize cart with live MongoDB database
-  useEffect(() => {
-    const customer = getStoredCustomer();
-    if (customer?.id) {
-      cartApi.get()
-        .then((res) => {
-          if (res?.items) {
-            const cartKey = `grove_cart_${customer.id}`;
-            localStorage.setItem(cartKey, JSON.stringify(res.items));
-            setCart(res.items);
-          }
-        })
-        .catch((err) => {
-          if (err.status === 401) {
-            clearStoredCustomer();
-          } else {
-            console.warn('Backend cart sync warning:', err.message);
-          }
-        });
->>>>>>> origin/boomika
     }
 
     const syncCart = () => {
@@ -131,11 +106,8 @@ export function useCart() {
    */
   const addToCart = (product, quantity = 1) => {
     if (!product) return false;
-<<<<<<< HEAD
     if (product.stock !== undefined && Number(product.stock) <= 0) return false;
     if (product.stockStatus === 'Out of Stock' || product.status === 'Draft' || product.inStock === false) return false;
-=======
->>>>>>> origin/boomika
 
     const customer = getStoredCustomer();
     if (!customer?.id) {
@@ -186,10 +158,7 @@ export function useCart() {
 
     setCart(updatedCart);
     setLastAddedItem(product);
-<<<<<<< HEAD
     lastCartFetchTime = 0;
-=======
->>>>>>> origin/boomika
     window.dispatchEvent(new Event('grove_cart_updated'));
 
     // Persist immediately in MongoDB Atlas
@@ -227,10 +196,7 @@ export function useCart() {
     } catch {}
 
     setCart(updated);
-<<<<<<< HEAD
     lastCartFetchTime = 0;
-=======
->>>>>>> origin/boomika
     window.dispatchEvent(new Event('grove_cart_updated'));
 
     // Remove from MongoDB database
@@ -273,10 +239,7 @@ export function useCart() {
     } catch {}
 
     setCart(updated);
-<<<<<<< HEAD
     lastCartFetchTime = 0;
-=======
->>>>>>> origin/boomika
     window.dispatchEvent(new Event('grove_cart_updated'));
 
     // Persist quantity change in MongoDB database
@@ -318,10 +281,7 @@ export function useCart() {
     } catch {}
 
     setCart([]);
-<<<<<<< HEAD
     lastCartFetchTime = 0;
-=======
->>>>>>> origin/boomika
     window.dispatchEvent(new Event('grove_cart_updated'));
 
     // Clear cart in MongoDB database

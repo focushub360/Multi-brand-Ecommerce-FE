@@ -7,123 +7,170 @@ import TrustSection from '../components/TrustSection';
 import BecomeDealerSection from '../components/BecomeDealerSection';
 import NewsletterSection from '../components/NewsletterSection';
 import Footer from '../components/Footer';
-import { productsApi } from '../services/apiClient.js';
+import { productsApi, categoriesApi } from '../services/apiClient.js';
+
+const KNOWN_CONFIGS = {
+  agriculture: {
+    id: "agriculture",
+    tag: "AGRICULTURE",
+    title: "Agriculture Essentials",
+    subtitle: "Reliable equipment for every farming need.",
+    viewAllText: "View All Agriculture",
+    viewAllHref: "/agriculture",
+    accentColor: "#0A3325",
+    tagColor: "#0A3325",
+    tagBg: "#E4EBDC"
+  },
+  electronics: {
+    id: "electronics",
+    tag: "ELECTRONICS",
+    title: "Electronics & Gadgets",
+    subtitle: "Technology for work and everyday life.",
+    viewAllText: "View All Electronics",
+    viewAllHref: "/electronics",
+    accentColor: "#171717",
+    tagColor: "#171717",
+    tagBg: "#EDE8DE"
+  },
+  automotive: {
+    id: "automotive",
+    tag: "AUTOMOTIVE",
+    title: "Automotive & Spare Parts",
+    subtitle: "Quality parts for every journey.",
+    viewAllText: "View All Automotive",
+    viewAllHref: "/automotive",
+    accentColor: "#FF383F",
+    tagColor: "#FF383F",
+    tagBg: "#FDE2E1"
+  },
+  groceries: {
+    id: "groceries",
+    tag: "GROCERIES",
+    title: "Fresh Groceries & Essentials",
+    subtitle: "Daily essentials and fresh staples for everyday needs.",
+    viewAllText: "View All Groceries",
+    viewAllHref: "/groceries",
+    accentColor: "#C26D00",
+    tagColor: "#78350F",
+    tagBg: "#FDE68A"
+  }
+};
+
+const EXTRA_PALETTES = [
+  { accentColor: "#137333", tagColor: "#0D5324", tagBg: "#CEEAD6" },
+  { accentColor: "#4338CA", tagColor: "#312E81", tagBg: "#E0E7FF" },
+  { accentColor: "#BE123C", tagColor: "#881337", tagBg: "#FFE4E6" },
+  { accentColor: "#7E22CE", tagColor: "#581C87", tagBg: "#F3E8FF" }
+];
 
 export default function HomePage() {
-  const [agricultureEssentials, setAgricultureEssentials] = useState([]);
-  const [electronicsEssentials, setElectronicsEssentials] = useState([]);
-  const [automotiveEssentials, setAutomotiveEssentials] = useState([]);
+  const [sections, setSections] = useState([]);
 
   useEffect(() => {
     document.title = 'GROVE - Online Multi-Category Marketplace';
+    let isMounted = true;
 
-    productsApi.getAll({ limit: 60 })
-      .then((res) => {
-        const prods = res?.products || res?.data?.products || res?.data || (Array.isArray(res) ? res : []);
-        if (prods.length > 0) {
-          const normalize = (p) => ({
-            id: p.sku?.toLowerCase() || p.slug || p.id || p._id,
-            name: p.name,
-            category: p.categoryName || p.category,
-            price: `₹${Number(p.price).toLocaleString('en-IN')}`,
-            originalPrice: `₹${Number(p.mrp || p.price).toLocaleString('en-IN')}`,
-            discount: `-${p.discount || 10}%`,
-            rating: p.rating || 4.5,
-            reviews: p.reviewCount || 35,
-            image: p.image || '/images/prod-tractor.png',
-            dealerId: p.dealerCode || 'DEALER_001'
-          });
+    Promise.allSettled([
+      categoriesApi.getAll(),
+      productsApi.getAll({ limit: 100 })
+    ]).then(([catsResult, prodsResult]) => {
+      if (!isMounted) return;
 
-          const agri = prods
-            .filter((p) => (p.categoryName || p.category || '').toLowerCase().includes('agri'))
-            .slice(0, 5)
-            .map(normalize);
+      const rawCats = catsResult.status === 'fulfilled'
+        ? (catsResult.value?.data || catsResult.value?.categories || (Array.isArray(catsResult.value) ? catsResult.value : []))
+        : [];
 
-          const elec = prods
-            .filter((p) => (p.categoryName || p.category || '').toLowerCase().includes('elec'))
-            .slice(0, 5)
-            .map(normalize);
+      const rawProds = prodsResult.status === 'fulfilled'
+        ? (prodsResult.value?.products || prodsResult.value?.data?.products || prodsResult.value?.data || (Array.isArray(prodsResult.value) ? prodsResult.value : []))
+        : [];
 
-          const auto = prods
-            .filter((p) => (p.categoryName || p.category || '').toLowerCase().includes('auto'))
-            .slice(0, 5)
-            .map(normalize);
-
-          setAgricultureEssentials(agri);
-          setElectronicsEssentials(elec);
-          setAutomotiveEssentials(auto);
-        }
-      })
-      .catch((err) => {
-        console.warn('Failed to fetch homepage live products:', err.message);
+      const normalizeProd = (p) => ({
+        id: p.sku?.toLowerCase() || p.slug || p.id || p._id,
+        name: p.name,
+        category: p.categoryName || p.category,
+        price: `₹${Number(p.price).toLocaleString('en-IN')}`,
+        originalPrice: `₹${Number(p.mrp || p.price).toLocaleString('en-IN')}`,
+        discount: `-${p.discount || 10}%`,
+        rating: p.rating || 4.5,
+        reviews: p.reviewCount || 35,
+        image: p.image || '/images/prod-tractor.png',
+        dealerId: p.dealerCode || 'DEALER_001'
       });
+
+      // If categories fetched from DB, build sections dynamically
+      const activeCats = rawCats.length > 0 ? rawCats : [
+        { name: 'Agriculture & Farming', slug: 'agriculture' },
+        { name: 'Electronics & Gadgets', slug: 'electronics' },
+        { name: 'Automotive & Spare Parts', slug: 'automotive' },
+        { name: 'Groceries', slug: 'groceries' }
+      ];
+
+      const builtSections = activeCats.map((cat, idx) => {
+        const slug = (cat.slug || '').toLowerCase();
+        const known = KNOWN_CONFIGS[slug];
+        const palette = known || EXTRA_PALETTES[idx % EXTRA_PALETTES.length];
+
+        const catKeywords = (cat.name || '').toLowerCase().split(/[\s&,-]+/).filter((k) => k.length > 2);
+
+        // Find products matching this category
+        const matchingProds = rawProds
+          .filter((p) => {
+            const pCat = (p.categoryName || p.category || '').toLowerCase();
+            const cName = (cat.name || '').toLowerCase();
+            return pCat.includes(cName) || cName.includes(pCat) || catKeywords.some((kw) => pCat.includes(kw));
+          })
+          .slice(0, 5)
+          .map(normalizeProd);
+
+        return {
+          id: slug || `cat-${idx}`,
+          tag: (cat.name || slug).toUpperCase(),
+          title: known?.title || `${cat.name} Collection`,
+          subtitle: known?.subtitle || cat.description || `Explore top products in ${cat.name}.`,
+          viewAllText: known?.viewAllText || `View All ${cat.name}`,
+          viewAllHref: known?.viewAllHref || `/category/${slug}`,
+          accentColor: palette.accentColor,
+          tagColor: palette.tagColor,
+          tagBg: palette.tagBg,
+          products: matchingProds
+        };
+      });
+
+      setSections(builtSections);
+    });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (
     <main className="min-h-screen bg-[#F7F3EA] text-neutral-900 overflow-x-hidden font-sans">
-      {/* 1 & 2: Navbar, Hero, SearchBar, and 3 Overlapping Category Cards */}
+      {/* 1 & 2: Navbar, Hero, SearchBar, and Category Cards */}
       <Hero />
 
-      {/* 3: Best Sellers Section (with 6 Product Cards and Filter Controls) */}
+      {/* 3: Best Sellers Section (with Product Cards and Dynamic Filter Controls) */}
       <BestSellers />
 
-      {/* 4: Agriculture Essentials (5 Product Cards rendered from real agricultureProducts.json) */}
-      <CategoryCollectionSection
-        id="agriculture"
-        tag="AGRICULTURE"
-        title="Agriculture Essentials"
-        subtitle="Reliable equipment for every farming need."
-        viewAllText="View All Agriculture"
-        viewAllHref="/agriculture"
-        accentColor="#0A3325"
-        tagColor="#0A3325"
-        tagBg="#E4EBDC"
-        products={agricultureEssentials}
-      />
+      {/* 4+: Dynamic Category Collection Sections for all categories in DB */}
+      {sections.map((sec) => (
+        <CategoryCollectionSection key={sec.id} {...sec} />
+      ))}
 
-      {/* 5: Electronics & Gadgets (5 Product Cards) */}
-      <CategoryCollectionSection
-        id="electronics"
-        tag="ELECTRONICS"
-        title="Electronics & Gadgets"
-        subtitle="Technology for work and everyday life."
-        viewAllText="View All Electronics"
-        viewAllHref="/electronics"
-        accentColor="#171717"
-        tagColor="#171717"
-        tagBg="#EDE8DE"
-        products={electronicsEssentials}
-      />
-
-      {/* 6: Automotive & Spare Parts (5 Product Cards) */}
-      <CategoryCollectionSection
-        id="automotive"
-        tag="AUTOMOTIVE"
-        title="Automotive & Spare Parts"
-        subtitle="Quality parts for every journey."
-        viewAllText="View All Automotive"
-        viewAllHref="/automotive"
-        accentColor="#FF383F"
-        tagColor="#FF383F"
-        tagBg="#FDE2E1"
-        products={automotiveEssentials}
-      />
-
-      {/* 7: Promotional Offer Banner */}
+      {/* Promotional Offer Banner */}
       <PromoBanner />
 
-      {/* 8: Why Shop on GROVE? (Trust Section) */}
+      {/* Why Shop on GROVE? (Trust Section) */}
       <TrustSection />
 
-      {/* 9: Become a Dealer Section */}
+      {/* Become a Dealer Section */}
       <BecomeDealerSection />
 
-      {/* 10: Newsletter Subscription Section */}
+      {/* Newsletter Subscription Section */}
       <NewsletterSection />
 
-      {/* 11: Complete Footer */}
+      {/* Complete Footer */}
       <Footer />
     </main>
   );
 }
-

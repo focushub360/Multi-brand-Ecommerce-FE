@@ -1,24 +1,15 @@
-<<<<<<< HEAD
 import React, { useState, useEffect, useMemo } from 'react';
-=======
-import React, { useState, useEffect } from 'react';
->>>>>>> origin/boomika
 import { Link } from 'react-router-dom';
 import { 
   Building2, 
   MapPin, 
   CreditCard, 
   Clock, 
-<<<<<<< HEAD
-=======
-  Save, 
->>>>>>> origin/boomika
   CheckCircle2, 
   ShieldCheck, 
   ChevronRight,
   Phone,
   Mail,
-<<<<<<< HEAD
   FileText,
   Lock,
   AlertCircle,
@@ -27,22 +18,15 @@ import {
   KeyRound,
   Check,
   X
-=======
-  FileText
->>>>>>> origin/boomika
 } from 'lucide-react';
 import DealerLayout from '../../components/dealer/DealerLayout';
 import { getDealerStoreSettings, saveDealerStoreSettings, syncDealerDataFromApi } from '../../services/dealerService';
 import { getActiveDealerId } from '../../utils/auth';
-<<<<<<< HEAD
 import { authApi, dealerApi } from '../../services/apiClient';
-=======
->>>>>>> origin/boomika
 
 export default function DealerStoreSettings() {
   const [settings, setSettings] = useState(() => getDealerStoreSettings(getActiveDealerId()));
   const [toastMessage, setToastMessage] = useState('');
-<<<<<<< HEAD
   const [toastType, setToastType] = useState('success'); // 'success' | 'error'
 
   const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -58,9 +42,6 @@ export default function DealerStoreSettings() {
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
-=======
-  const [isSaving, setIsSaving] = useState(false);
->>>>>>> origin/boomika
 
   useEffect(() => {
     document.title = 'Store Settings | GROVE Dealer Portal';
@@ -72,7 +53,6 @@ export default function DealerStoreSettings() {
     }).catch(() => {});
   }, []);
 
-<<<<<<< HEAD
   const showToast = (message, type = 'success') => {
     setToastMessage(message);
     setToastType(type);
@@ -81,8 +61,6 @@ export default function DealerStoreSettings() {
     }, 3500);
   };
 
-=======
->>>>>>> origin/boomika
   const handleChange = (field, value) => {
     setSettings((prev) => ({
       ...prev,
@@ -90,7 +68,6 @@ export default function DealerStoreSettings() {
     }));
   };
 
-<<<<<<< HEAD
   // Section 1: Save Profile & Branding
   const handleSaveProfile = async (e) => {
     e?.preventDefault();
@@ -204,26 +181,11 @@ export default function DealerStoreSettings() {
   // Only show verified dealer after Admin accepts and verifies KYC
   const isVerifiedDealer = settings.bankVerificationStatus === 'VERIFIED' && settings.status !== 'PENDING_KYC';
 
-=======
-  const handleSave = (e) => {
-    e?.preventDefault();
-    setIsSaving(true);
-    const currentId = getActiveDealerId();
-    saveDealerStoreSettings(settings, currentId);
-    setTimeout(() => {
-      setIsSaving(false);
-      setToastMessage('Store settings saved successfully!');
-      setTimeout(() => setToastMessage(''), 3000);
-    }, 400);
-  };
-
->>>>>>> origin/boomika
   return (
     <DealerLayout>
       <div className="max-w-5xl mx-auto flex flex-col gap-6">
         {/* Toast Alert */}
         {toastMessage && (
-<<<<<<< HEAD
           <div className={`fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 text-xs sm:text-sm font-semibold animate-fade-in border ${
             toastType === 'error' 
               ? 'bg-red-900 text-white border-red-500/40' 
@@ -234,10 +196,6 @@ export default function DealerStoreSettings() {
             ) : (
               <CheckCircle2 className="w-4 h-4 text-[#AEEECB]" />
             )}
-=======
-          <div className="fixed bottom-6 right-6 z-50 bg-[#012D1D] text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 text-xs sm:text-sm font-semibold animate-fade-in border border-[#AEEECB]/30">
-            <CheckCircle2 className="w-4 h-4 text-[#AEEECB]" />
->>>>>>> origin/boomika
             <span>{toastMessage}</span>
           </div>
         )}
@@ -254,7 +212,6 @@ export default function DealerStoreSettings() {
               <h1 className="text-2xl sm:text-3xl font-bold text-[#012D1D] tracking-tight">
                 Store Settings
               </h1>
-<<<<<<< HEAD
               {isVerifiedDealer ? (
                 <span className="px-3 py-1 rounded-full bg-[#AEEECB] text-[#0E5138] text-xs font-bold flex items-center gap-1.5 shadow-2xs">
                   <ShieldCheck className="w-3.5 h-3.5" />
@@ -292,46 +249,15 @@ export default function DealerStoreSettings() {
         {/* Settings Sections Container */}
         <div className="flex flex-col gap-6">
 
-=======
-              <span className="px-2.5 py-0.5 rounded-full bg-[#AEEECB] text-[#0E5138] text-xs font-bold">
-                Verified B2B Account
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm text-[#414844]">
-              Manage your dealer brand, dispatch warehouse location, payout bank details, and business hours.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0 self-start md:self-auto">
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={isSaving}
-              className="h-10 px-6 rounded-xl bg-[#1B4332] text-white text-xs sm:text-sm font-bold hover:bg-[#012D1D] active:scale-95 transition-all shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-60"
-            >
-              <Save className={`w-4 h-4 ${isSaving ? 'animate-spin' : ''}`} />
-              <span>{isSaving ? 'Saving...' : 'Save Settings'}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Form Container */}
-        <form onSubmit={handleSave} className="flex flex-col gap-6">
->>>>>>> origin/boomika
           {/* Section 1: Business Profile & Branding */}
           <section className="bg-white rounded-2xl p-5 sm:p-6 shadow-2xs border border-[#C1C8C2]/40 flex flex-col gap-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#C1C8C2]/30">
               <div className="flex items-center gap-2">
-<<<<<<< HEAD
                 <Building2 className="w-5 h-5 text-[#2C694E]" />
-=======
-                <span className="w-2.5 h-2.5 rounded-full bg-[#2C694E]"></span>
->>>>>>> origin/boomika
                 <h2 className="text-base sm:text-lg font-bold text-[#151D18]">
                   Business Profile & Branding
                 </h2>
               </div>
-<<<<<<< HEAD
               <span className="text-xs font-semibold text-[#717973] uppercase tracking-wider">Commercial Identity</span>
             </div>
 
@@ -344,30 +270,16 @@ export default function DealerStoreSettings() {
                   </label>
                   <span className="text-[11px] font-medium text-[#2C694E] bg-[#E8F5E9] px-2 py-0.5 rounded-md">Editable</span>
                 </div>
-=======
-              <span className="text-xs font-semibold text-[#717973] uppercase tracking-wider">Public Details</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
-                  Trading Business Name
-                </label>
->>>>>>> origin/boomika
                 <input
                   type="text"
                   value={settings.storeName || ''}
                   onChange={(e) => handleChange('storeName', e.target.value)}
-<<<<<<< HEAD
                   placeholder="e.g. Apex Agri-Tech & Machinery"
-=======
->>>>>>> origin/boomika
                   className="w-full h-11 px-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] transition-all"
                   required
                 />
               </div>
 
-<<<<<<< HEAD
               {/* Primary Category - LOCKED */}
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
@@ -399,41 +311,15 @@ export default function DealerStoreSettings() {
                   </label>
                   <span className="text-[11px] font-medium text-[#2C694E] bg-[#E8F5E9] px-2 py-0.5 rounded-md">Editable</span>
                 </div>
-=======
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
-                  Primary Category Segment
-                </label>
-                <select
-                  value={settings.businessCategory || 'Agriculture & Farm Equipment'}
-                  onChange={(e) => handleChange('businessCategory', e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] transition-all cursor-pointer"
-                >
-                  <option value="Agriculture & Farm Equipment">Agriculture & Farm Equipment</option>
-                  <option value="Electronics & Smart Ag Tech">Electronics & Smart Ag Tech</option>
-                  <option value="Automotive & Spare Parts">Automotive & Spare Parts</option>
-                  <option value="Multi-Category Enterprise">Multi-Category Enterprise</option>
-                </select>
-              </div>
-
-              <div className="sm:col-span-2 flex flex-col gap-1.5">
-                <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
-                  Store Tagline & Description
-                </label>
->>>>>>> origin/boomika
                 <textarea
                   rows={3}
                   value={settings.tagline || ''}
                   onChange={(e) => handleChange('tagline', e.target.value)}
-<<<<<<< HEAD
                   placeholder="Brief summary of your product specialties, service guarantees, and regional supply capabilities."
-=======
->>>>>>> origin/boomika
                   className="w-full p-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] resize-y transition-colors leading-relaxed"
                 />
               </div>
 
-<<<<<<< HEAD
               {/* Official Contact Email - LOCKED */}
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
@@ -515,50 +401,6 @@ export default function DealerStoreSettings() {
                   </label>
                   <span className="text-[11px] font-medium text-[#2C694E] bg-[#E8F5E9] px-2 py-0.5 rounded-md">Editable</span>
                 </div>
-=======
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
-                  Official Contact Email
-                </label>
-                <input
-                  type="email"
-                  value={settings.businessEmail || ''}
-                  onChange={(e) => handleChange('businessEmail', e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] transition-all"
-                  required
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
-                  Dispatch Hotline / Phone
-                </label>
-                <input
-                  type="text"
-                  value={settings.businessPhone || ''}
-                  onChange={(e) => handleChange('businessPhone', e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] transition-all"
-                  required
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
-                  GSTIN (Tax Identification)
-                </label>
-                <input
-                  type="text"
-                  value={settings.gstin || ''}
-                  onChange={(e) => handleChange('gstin', e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] font-mono text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] transition-all uppercase"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
-                  Store Operating Hours
-                </label>
->>>>>>> origin/boomika
                 <input
                   type="text"
                   value={settings.operatingHours || ''}
@@ -568,7 +410,6 @@ export default function DealerStoreSettings() {
                 />
               </div>
             </div>
-<<<<<<< HEAD
 
             {/* Section 1 Update Button */}
             <div className="flex justify-end pt-2 border-t border-[#C1C8C2]/20">
@@ -588,15 +429,6 @@ export default function DealerStoreSettings() {
             <div className="flex items-center justify-between pb-3 border-b border-[#C1C8C2]/30">
               <div className="flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-[#2C694E]" />
-=======
-          </section>
-
-          {/* Section 2: Warehouse Location & Store Status */}
-          <section className="bg-white rounded-2xl p-5 sm:p-6 shadow-2xs border border-[#C1C8C2]/40 flex flex-col gap-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#C1C8C2]/30">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#2C694E]"></span>
->>>>>>> origin/boomika
                 <h2 className="text-base sm:text-lg font-bold text-[#151D18]">
                   Warehouse Location & Dispatch Hub
                 </h2>
@@ -610,10 +442,7 @@ export default function DealerStoreSettings() {
                   className={`w-12 h-6 rounded-full transition-colors relative cursor-pointer ${
                     settings.storeOpen ? 'bg-[#012D1D]' : 'bg-neutral-300'
                   }`}
-<<<<<<< HEAD
                   title="Toggle accepting orders"
-=======
->>>>>>> origin/boomika
                 >
                   <span
                     className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-xs transition-transform ${
@@ -626,26 +455,17 @@ export default function DealerStoreSettings() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="sm:col-span-3 flex flex-col gap-1.5">
-<<<<<<< HEAD
                 <div className="flex items-center justify-between">
                   <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
                     Dispatch Depot Full Address
                   </label>
                   <span className="text-[11px] font-medium text-[#2C694E] bg-[#E8F5E9] px-2 py-0.5 rounded-md">Editable</span>
                 </div>
-=======
-                <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
-                  Dispatch Depot Full Address
-                </label>
->>>>>>> origin/boomika
                 <input
                   type="text"
                   value={settings.warehouseAddress || ''}
                   onChange={(e) => handleChange('warehouseAddress', e.target.value)}
-<<<<<<< HEAD
                   placeholder="Plot number, industrial estate, landmark road"
-=======
->>>>>>> origin/boomika
                   className="w-full h-11 px-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] transition-all"
                 />
               </div>
@@ -658,10 +478,7 @@ export default function DealerStoreSettings() {
                   type="text"
                   value={settings.city || ''}
                   onChange={(e) => handleChange('city', e.target.value)}
-<<<<<<< HEAD
                   placeholder="e.g. Pune"
-=======
->>>>>>> origin/boomika
                   className="w-full h-11 px-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] transition-all"
                 />
               </div>
@@ -674,10 +491,7 @@ export default function DealerStoreSettings() {
                   type="text"
                   value={settings.state || ''}
                   onChange={(e) => handleChange('state', e.target.value)}
-<<<<<<< HEAD
                   placeholder="e.g. Maharashtra"
-=======
->>>>>>> origin/boomika
                   className="w-full h-11 px-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] transition-all"
                 />
               </div>
@@ -688,20 +502,14 @@ export default function DealerStoreSettings() {
                 </label>
                 <input
                   type="text"
-<<<<<<< HEAD
                   maxLength={6}
                   value={settings.pincode || ''}
                   onChange={(e) => handleChange('pincode', e.target.value)}
                   placeholder="6-digit pincode"
-=======
-                  value={settings.pincode || ''}
-                  onChange={(e) => handleChange('pincode', e.target.value)}
->>>>>>> origin/boomika
                   className="w-full h-11 px-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] font-mono text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] transition-all"
                 />
               </div>
             </div>
-<<<<<<< HEAD
 
             {/* Section 2 Update Button */}
             <div className="flex justify-end pt-2 border-t border-[#C1C8C2]/20">
@@ -721,20 +529,10 @@ export default function DealerStoreSettings() {
             <div className="flex items-center justify-between pb-3 border-b border-[#C1C8C2]/30">
               <div className="flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-[#2C694E]" />
-=======
-          </section>
-
-          {/* Section 3: Bank Account & Payout Details */}
-          <section className="bg-white rounded-2xl p-5 sm:p-6 shadow-2xs border border-[#C1C8C2]/40 flex flex-col gap-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#C1C8C2]/30">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#2C694E]"></span>
->>>>>>> origin/boomika
                 <h2 className="text-base sm:text-lg font-bold text-[#151D18]">
                   Payouts & Bank Settlement
                 </h2>
               </div>
-<<<<<<< HEAD
               {settings.bankVerificationStatus === 'VERIFIED' ? (
                 <span className="text-xs font-bold text-[#0E5138] bg-[#AEEECB] px-3 py-1 rounded-full flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5" />
@@ -789,75 +587,10 @@ export default function DealerStoreSettings() {
                 Bank settlement accounts are configured during dealer onboarding and locked against unauthorized payout redirection. 
                 Payments are automatically deposited on a rolling T+2 schedule following proof-of-delivery (POD) cargo scanning. 
                 To request bank account changes, contact GROVE Support.
-=======
-              <span className="text-xs font-bold text-[#0E5138] bg-[#AEEECB] px-2.5 py-0.5 rounded-full">
-                T+2 Direct Transfer
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
-                  Settlement Bank
-                </label>
-                <input
-                  type="text"
-                  value={settings.bankName || ''}
-                  onChange={(e) => handleChange('bankName', e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] transition-all"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
-                  Account Number
-                </label>
-                <input
-                  type="text"
-                  value={settings.accountNumber || ''}
-                  onChange={(e) => handleChange('accountNumber', e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] font-mono text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] transition-all"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
-                  IFSC Code
-                </label>
-                <input
-                  type="text"
-                  value={settings.ifsc || ''}
-                  onChange={(e) => handleChange('ifsc', e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] font-mono text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] transition-all uppercase"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs sm:text-sm font-semibold text-[#151D18]">
-                  Corporate UPI ID
-                </label>
-                <input
-                  type="text"
-                  value={settings.upiId || ''}
-                  onChange={(e) => handleChange('upiId', e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/40 text-[#151D18] text-xs sm:text-sm font-medium focus:outline-none focus:bg-white focus:border-[#2C694E] transition-all"
-                />
-              </div>
-            </div>
-
-            <div className="p-4 rounded-xl bg-[#EDF6ED]/70 border border-[#C1C8C2]/30 flex items-start gap-3 text-xs sm:text-sm text-[#414844] mt-2">
-              <ShieldCheck className="w-5 h-5 text-[#2C694E] shrink-0 mt-0.5" />
-              <div>
-                <span className="font-bold text-[#151D18] block">Automated B2B Escrow Clearance</span>
-                <span className="leading-relaxed">
-                  Payments for fulfilled orders are automatically settled to your verified account on a rolling T+2 schedule following proof-of-delivery (POD) cargo scanning.
-                </span>
->>>>>>> origin/boomika
               </div>
             </div>
           </section>
 
-<<<<<<< HEAD
           {/* Section 4: Password & Security Management */}
           <section className="bg-white rounded-2xl p-5 sm:p-6 shadow-2xs border border-[#C1C8C2]/40 flex flex-col gap-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#C1C8C2]/30">
@@ -1026,21 +759,3 @@ export default function DealerStoreSettings() {
     </DealerLayout>
   );
 }
-=======
-          {/* Form Submit Footer */}
-          <div className="flex justify-end gap-3 pb-8">
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="h-11 px-8 rounded-xl bg-[#1B4332] text-white text-xs sm:text-sm font-bold hover:bg-[#012D1D] active:scale-95 transition-all shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-60"
-            >
-              <Save className={`w-4 h-4 ${isSaving ? 'animate-spin' : ''}`} />
-              <span>{isSaving ? 'Saving...' : 'Save Settings'}</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </DealerLayout>
-  );
-}
->>>>>>> origin/boomika

@@ -66,7 +66,6 @@ export default function AdminDashboardOverview() {
   const recentOrders = getAdminRecentOrders();
   const recentTickets = getAdminRecentTickets();
 
-<<<<<<< HEAD
 
     // SVG Chart calculation (safe for empty data)
   const chartData =
@@ -97,42 +96,53 @@ export default function AdminDashboardOverview() {
 
   const areaD = `${pathD} L ${points[points.length - 1].x} ${chartHeight - paddingY} L ${points[0].x} ${chartHeight - paddingY} Z`;
 
-=======
->>>>>>> origin/boomika
-  // Handle report export simulation
+  // Handle report export to CSV
   const handleExportReport = () => {
     setIsExporting(true);
-    setTimeout(() => {
-      setIsExporting(false);
+    try {
+      const escapeCsv = (val) => {
+        if (val === null || val === undefined) return '""';
+        const str = String(val).replace(/"/g, '""');
+        return `"${str}"`;
+      };
+
+      const timestamp = new Date().toISOString().slice(0, 10);
+      const filename = `GROVE_Platform_Overview_${timestamp}.csv`;
+
+      const headers = ['Metric Section', 'Metric Name', 'Metric Value', 'Growth Indicator', 'Context Detail'];
+      const rows = [
+        ['KPI Summary', 'Total Gross Volume (GMV)', kpis.totalVolume?.value || '₹0', kpis.totalVolume?.growth || '', kpis.totalVolume?.subtext || ''],
+        ['KPI Summary', 'Active Authorized Dealers', kpis.activeDealers?.value || '0', kpis.activeDealers?.growth || '', kpis.activeDealers?.subtext || ''],
+        ['KPI Summary', 'Total Products In Catalog', kpis.totalProducts?.value || '0', kpis.totalProducts?.growth || '', kpis.totalProducts?.subtext || ''],
+        ['KPI Summary', 'Total Orders Processed', kpis.totalOrders?.value || '0', kpis.totalOrders?.growth || '', kpis.totalOrders?.subtext || ''],
+        ...((revenueTrend || []).map((r) => ['Monthly Revenue Trend', r.month || '-', r.displayRev || `₹${r.revenue}`, `${r.orders} Orders`, 'Financial Performance'])),
+        ...((orderStatusSummary || []).map((s) => ['Order Distribution', s.status || '-', s.count || 0, s.percentage || '0%', s.value || '₹0']))
+      ];
+
+      const csvContent = [
+        headers.map(escapeCsv).join(','),
+        ...rows.map((row) => row.map(escapeCsv).join(','))
+      ].join('\r\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
       setExportNotice(true);
       setTimeout(() => setExportNotice(false), 4000);
-    }, 600);
+    } catch (err) {
+      console.error('Overview CSV export error:', err);
+    } finally {
+      setTimeout(() => setIsExporting(false), 400);
+    }
   };
 
-<<<<<<< HEAD
-=======
-  // SVG Chart calculation
-  const maxRevenue = Math.max(...revenueTrend.map((d) => d.revenue));
-  const chartHeight = 160;
-  const chartWidth = 560;
-  const paddingX = 40;
-  const paddingY = 25;
-  const availableWidth = chartWidth - paddingX * 2;
-  const availableHeight = chartHeight - paddingY * 2;
-
-  const points = revenueTrend.map((d, index) => {
-    const x = paddingX + (index / (revenueTrend.length - 1)) * availableWidth;
-    const y = chartHeight - paddingY - (d.revenue / maxRevenue) * availableHeight;
-    return { ...d, x, y };
-  });
-
-  const pathD = points.reduce((acc, point, i) => {
-    return i === 0 ? `M ${point.x} ${point.y}` : `${acc} L ${point.x} ${point.y}`;
-  }, '');
-
-  const areaD = `${pathD} L ${points[points.length - 1].x} ${chartHeight - paddingY} L ${points[0].x} ${chartHeight - paddingY} Z`;
-
->>>>>>> origin/boomika
   // Status badge styling helper
   const getStatusBadge = (status) => {
     switch (status?.toLowerCase()) {

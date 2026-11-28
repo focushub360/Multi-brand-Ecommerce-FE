@@ -4,18 +4,32 @@ const formatINR = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 
 export const fetchAdminUsers = async (params = {}) => {
   const response = await adminApi.getUsers(params);
-  const list = Array.isArray(response?.data)
-    ? response.data
-    : response?.data?.users || response?.users || [];
+
+  // Extract array of users safely from various response structures
+  let list = [];
+  if (Array.isArray(response)) {
+    list = response;
+  } else if (Array.isArray(response?.data)) {
+    list = response.data;
+  } else if (Array.isArray(response?.users)) {
+    list = response.users;
+  } else if (Array.isArray(response?.data?.users)) {
+    list = response.data.users;
+  }
 
   const p = response?.pagination || response?.data?.pagination || {};
+  const total = typeof p.total === 'number' ? p.total : list.length;
+  const limit = p.limit || params.limit || 10;
+  const page = p.page || params.page || 1;
+  const pages = p.pages || p.totalPages || Math.ceil(total / limit) || 1;
+
   return {
     users: list,
     pagination: {
-      page: p.page || params.page || 1,
-      limit: p.limit || params.limit || 10,
-      total: p.total ?? list.length,
-      pages: p.pages || p.totalPages || 1,
+      page,
+      limit,
+      total,
+      pages,
     },
   };
 };
@@ -49,19 +63,35 @@ const normalizeStatus = (buyer) => {
   return 'INACTIVE';
 };
 
+const formatBuyerType = (type) => {
+  if (!type) return 'Individual Farmer';
+  const clean = String(type).toUpperCase();
+  const map = {
+    'INDIVIDUAL_FARMER': 'Individual Farmer',
+    'FPO': 'FPO Cooperative',
+    'COMMERCIAL_AGRITECH': 'Commercial Agritech'
+  };
+  return map[clean] || type;
+};
+
 export const mapBuyerForUI = (buyer) => ({
   id: String(buyer._id || buyer.id || ''),
   name: buyer.name || '—',
   contactPerson: buyer.contactPerson || buyer.name || '—',
   email: buyer.email || '—',
   phone: buyer.phone || '—',
-  city: buyer.address?.city || buyer.city || '—',
-  state: buyer.address?.state || buyer.state || '—',
-  type: buyer.buyerType || '—',
+  city: buyer.address?.city || buyer.city || '',
+  state: buyer.address?.state || buyer.state || '',
+  rawType: buyer.buyerType || 'INDIVIDUAL_FARMER',
+  type: formatBuyerType(buyer.buyerType),
   registeredDate: buyer.createdAt
-    ? new Date(buyer.createdAt).toLocaleDateString('en-IN')
+    ? new Date(buyer.createdAt).toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      })
     : '—',
-  totalOrders: buyer.totalOrders || 0,
+  totalOrders: Number(buyer.totalOrders || 0),
   totalSpend: formatINR(buyer.lifetimeSpend),
   status: normalizeStatus(buyer), // always 'ACTIVE' or 'INACTIVE'
   address:
@@ -69,5 +99,5 @@ export const mapBuyerForUI = (buyer) => ({
       ? buyer.address
       : [buyer.address?.line1, buyer.address?.city, buyer.address?.state, buyer.address?.pincode]
           .filter(Boolean)
-          .join(', ') || '—',
+          .join(', ') || 'Online Registered Buyer',
 });

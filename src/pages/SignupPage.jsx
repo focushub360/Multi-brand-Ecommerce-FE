@@ -12,8 +12,8 @@ import {
   CheckCircle2, 
   ArrowRight
 } from 'lucide-react';
-import CategoryShowcase from '../components/auth/CategoryShowcase';
 import { authApi } from '../services/apiClient.js';
+import CategoryShowcase from '../components/auth/CategoryShowcase';
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -168,21 +168,19 @@ export default function SignupPage() {
         </Link>
       </div>
 
-      {/* Main Centered Split-Card Authentication Card */}
-      <div className="flex-1 flex items-center justify-center w-full">
-        <div className="w-full max-w-[1140px] bg-white rounded-[26px] sm:rounded-[32px] border border-neutral-200/80 shadow-[0_20px_50px_rgba(1,45,29,0.06)] overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2">
-            
-            {/* LEFT SIDE – Registration Form (50%) */}
-            <div className="w-full p-6 sm:p-10 md:p-12 lg:p-14 flex flex-col justify-between">
-              <div>
-                {/* Mobile-only compact category banner */}
-                <div className="block lg:hidden">
-                  <CategoryShowcase isMobile={true} />
-                </div>
+      {/* Main Authentication Grid */}
+      <div className="flex-1 flex items-center justify-center w-full my-auto py-4">
+        <div className="w-full max-w-[1140px] bg-white rounded-[26px] sm:rounded-[32px] border border-neutral-200/80 shadow-[0_20px_50px_rgba(1,45,29,0.06)] overflow-hidden grid grid-cols-1 lg:grid-cols-2">
+          {/* Left Column: Sign Up Form */}
+          <div className="p-6 sm:p-10 flex flex-col justify-between">
+            {/* Mobile Category Showcase Banner */}
+            <div className="block lg:hidden mb-6">
+              <CategoryShowcase isMobile={true} />
+            </div>
 
-                {/* Form Header */}
-                <div className="mb-6">
+            <div>
+              {/* Form Header */}
+              <div className="mb-6">
                   <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#1B4332] bg-[#EBF4EE] px-3 py-1 rounded-full inline-block mb-2.5">
                     Merchant &amp; Customer Registration
                   </span>
@@ -531,7 +529,6 @@ export default function SignupPage() {
                     </div>
                   </form>
                 )}
-              </div>
 
               {/* Bottom Switch Link to Sign In */}
               <div className="mt-6 pt-5 border-t border-neutral-100 text-center text-xs sm:text-[13px] text-neutral-600">
@@ -544,12 +541,11 @@ export default function SignupPage() {
                 </Link>
               </div>
             </div>
+          </div>
 
-            {/* RIGHT SIDE – Category Showcase (50% on Desktop) */}
-            <div className="hidden lg:block w-full p-4 lg:p-5">
-              <CategoryShowcase isMobile={false} />
-            </div>
-
+          {/* Right Column: Category Showcase Sidebar */}
+          <div className="hidden lg:block w-full h-[670px] overflow-hidden p-3 sm:p-4 bg-[#F8FAF5]/60">
+            <CategoryShowcase />
           </div>
         </div>
       </div>

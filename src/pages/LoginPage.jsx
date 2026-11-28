@@ -12,13 +12,8 @@ import {
   KeyRound,
   ArrowRight,
   ShieldCheck,
-  UserCheck,
-  Sprout,
-  Smartphone,
-  Cog,
-  Store
+  UserCheck
 } from 'lucide-react';
-import CategoryShowcase from '../components/auth/CategoryShowcase';
 import { 
   setStoredCustomer, 
   setStoredDealer, 
@@ -26,6 +21,7 @@ import {
   executePendingAction 
 } from '../utils/auth';
 import { setStoredAdmin } from '../utils/adminAuth';
+import CategoryShowcase from '../components/auth/CategoryShowcase';
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -74,13 +70,6 @@ export default function LoginPage() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleQuickFill = (fillEmail, fillPassword) => {
-    setEmail(fillEmail);
-    setPassword(fillPassword);
-    setErrors({});
-    setAuthError('');
-  };
-
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setAuthError('');
@@ -124,11 +113,8 @@ export default function LoginPage() {
           navigate(destination, { replace: true });
         }, 700);
       } else if (userRole === 'dealer') {
-<<<<<<< HEAD
         const needsPasswordReset = Boolean(matchedUser.mustChangePassword);
 
-=======
->>>>>>> origin/boomika
         // Authenticate dealer session in localStorage (strictly no password)
         setStoredDealer({
           id: matchedUser.id,
@@ -142,7 +128,6 @@ export default function LoginPage() {
             'DEALER_001'
           ),
           primaryCategory: matchedUser.primaryCategory,
-<<<<<<< HEAD
           mustChangePassword: needsPasswordReset,
           token: matchedUser.token
         });
@@ -166,19 +151,6 @@ export default function LoginPage() {
             navigate('/dealer/dashboard', { replace: true });
           }, 700);
         }
-=======
-          token: matchedUser.token
-        });
-
-        setLoginSuccess({
-          name: matchedUser.name,
-          targetText: 'Dealer authenticated. Redirecting to Dealer Dashboard...'
-        });
-
-        setTimeout(() => {
-          navigate('/dealer/dashboard', { replace: true });
-        }, 700);
->>>>>>> origin/boomika
       } else if (userRole === 'admin') {
         // Authenticate admin session in localStorage
         setStoredAdmin({
@@ -254,155 +226,64 @@ export default function LoginPage() {
         </Link>
       </div>
 
-      {/* Main Centered Split-Card Authentication Card */}
-      <div className="flex-1 flex items-center justify-center w-full">
-        <div className="w-full max-w-[1140px] bg-white rounded-[26px] sm:rounded-[32px] border border-neutral-200/80 shadow-[0_20px_50px_rgba(1,45,29,0.06)] overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2">
-            
-            {/* LEFT SIDE – Authentication Form (50%) */}
-            <div className="w-full p-6 sm:p-10 md:p-12 lg:p-14 flex flex-col justify-between">
-              <div>
-                {/* Mobile-only compact category banner */}
-                <div className="block lg:hidden">
-                  <CategoryShowcase isMobile={true} />
+      {/* Main Authentication Grid */}
+      <div className="flex-1 flex items-center justify-center w-full my-auto py-4">
+        <div className="w-full max-w-[1140px] bg-white rounded-[26px] sm:rounded-[32px] border border-neutral-200/80 shadow-[0_20px_50px_rgba(1,45,29,0.06)] overflow-hidden grid grid-cols-1 lg:grid-cols-2">
+          {/* Left Column: Sign In Form */}
+          <div className="p-6 sm:p-10 flex flex-col justify-between">
+            {/* Mobile Category Showcase Banner */}
+            <div className="block lg:hidden mb-6">
+              <CategoryShowcase isMobile={true} />
+            </div>
+
+            <div>
+              {/* Form Header */}
+              <div className="mb-6 sm:mb-8">
+                <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#1B4332] bg-[#EBF4EE] px-3 py-1 rounded-full inline-block mb-2.5">
+                  Account Access
+                </span>
+                <h1 
+                  className="text-2xl sm:text-3xl font-extrabold text-[#081C15] tracking-tight leading-tight"
+                  style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}
+                >
+                  Welcome back to GROVE
+                </h1>
+                <p className="mt-2 text-xs sm:text-sm text-neutral-500 font-normal leading-relaxed">
+                  Sign in to manage verified agricultural products, tractor delivery tracking, and partner orders.
+                </p>
+              </div>
+
+            {/* Shopping Action Login Prompt */}
+            {location.state?.message && !authError && !loginSuccess && (
+              <div className="mb-5 p-3.5 rounded-[14px] bg-[#E9F3ED] border border-[#1B4332]/25 text-[#1B4332] flex items-center gap-2.5 text-xs font-bold animate-in fade-in duration-150">
+                <AlertCircle className="w-4 h-4 text-[#1B4332] shrink-0" />
+                <span>{location.state.message}</span>
+              </div>
+            )}
+
+            {/* Login Success Alert */}
+            {loginSuccess && (
+              <div className="mb-6 p-4 rounded-[16px] bg-[#EBF4EE] border border-[#40916C]/40 text-[#081C15] flex items-center gap-3 animate-in fade-in duration-200">
+                <CheckCircle2 className="w-5 h-5 text-[#40916C] shrink-0" />
+                <div className="text-xs">
+                  <p className="font-bold">Welcome, {loginSuccess.name}!</p>
+                  <p className="text-neutral-600 mt-0.5">{loginSuccess.targetText || 'Credentials authenticated. Redirecting...'}</p>
                 </div>
+              </div>
+            )}
 
-                {/* Form Header */}
-                <div className="mb-6 sm:mb-8">
-                  <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#1B4332] bg-[#EBF4EE] px-3 py-1 rounded-full inline-block mb-2.5">
-                    Account Access
-                  </span>
-                  <h1 
-                    className="text-2xl sm:text-3xl font-extrabold text-[#081C15] tracking-tight leading-tight"
-                    style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}
-                  >
-                    Welcome back to GROVE
-                  </h1>
-                  <p className="mt-2 text-xs sm:text-sm text-neutral-500 font-normal leading-relaxed">
-                    Sign in to manage verified agricultural products, tractor delivery tracking, and partner orders.
-                  </p>
+            {/* Invalid Credentials Error Banner */}
+            {authError && (
+              <div className="mb-5 p-3.5 rounded-[14px] bg-red-50 border border-red-200 text-red-700 flex items-start gap-2.5 text-xs animate-in fade-in duration-150">
+                <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="font-semibold leading-snug">{authError}</p>
                 </div>
+              </div>
+            )}
 
-                {/* Shopping Action Login Prompt */}
-                {location.state?.message && !authError && !loginSuccess && (
-                  <div className="mb-5 p-3.5 rounded-[14px] bg-[#E9F3ED] border border-[#1B4332]/25 text-[#1B4332] flex items-center gap-2.5 text-xs font-bold animate-in fade-in duration-150">
-                    <AlertCircle className="w-4 h-4 text-[#1B4332] shrink-0" />
-                    <span>{location.state.message}</span>
-                  </div>
-                )}
-
-                {/* Login Success Alert */}
-                {loginSuccess && (
-                  <div className="mb-6 p-4 rounded-[16px] bg-[#EBF4EE] border border-[#40916C]/40 text-[#081C15] flex items-center gap-3 animate-in fade-in duration-200">
-                    <CheckCircle2 className="w-5 h-5 text-[#40916C] shrink-0" />
-                    <div className="text-xs">
-                      <p className="font-bold">Welcome, {loginSuccess.name}!</p>
-                      <p className="text-neutral-600 mt-0.5">{loginSuccess.targetText || 'Credentials authenticated. Redirecting...'}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Invalid Credentials Error Banner */}
-                {authError && (
-                  <div className="mb-5 p-3.5 rounded-[14px] bg-red-50 border border-red-200 text-red-700 flex items-start gap-2.5 text-xs animate-in fade-in duration-150">
-                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="font-semibold leading-snug">{authError}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Quick Demo Fill Buttons for Development */}
-                <div className="mb-5 p-3.5 rounded-[18px] bg-[#F1F6F3] border border-[#1B4332]/15 shadow-2xs">
-                  <div className="flex items-center justify-between mb-2.5">
-                    <span className="text-[11px] font-bold text-[#1B4332] uppercase tracking-wider flex items-center gap-1.5 font-mono">
-                      <KeyRound className="w-3.5 h-3.5 text-[#2C694E]" /> Quick Fill Demo Accounts
-                    </span>
-                    <span className="text-[10px] text-neutral-500 font-medium">Click to auto-fill</span>
-                  </div>
-
-                  {/* Customer and Super Admin Row */}
-                  <div className="grid grid-cols-2 gap-2 mb-2.5">
-                    <button
-                      type="button"
-                      onClick={() => handleQuickFill('user1@grove.com', 'Password@123')}
-                      className="py-1.5 px-2.5 rounded-[10px] bg-white border border-neutral-200 hover:border-[#1B4332] hover:bg-[#1B4332]/5 text-neutral-800 transition-all flex items-center justify-between cursor-pointer shadow-2xs group"
-                    >
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 group-hover:scale-125 transition-transform" />
-                        <span className="text-[#1B4332] text-xs font-extrabold">Customer</span>
-                      </div>
-                      <span className="text-[10px] text-neutral-500 font-mono truncate">user1@grove.com</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleQuickFill('admin@grove.com', 'Admin@123')}
-                      className="py-1.5 px-2.5 rounded-[10px] bg-white border border-neutral-200 hover:border-[#1B4332] hover:bg-[#1B4332]/5 text-neutral-800 transition-all flex items-center justify-between cursor-pointer shadow-2xs group"
-                    >
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-purple-600 group-hover:scale-125 transition-transform" />
-                        <span className="text-[#1B4332] text-xs font-extrabold">Admin</span>
-                      </div>
-                      <span className="text-[10px] text-neutral-500 font-mono truncate">admin@grove.com</span>
-                    </button>
-                  </div>
-
-                  {/* Category-Specific Dealers */}
-                  <div className="pt-2 border-t border-[#1B4332]/10">
-                    <div className="text-[10px] uppercase tracking-wider text-neutral-600 font-bold mb-1.5 flex items-center gap-1">
-                      <Store className="w-3 h-3 text-[#1B4332]" />
-                      <span>Category Dealers (Auto-Fills Category Lock):</span>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => handleQuickFill('dealer1@grove.com', 'Password@123')}
-                        className="py-2 px-1.5 rounded-[10px] bg-white border border-emerald-300 hover:border-[#1B4332] hover:bg-emerald-50/70 text-neutral-800 transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-2xs group"
-                        title="Dealer 1: Agriculture & Farming"
-                      >
-                        <div className="flex items-center gap-1 mb-0.5">
-                          <Sprout className="w-3.5 h-3.5 text-emerald-600 group-hover:scale-110 transition-transform" />
-                          <span className="text-[#1B4332] text-[11px] font-extrabold">Dealer 1</span>
-                        </div>
-                        <span className="text-[9.5px] text-emerald-800 font-bold">Agri</span>
-                        <span className="text-[8.5px] text-neutral-400 font-mono truncate max-w-full">dealer1@grove.com</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleQuickFill('dealer2@grove.com', 'Password@123')}
-                        className="py-2 px-1.5 rounded-[10px] bg-white border border-blue-300 hover:border-blue-700 hover:bg-blue-50/70 text-neutral-800 transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-2xs group"
-                        title="Dealer 2: Electronics & Gadgets"
-                      >
-                        <div className="flex items-center gap-1 mb-0.5">
-                          <Smartphone className="w-3.5 h-3.5 text-blue-600 group-hover:scale-110 transition-transform" />
-                          <span className="text-blue-900 text-[11px] font-extrabold">Dealer 2</span>
-                        </div>
-                        <span className="text-[9.5px] text-blue-800 font-bold">Electronics</span>
-                        <span className="text-[8.5px] text-neutral-400 font-mono truncate max-w-full">dealer2@grove.com</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleQuickFill('dealer3@grove.com', 'Password@123')}
-                        className="py-2 px-1.5 rounded-[10px] bg-white border border-rose-300 hover:border-rose-700 hover:bg-rose-50/70 text-neutral-800 transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-2xs group"
-                        title="Dealer 3: Automotive & Spare Parts"
-                      >
-                        <div className="flex items-center gap-1 mb-0.5">
-                          <Cog className="w-3.5 h-3.5 text-rose-600 group-hover:scale-110 transition-transform" />
-                          <span className="text-rose-900 text-[11px] font-extrabold">Dealer 3</span>
-                        </div>
-                        <span className="text-[9.5px] text-rose-800 font-bold">Automotive</span>
-                        <span className="text-[8.5px] text-neutral-400 font-mono truncate max-w-full">dealer3@grove.com</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Login Form */}
-                <form onSubmit={handleLoginSubmit} noValidate className="space-y-4">
+            {/* Login Form */}
+            <form onSubmit={handleLoginSubmit} noValidate className="space-y-4">
                   {/* Email Field */}
                   <div>
                     <label 
@@ -523,28 +404,26 @@ export default function LoginPage() {
                     </button>
                   </div>
                 </form>
-              </div>
 
-              {/* Bottom Switch Link to Sign Up */}
-              <div className="mt-6 pt-5 border-t border-neutral-100 text-center text-xs sm:text-[13px] text-neutral-600">
-                <span>Don&apos;t have an account? </span>
-                <Link 
-                  to="/signup" 
-                  className="font-bold text-[#012D1D] hover:text-[#1B4332] hover:underline focus:outline-none"
-                >
-                  Create an account
-                </Link>
+                {/* Bottom Switch Link to Sign Up */}
+                <div className="mt-6 pt-5 border-t border-neutral-100 text-center text-xs sm:text-[13px] text-neutral-600">
+                  <span>Don&apos;t have an account? </span>
+                  <Link 
+                    to="/signup" 
+                    className="font-bold text-[#012D1D] hover:text-[#1B4332] hover:underline focus:outline-none"
+                  >
+                    Create an account
+                  </Link>
+                </div>
               </div>
             </div>
 
-            {/* RIGHT SIDE – Category Showcase (50% on Desktop) */}
-            <div className="hidden lg:block w-full p-4 lg:p-5">
-              <CategoryShowcase isMobile={false} />
+            {/* Right Column: Category Showcase Sidebar */}
+            <div className="hidden lg:block w-full h-[570px] overflow-hidden p-3 sm:p-4 bg-[#F8FAF5]/60">
+              <CategoryShowcase />
             </div>
-
           </div>
         </div>
-      </div>
 
       {/* Footer copyright */}
       <div className="max-w-[1140px] w-full mx-auto text-center pt-6 text-xs text-neutral-400">

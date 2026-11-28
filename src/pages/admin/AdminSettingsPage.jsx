@@ -3,11 +3,8 @@ import AdminLayout from '../../components/admin/AdminLayout';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import {
   getAdminSettings,
-<<<<<<< HEAD
   updateAdminSettings,
-=======
-  saveAdminSettings,
->>>>>>> origin/boomika
+  fetchAdminSettingsFromApi,
   syncAdminDataFromApi
 } from '../../services/adminService';
 import {
@@ -17,48 +14,61 @@ import {
   Percent,
   Store,
   CheckCircle2,
-  Save
+  Save,
+  Loader2
 } from 'lucide-react';
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState(null);
   const [activeTab, setActiveTab] = useState('general'); // 'general', 'commission', 'profile', 'roles', 'notifications'
   const [toastMessage, setToastMessage] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     document.title = 'Platform Settings | GROVE Admin';
     window.scrollTo(0, 0);
     setSettings(getAdminSettings());
-    syncAdminDataFromApi().then(() => {
-      setSettings(getAdminSettings());
-    }).catch(() => {});
+
+    fetchAdminSettingsFromApi().then((fresh) => {
+      if (fresh) setSettings(fresh);
+    }).catch(() => {
+      syncAdminDataFromApi().then(() => {
+        setSettings(getAdminSettings());
+      }).catch(() => {});
+    });
   }, []);
 
   const showToast = (msg) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+    setTimeout(() => setToastMessage(null), 3500);
   };
 
-<<<<<<< HEAD
   const handleSaveAll = async (e) => {
-    e.preventDefault();
-    if (!settings) return;
+    if (e) e.preventDefault();
+    if (!settings || isSaving) return;
+    setIsSaving(true);
     try {
-      await updateAdminSettings(settings);
-      showToast('Platform settings saved successfully.');
+      const saved = await updateAdminSettings(settings);
+      if (saved) setSettings(saved);
+      showToast('Platform & Governance settings saved successfully.');
     } catch (error) {
       showToast(error.message || 'Could not save platform settings. Please try again.');
+    } finally {
+      setIsSaving(false);
     }
-=======
-  const handleSaveAll = (e) => {
-    e.preventDefault();
-    if (!settings) return;
-    saveAdminSettings(settings);
-    showToast('Platform settings saved successfully.');
->>>>>>> origin/boomika
   };
 
-  if (!settings) return null;
+  if (!settings) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[350px]">
+          <Loader2 className="w-8 h-8 text-[#012D1D] animate-spin" />
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  const systemVersion = settings.general?.systemVersion || '2.4.0';
 
   return (
     <AdminLayout>
@@ -72,16 +82,21 @@ export default function AdminSettingsPage() {
       <AdminPageHeader
         title="Platform & Governance Settings"
         subtitle="Manage global marketplace parameters, commission take-rates, escrow holding days, admin roles, and alert webhooks."
-        badge={`Version ${settings.general.systemVersion}`}
+        badge={`Version ${systemVersion}`}
         breadcrumbs={[{ label: 'Settings' }]}
         actions={
           <button
             type="button"
             onClick={handleSaveAll}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#012D1D] hover:bg-[#1B4332] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+            disabled={isSaving}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#012D1D] hover:bg-[#1B4332] text-white text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
           >
-            <Save className="w-3.5 h-3.5 text-[#AEEECB]" />
-            <span>Save All Changes</span>
+            {isSaving ? (
+              <Loader2 className="w-3.5 h-3.5 text-[#AEEECB] animate-spin" />
+            ) : (
+              <Save className="w-3.5 h-3.5 text-[#AEEECB]" />
+            )}
+            <span>{isSaving ? 'Saving Changes...' : 'Save All Changes'}</span>
           </button>
         }
       />
@@ -133,7 +148,7 @@ export default function AdminSettingsPage() {
                     <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Platform Brand Name</label>
                     <input
                       type="text"
-                      value={settings.general.marketplaceName}
+                      value={settings.general?.marketplaceName || ''}
                       onChange={(e) => setSettings({
                         ...settings,
                         general: { ...settings.general, marketplaceName: e.target.value }
@@ -146,7 +161,7 @@ export default function AdminSettingsPage() {
                     <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Support Desk Email</label>
                     <input
                       type="email"
-                      value={settings.general.supportEmail}
+                      value={settings.general?.supportEmail || ''}
                       onChange={(e) => setSettings({
                         ...settings,
                         general: { ...settings.general, supportEmail: e.target.value }
@@ -159,7 +174,7 @@ export default function AdminSettingsPage() {
                     <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Toll-Free Helpline</label>
                     <input
                       type="text"
-                      value={settings.general.supportPhone}
+                      value={settings.general?.supportPhone || ''}
                       onChange={(e) => setSettings({
                         ...settings,
                         general: { ...settings.general, supportPhone: e.target.value }
@@ -173,7 +188,7 @@ export default function AdminSettingsPage() {
                     <input
                       type="text"
                       disabled
-                      value={settings.general.defaultCurrency}
+                      value={settings.general?.defaultCurrency || 'INR (₹)'}
                       className="w-full h-9 px-3 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/60 text-xs font-mono font-bold text-[#0E5138]"
                     />
                   </div>
@@ -186,12 +201,12 @@ export default function AdminSettingsPage() {
                   </div>
                   <input
                     type="checkbox"
-                    checked={settings.general.maintenanceMode}
+                    checked={Boolean(settings.general?.maintenanceMode)}
                     onChange={(e) => setSettings({
                       ...settings,
                       general: { ...settings.general, maintenanceMode: e.target.checked }
                     })}
-                    className="w-5 h-5 rounded text-[#012D1D]"
+                    className="w-5 h-5 rounded text-[#012D1D] cursor-pointer"
                   />
                 </div>
               </div>
@@ -211,10 +226,10 @@ export default function AdminSettingsPage() {
                     <input
                       type="number"
                       step="0.1"
-                      value={settings.commission.defaultCommissionRate}
+                      value={settings.commission?.defaultCommissionRate ?? 5.0}
                       onChange={(e) => setSettings({
                         ...settings,
-                        commission: { ...settings.commission, defaultCommissionRate: parseFloat(e.target.value) }
+                        commission: { ...settings.commission, defaultCommissionRate: parseFloat(e.target.value) || 0 }
                       })}
                       className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-mono font-bold text-[#012D1D]"
                     />
@@ -224,10 +239,10 @@ export default function AdminSettingsPage() {
                     <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Escrow Holding Period (Days After Delivery)</label>
                     <input
                       type="number"
-                      value={settings.commission.escrowHoldPeriodDays}
+                      value={settings.commission?.escrowHoldPeriodDays ?? 3}
                       onChange={(e) => setSettings({
                         ...settings,
-                        commission: { ...settings.commission, escrowHoldPeriodDays: parseInt(e.target.value, 10) }
+                        commission: { ...settings.commission, escrowHoldPeriodDays: parseInt(e.target.value, 10) || 0 }
                       })}
                       className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-mono font-bold text-[#012D1D]"
                     />
@@ -237,10 +252,10 @@ export default function AdminSettingsPage() {
                     <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Minimum Payout Settlement Threshold (₹)</label>
                     <input
                       type="number"
-                      value={settings.commission.minPayoutThreshold}
+                      value={settings.commission?.minPayoutThreshold ?? 10000}
                       onChange={(e) => setSettings({
                         ...settings,
-                        commission: { ...settings.commission, minPayoutThreshold: parseInt(e.target.value, 10) }
+                        commission: { ...settings.commission, minPayoutThreshold: parseInt(e.target.value, 10) || 0 }
                       })}
                       className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-mono font-bold text-[#012D1D]"
                     />
@@ -251,10 +266,10 @@ export default function AdminSettingsPage() {
                     <input
                       type="number"
                       step="0.1"
-                      value={settings.commission.taxTcsRate}
+                      value={settings.commission?.taxTcsRate ?? 1.0}
                       onChange={(e) => setSettings({
                         ...settings,
-                        commission: { ...settings.commission, taxTcsRate: parseFloat(e.target.value) }
+                        commission: { ...settings.commission, taxTcsRate: parseFloat(e.target.value) || 0 }
                       })}
                       className="w-full h-9 px-3 rounded-xl bg-[#F8FAF8] border border-[#C1C8C2]/60 text-xs font-mono font-bold text-[#012D1D]"
                     />
@@ -276,7 +291,7 @@ export default function AdminSettingsPage() {
                     <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Full Legal Name</label>
                     <input
                       type="text"
-                      value={settings.profile.name}
+                      value={settings.profile?.name || ''}
                       onChange={(e) => setSettings({
                         ...settings,
                         profile: { ...settings.profile, name: e.target.value }
@@ -289,7 +304,7 @@ export default function AdminSettingsPage() {
                     <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Corporate Admin Email</label>
                     <input
                       type="email"
-                      value={settings.profile.email}
+                      value={settings.profile?.email || ''}
                       onChange={(e) => setSettings({
                         ...settings,
                         profile: { ...settings.profile, email: e.target.value }
@@ -302,7 +317,7 @@ export default function AdminSettingsPage() {
                     <label className="block text-[11px] font-bold text-[#3F4943] mb-1">Assigned Department</label>
                     <input
                       type="text"
-                      value={settings.profile.department}
+                      value={settings.profile?.department || ''}
                       onChange={(e) => setSettings({
                         ...settings,
                         profile: { ...settings.profile, department: e.target.value }
@@ -316,7 +331,7 @@ export default function AdminSettingsPage() {
                     <input
                       type="text"
                       disabled
-                      value={settings.profile.role}
+                      value={settings.profile?.role || 'Super Admin'}
                       className="w-full h-9 px-3 rounded-xl bg-[#F3FCF3] border border-[#C1C8C2]/60 text-xs font-mono font-bold text-[#0E5138]"
                     />
                   </div>
@@ -333,7 +348,7 @@ export default function AdminSettingsPage() {
                 </div>
 
                 <div className="space-y-3">
-                  {settings.roles.map((role) => (
+                  {(settings.roles || []).map((role) => (
                     <div
                       key={role.id}
                       className="p-4 rounded-2xl bg-[#F8FAF8] border border-[#C1C8C2]/40 flex items-center justify-between"
@@ -375,12 +390,12 @@ export default function AdminSettingsPage() {
                     </div>
                     <input
                       type="checkbox"
-                      checked={settings.notifications.emailOnNewKyc}
+                      checked={Boolean(settings.notifications?.emailOnNewKyc)}
                       onChange={(e) => setSettings({
                         ...settings,
                         notifications: { ...settings.notifications, emailOnNewKyc: e.target.checked }
                       })}
-                      className="w-5 h-5 rounded text-[#012D1D]"
+                      className="w-5 h-5 rounded text-[#012D1D] cursor-pointer"
                     />
                   </div>
 
@@ -391,12 +406,12 @@ export default function AdminSettingsPage() {
                     </div>
                     <input
                       type="checkbox"
-                      checked={settings.notifications.emailOnEscalatedDispute}
+                      checked={Boolean(settings.notifications?.emailOnEscalatedDispute)}
                       onChange={(e) => setSettings({
                         ...settings,
                         notifications: { ...settings.notifications, emailOnEscalatedDispute: e.target.checked }
                       })}
-                      className="w-5 h-5 rounded text-[#012D1D]"
+                      className="w-5 h-5 rounded text-[#012D1D] cursor-pointer"
                     />
                   </div>
 
@@ -407,12 +422,12 @@ export default function AdminSettingsPage() {
                     </div>
                     <input
                       type="checkbox"
-                      checked={settings.notifications.emailOnLowStock}
+                      checked={Boolean(settings.notifications?.emailOnLowStock)}
                       onChange={(e) => setSettings({
                         ...settings,
                         notifications: { ...settings.notifications, emailOnLowStock: e.target.checked }
                       })}
-                      className="w-5 h-5 rounded text-[#012D1D]"
+                      className="w-5 h-5 rounded text-[#012D1D] cursor-pointer"
                     />
                   </div>
                 </div>
@@ -422,9 +437,15 @@ export default function AdminSettingsPage() {
             <div className="pt-4 border-t border-[#C1C8C2]/40 flex justify-end">
               <button
                 type="submit"
-                className="px-5 py-2.5 rounded-xl bg-[#012D1D] hover:bg-[#1B4332] text-white font-bold text-xs shadow-xs"
+                disabled={isSaving}
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#012D1D] hover:bg-[#1B4332] text-white font-bold text-xs shadow-xs cursor-pointer disabled:opacity-50"
               >
-                Save All Changes
+                {isSaving ? (
+                  <Loader2 className="w-3.5 h-3.5 text-[#AEEECB] animate-spin" />
+                ) : (
+                  <Save className="w-3.5 h-3.5 text-[#AEEECB]" />
+                )}
+                <span>{isSaving ? 'Saving All Changes...' : 'Save All Changes'}</span>
               </button>
             </div>
           </form>

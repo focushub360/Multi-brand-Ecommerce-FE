@@ -53,10 +53,7 @@ export function setStoredCustomer(customer) {
     };
     localStorage.setItem(CUSTOMER_AUTH_KEY, JSON.stringify(sanitized));
     if (customer.token) {
-<<<<<<< HEAD
       localStorage.setItem('grove_customer_token', customer.token);
-=======
->>>>>>> origin/boomika
       localStorage.setItem('grove_auth_token', customer.token);
     }
     window.dispatchEvent(new Event('grove_auth_changed'));
@@ -72,10 +69,7 @@ export function setStoredCustomer(customer) {
 export function clearStoredCustomer() {
   try {
     localStorage.removeItem(CUSTOMER_AUTH_KEY);
-<<<<<<< HEAD
     localStorage.removeItem('grove_customer_token');
-=======
->>>>>>> origin/boomika
     localStorage.removeItem('grove_auth_token');
     window.dispatchEvent(new Event('grove_auth_changed'));
   } catch (err) {
@@ -133,11 +127,7 @@ export function setStoredDealer(dealer) {
   try {
     if (!dealer) return;
     const lowerEmail = (dealer.email || '').toLowerCase();
-<<<<<<< HEAD
     const resolvedDealerId = dealer.dealerCode || dealer.dealerId || (
-=======
-    const resolvedDealerId = dealer.dealerId || (
->>>>>>> origin/boomika
       lowerEmail.includes('dealer2') ? 'DEALER_002' :
       lowerEmail.includes('dealer3') ? 'DEALER_003' :
       lowerEmail.includes('dealer4') ? 'DEALER_004' :
@@ -146,7 +136,6 @@ export function setStoredDealer(dealer) {
     );
 
     const sanitized = {
-<<<<<<< HEAD
       id: dealer.id || dealer._id,
       name: dealer.name || dealer.businessName,
       email: dealer.email || dealer.officialEmail,
@@ -155,23 +144,12 @@ export function setStoredDealer(dealer) {
       dealerCode: dealer.dealerCode || resolvedDealerId,
       primaryCategory: dealer.primaryCategory || null,
       mustChangePassword: Boolean(dealer.mustChangePassword),
-=======
-      id: dealer.id,
-      name: dealer.name,
-      email: dealer.email,
-      role: 'dealer',
-      dealerId: resolvedDealerId,
-      primaryCategory: dealer.primaryCategory || null,
->>>>>>> origin/boomika
       token: dealer.token
     };
 
     localStorage.setItem(DEALER_AUTH_KEY, JSON.stringify(sanitized));
     if (dealer.token) {
-<<<<<<< HEAD
       localStorage.setItem('grove_dealer_token', dealer.token);
-=======
->>>>>>> origin/boomika
       localStorage.setItem('grove_auth_token', dealer.token);
     }
 
@@ -199,10 +177,7 @@ export function setStoredDealer(dealer) {
 export function clearStoredDealer() {
   try {
     localStorage.removeItem(DEALER_AUTH_KEY);
-<<<<<<< HEAD
     localStorage.removeItem('grove_dealer_token');
-=======
->>>>>>> origin/boomika
     localStorage.removeItem('grove_auth_token');
     try {
       const legacyRaw = localStorage.getItem(CUSTOMER_AUTH_KEY);
@@ -232,7 +207,6 @@ export function isDealerAuthenticated() {
  */
 export function getActiveDealerId() {
   const dealer = getStoredDealer();
-<<<<<<< HEAD
   if (dealer?.dealerCode) return dealer.dealerCode;
   if (dealer?.dealerId) return dealer.dealerId;
   if (dealer?.id) return dealer.id;
@@ -254,12 +228,6 @@ export function updateDealerPasswordChanged() {
   }
 }
 
-=======
-  if (dealer?.dealerId) return dealer.dealerId;
-  return 'DEALER_001';
-}
-
->>>>>>> origin/boomika
 /* ==========================================================================
    3. GENERIC / BACKWARD-COMPATIBLE UTILITIES
    ========================================================================== */
@@ -451,10 +419,7 @@ export async function authenticateUser(email, password) {
           'DEALER_001'
         ) : undefined),
         primaryCategory: apiRes.dealer?.primaryCategoryName || null,
-<<<<<<< HEAD
         mustChangePassword: Boolean(apiRes.mustChangePassword || backendUser.mustChangePassword),
-=======
->>>>>>> origin/boomika
         token: apiRes.accessToken
       };
 

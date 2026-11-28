@@ -12,12 +12,8 @@ import {
   Tag, 
   Minus, 
   Plus, 
-<<<<<<< HEAD
   AlertCircle,
   Ban
-=======
-  AlertCircle
->>>>>>> origin/boomika
 } from 'lucide-react';
 import { formatPrice } from '../../../utils/formatters';
 import { calculateHaversineDistance, formatDistance } from '../../../utils/distance';
@@ -33,7 +29,6 @@ export default function ProductPurchasePanel({
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
 
-<<<<<<< HEAD
   const isOutOfStock = useMemo(() => {
     if (!product) return false;
     if (product.stock !== undefined && Number(product.stock) <= 0) return true;
@@ -43,8 +38,6 @@ export default function ProductPurchasePanel({
     return false;
   }, [product]);
 
-=======
->>>>>>> origin/boomika
   // Customer location state from persistent hook
   const {
     customerLocation,
@@ -77,18 +70,12 @@ export default function ProductPurchasePanel({
   }, [customerLocation, sellerCoords]);
 
   const handleDecreaseQty = () => {
-<<<<<<< HEAD
     if (isOutOfStock) return;
-=======
->>>>>>> origin/boomika
     if (quantity > 1) setQuantity((prev) => prev - 1);
   };
 
   const handleIncreaseQty = () => {
-<<<<<<< HEAD
     if (isOutOfStock) return;
-=======
->>>>>>> origin/boomika
     if (quantity < 10) setQuantity((prev) => prev + 1);
   };
 
@@ -140,10 +127,7 @@ export default function ProductPurchasePanel({
   };
 
   const handleAddToCartClick = () => {
-<<<<<<< HEAD
     if (isOutOfStock) return;
-=======
->>>>>>> origin/boomika
     if (onAddToCart) {
       const added = onAddToCart(product, quantity);
       if (added !== false) {
@@ -156,10 +140,7 @@ export default function ProductPurchasePanel({
   };
 
   const handleBuyNowClick = () => {
-<<<<<<< HEAD
     if (isOutOfStock) return;
-=======
->>>>>>> origin/boomika
     if (onBuyNow) {
       onBuyNow(product, quantity);
     } else if (onAddToCart) {
@@ -202,7 +183,6 @@ export default function ProductPurchasePanel({
       {/* Stock Status */}
       <div className="flex items-center gap-2">
         <span className={`w-2.5 h-2.5 rounded-full ${
-<<<<<<< HEAD
           isOutOfStock
             ? 'bg-rose-500'
             : product.stockStatus === 'In Stock'
@@ -215,12 +195,6 @@ export default function ProductPurchasePanel({
             : product.stockStatus === 'In Stock'
             ? 'In Stock — Ready for Farm Dispatch'
             : 'Limited Stock — Order Soon'}
-=======
-          product.stockStatus === 'In Stock' ? 'bg-emerald-600 animate-pulse' : 'bg-amber-600'
-        }`} />
-        <span className="text-xs font-bold text-neutral-800">
-          {product.stockStatus === 'In Stock' ? 'In Stock — Ready for Farm Dispatch' : 'Limited Stock — Order Soon'}
->>>>>>> origin/boomika
         </span>
       </div>
 
@@ -393,39 +367,23 @@ export default function ProductPurchasePanel({
       {/* Quantity Selector */}
       <div className="flex items-center justify-between pt-2 border-t border-neutral-100">
         <span className="text-xs font-bold text-neutral-700">Quantity</span>
-<<<<<<< HEAD
         <div className={`flex items-center border border-neutral-200 rounded-[12px] bg-neutral-50 p-0.5 ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}>
           <button
             type="button"
             onClick={handleDecreaseQty}
             disabled={isOutOfStock || quantity <= 1}
-=======
-        <div className="flex items-center border border-neutral-200 rounded-[12px] bg-neutral-50 p-0.5">
-          <button
-            type="button"
-            onClick={handleDecreaseQty}
-            disabled={quantity <= 1}
->>>>>>> origin/boomika
             aria-label="Decrease quantity"
             className="w-8 h-8 rounded-[10px] bg-white text-neutral-700 hover:bg-neutral-100 disabled:opacity-40 flex items-center justify-center transition-colors cursor-pointer disabled:cursor-not-allowed"
           >
             <Minus className="w-3.5 h-3.5" />
           </button>
           <span className="w-10 text-center text-xs font-black text-neutral-900">
-<<<<<<< HEAD
             {isOutOfStock ? 0 : quantity}
-=======
-            {quantity}
->>>>>>> origin/boomika
           </span>
           <button
             type="button"
             onClick={handleIncreaseQty}
-<<<<<<< HEAD
             disabled={isOutOfStock || quantity >= 10}
-=======
-            disabled={quantity >= 10}
->>>>>>> origin/boomika
             aria-label="Increase quantity"
             className="w-8 h-8 rounded-[10px] bg-white text-neutral-700 hover:bg-neutral-100 disabled:opacity-40 flex items-center justify-center transition-colors cursor-pointer disabled:cursor-not-allowed"
           >
@@ -436,7 +394,6 @@ export default function ProductPurchasePanel({
 
       {/* Action Buttons: Add to Cart, Buy Now, Wishlist */}
       <div className="flex flex-col gap-2.5 pt-1">
-<<<<<<< HEAD
         {isOutOfStock ? (
           /* Out of Stock State replacing Buy Now and Add to Cart */
           <div className="w-full py-3.5 px-4 rounded-[14px] font-bold text-xs sm:text-sm bg-neutral-100 text-neutral-400 border border-neutral-200 flex items-center justify-center gap-2 cursor-not-allowed select-none shadow-none">
@@ -479,40 +436,6 @@ export default function ProductPurchasePanel({
             </button>
           </>
         )}
-=======
-        {/* Primary Add to Cart */}
-        <button
-          type="button"
-          onClick={handleAddToCartClick}
-          className={`w-full py-3 px-4 rounded-[14px] font-bold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-md cursor-pointer active:scale-[0.98] ${
-            isAdded
-              ? 'bg-emerald-600 text-white shadow-emerald-600/20'
-              : 'bg-[#1B4332] hover:bg-[#081C15] text-white shadow-[#1B4332]/20 hover:shadow-lg'
-          }`}
-        >
-          {isAdded ? (
-            <>
-              <Check className="w-4 h-4 stroke-[2.5]" />
-              <span>Added to Cart ({quantity})</span>
-            </>
-          ) : (
-            <>
-              <ShoppingCart className="w-4 h-4" />
-              <span>Add to Cart</span>
-            </>
-          )}
-        </button>
-
-        {/* Secondary Buy Now */}
-        <button
-          type="button"
-          onClick={handleBuyNowClick}
-          className="w-full py-3 px-4 rounded-[14px] font-bold text-xs sm:text-sm bg-[#52B788] hover:bg-[#40916C] text-[#081C15] hover:text-white transition-all duration-200 flex items-center justify-center gap-2 shadow-sm cursor-pointer active:scale-[0.98]"
-        >
-          <Zap className="w-4 h-4 fill-current" />
-          <span>Buy Now</span>
-        </button>
->>>>>>> origin/boomika
 
         {/* Wishlist Button */}
         <button
